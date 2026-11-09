@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f3ee">
+  <title>Help — MyMusics</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/help.css">
+  <link rel="stylesheet" href="/app-theme.css?v=20261103-6">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="MyMusics navigation">
+      <a class="brand" href="/" aria-label="MyMusics home">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>my<span class="brand-light">musics</span></span>
+      </a>
+      <nav class="mode-switch" aria-label="Modes">
+        <a class="mode" href="/">Radio</a>
+        <a class="mode" href="/music.html">Music</a>
+      </nav>
+      <div class="side-label">APP GUIDE</div>
+      <nav class="sidebar-actions help-sidebar-actions" aria-label="Pages">
+        <a class="sidebar-page" href="/">Radio</a>
+        <a class="sidebar-page" href="/music.html">Music</a>
+        <a class="sidebar-page" href="/manage.html">Management</a>
+        <a class="sidebar-page selected" href="/help.html" aria-current="page">Help</a>
+      </nav>
+      <div class="sidebar-foot"><span class="live-dot"></span> Independent radio, everywhere</div>
+    </aside>
+
+    <main class="help-main">
+      <header class="help-intro">
+        <p class="kicker">MYMUSICS GUIDE</p>
+        <h1>How to use MyMusics</h1>
+        <p>Step-by-step help for playback, lyrics, volume controls, stations, and genres.</p>
+      </header>
+
+      <nav class="help-toc" aria-label="Help topics">
+        <a href="#listen">Listen</a><a href="#favorites">Favorites</a><a href="#lyrics">Lyrics</a>
+        <a href="#audio-tools">Audio tools</a><a href="#stations">Stations</a><a href="#genres">Genres</a><a href="#updates">Updates</a>
+      </nav>
+
+      <div class="help-sections">
+        <section id="listen" class="help-card">
+          <p class="help-eyebrow">01 · PLAYBACK</p>
+          <h2>Listen to a station</h2>
+          <ol>
+            <li>Choose a genre in the sidebar, or choose <strong>Favorites</strong>.</li>
+            <li>Select the play button beside a station. Use the browser audio controls to pause, resume, seek when supported, or adjust playback volume.</li>
+            <li>Track details, artwork, and lyrics appear below the player when the stream and lookup services provide them.</li>
+          </ol>
+          <p>Use <strong>Search stations</strong> above the list to filter the selected genre or Favorites by station name.</p>
+          <p>Use <strong>Hide controls</strong> to collapse the extra player tools. Select <strong>Show controls</strong> to open them again.</p>
+        </section>
+
+        <section id="favorites" class="help-card">
+          <p class="help-eyebrow">02 · YOUR SHORTLIST</p>
+          <h2>Manage Favorites</h2>
+          <p>Select the star beside a station on Listen or the <strong>Favorite</strong> button on Manage to add it to Favorites; select it again to remove it. Open <strong>Favorites</strong> in the Listen sidebar to see the shortlist. A favorite remains in its regular genre too.</p>
+        </section>
+
+        <section id="lyrics" class="help-card">
+          <p class="help-eyebrow">03 · TRACK LYRICS</p>
+          <h2>Show and sync lyrics</h2>
+          <ul>
+            <li>Lyrics load automatically when a track is identified and a match is available. Plain lyrics are shown as text; synchronized lyrics highlight and scroll with the song.</li>
+            <li>For synchronized lyrics, select a lyric line to align the lyric highlight from that point. This does not seek or change the audio.</li>
+            <li>Use <strong>−</strong> to show lines later and <strong>+</strong> to show them earlier. Each click adjusts timing by 250 ms, within a range of 0 to 3 seconds; the value between the buttons shows the current delay. The initial delay is 300 ms.</li>
+            <li>The indicator beside <strong>Lyrics</strong> is green when the stream sends a track start time and red when it does not. Without a start time, synchronization uses when MyMusics began playback.</li>
+          </ul>
+          <p>Lyrics and timing data depend on third-party matches. Some tracks have no lyrics or only unsynchronized lyrics.</p>
+        </section>
+
+        <section id="audio-tools" class="help-card">
+          <p class="help-eyebrow">04 · SOUND</p>
+          <h2>Equalizer and automatic volume</h2>
+          <h3>Equalizer</h3>
+          <ol>
+            <li>Start a station, open the player tools, and select <strong>Equalizer</strong>.</li>
+            <li>Choose a preset or adjust the frequency sliders. Select <strong>EQ On</strong> to apply the settings; use <strong>Reset</strong> to return to Flat.</li>
+          </ol>
+          <p>Some streams block browser audio analysis. The equalizer may be unavailable for those streams, but playback continues normally.</p>
+          <h3>Suppress ads / speech</h3>
+          <p>On compatible MP3 streams, speech detection starts automatically during playback unless you have turned it off for that station. MyMusics gradually lowers the station volume to its configured target when it detects speech, then gradually restores the playback volume. Select <strong>Keep normal volume for this track</strong> when a song contains speech that should not be suppressed. That exception is saved in this browser for the artist and title. Use <strong>Suppress ads / speech</strong> to turn detection off or back on for a station. HLS streams do not support speech detection; some MP3 providers also block the audio analysis it needs.</p>
+          <p>Set the target percentage with the <strong>Speech / ad volume</strong> field when adding or editing a station in Manage, or use the percentage button in the player tools while it is playing. The setting is saved for that station.</p>
+        </section>
+
+        <section id="stations" class="help-card">
+          <p class="help-eyebrow">05 · STATION LIBRARY</p>
+          <h2>Add and edit stations</h2>
+          <h3>Quick edit from Listen</h3>
+          <ol>
+            <li>Select <strong>Edit</strong> above the station list. An <strong>Edit</strong> button appears on each station.</li>
+            <li>Open a station to change its name, stream URL, stream type, or genre, then select <strong>Save changes</strong>. Choose <strong>Delete station</strong> to remove it after confirming.</li>
+            <li>Select <strong>Done</strong> above the list to leave edit mode.</li>
+          </ol>
+          <h3>Add or fully edit from Manage</h3>
+          <ol>
+            <li>Open <strong>Manage</strong> in the sidebar and select a genre.</li>
+            <li>Select <strong>Add station</strong>, enter a name and stream URL, and choose MP3 or HLS. Filter the station list by name, or use <strong>Find and preview streams</strong> beside the URL to search by station name, listen to up to 10 candidates, and fill in the chosen stream. HLS URLs must end in `.m3u8`. If you omit `https://` or `http://`, MyMusics adds HTTPS.</li>
+            <li>Set the speech/ad target volume if desired, then save. Use each station's <strong>Edit</strong> action to change its URL, type, name, genre, or target volume.</li>
+            <li>Optionally upload a PNG, JPEG, or WebP station logo (up to 2 MB). The image is stored locally and removed automatically when no station uses it.</li>
+          </ol>
+          <h3>Find stations by music and country</h3>
+          <p>In Manage, optionally enter a two-letter country code such as <strong>NL</strong>, <strong>US</strong>, <strong>GB</strong>, or <strong>ES</strong>. Leave it blank to search worldwide by music tag or station name (for example, <strong>golden oldies</strong>). With a country selected, leave the style blank or enter <strong>all</strong> to search every style there. Results are added to the matching genre. Results may include streams that later become unavailable.</p>
+          <p>Station changes are stored in `stations.json` and survive a server restart.</p>
+        </section>
+
+        <section id="genres" class="help-card">
+          <p class="help-eyebrow">06 · ORGANIZATION</p>
+          <h2>Create, rename, or delete genres</h2>
+          <ol>
+            <li>Open <strong>Manage</strong>. Use <strong>New genre name</strong> and the plus button to add a genre.</li>
+            <li>Select a genre in the sidebar or the genre picker. Edit its name and select <strong>Save name</strong>.</li>
+            <li>Select <strong>Delete genre</strong> and confirm to delete it. Deleting a genre also deletes all stations in it.</li>
+          </ol>
+        </section>
+
+        <section id="updates" class="help-card">
+          <p class="help-eyebrow">07 · APP UPDATES</p>
+          <h2>Check and install an update</h2>
+          <p>Open <strong>Manage</strong> to see the installed version and code build date. MyMusics checks GitHub for a newer release when the page opens; select <strong>Check</strong> to check again. On a server with the updater service installed, select <strong>Install and restart</strong> to download the release. The app restarts and radio playback may stop briefly. Station settings and logos remain in persistent storage.</p>
+        </section>
+
+        <section class="help-card help-note">
+          <p class="help-eyebrow">TROUBLESHOOTING</p>
+          <h2>Playback works, but a tool does not?</h2>
+          <p>Radio playback and optional analysis are separate. If a stream blocks audio analysis, the equalizer or speech detection may be unavailable while playback still works. Track details, artwork, and lyrics also depend on metadata being sent and external services being reachable.</p>
+        </section>
+      </div>
+    </main>
+  </div>
+  <script defer src="/tv-navigation.js"></script>
+  <script defer src="/app-meta.js?v=2"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "mappings": {
+    "Americana,Musique,Country": "Americana,Country",
+    "Americana,Musique,Country,Paroles/Interprétation": "Americana,Country",
+    "arena rock": "rock",
+    "art rock": "rock",
+    "Christmas Music": "Christmas",
+    "Country,Musique": "Country",
+    "Country,Musique,Alternative": "Country,Alternative",
+    "Country,Musique,Folk": "Country,Folk",
+    "Country,Musique,Rock": "Country,Rock",
+    "Dance,Musique": "Dance"
+  },
+  "albumMappings": {
+    "bfd05b6dd330e20fb08cc3900ade3070": "Pop, Rock"
+  }
+}

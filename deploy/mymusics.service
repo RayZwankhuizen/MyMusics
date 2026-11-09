@@ -1,0 +1,23 @@
+[Unit]
+Description=MyMusics web radio
+After=network.target
+
+[Service]
+Type=simple
+User=mymusics
+Group=mymusics
+WorkingDirectory=/opt/mymusics
+Environment=NODE_ENV=production
+Environment=HOST=0.0.0.0
+Environment=PORT=6565
+Environment=MYMUSICS_DATA_DIR=/var/lib/mymusics
+Environment=MYMUSICS_UPDATE_ENABLED=true
+EnvironmentFile=-/etc/mymusics/mymusics.env
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=5
+StateDirectory=mymusics
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,21 @@
+node_modules/
+data/station-images/
+.ijfw/
+.env
+.env.*
+!.env.example
+music-playlists.json
+
+# Local data and generated files
+*.log
+.DS_Store
+coverage/
+
+# Agent and project process material
+AGENTS.md
+FEATURES.md
+SECURITY-VERIFICATION.md
+codex_ux_brief.md
+ijfw/
+unslop/
+docs/

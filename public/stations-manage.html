@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f3ee">
+  <title>Stations — Manage — MyMusics</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/manage.css">
+  <script defer src="/manage.js?v=management-split-1"></script>
+  <link rel="stylesheet" href="/app-theme.css?v=20261103-6">
+  <link rel="stylesheet" href="/management-theme.css?v=20261105-2">
+</head>
+<body class="management-page">
+  <div class="app-shell manage-shell">
+    <aside class="sidebar" aria-label="Stations">
+      <a class="brand" href="/" aria-label="MyMusics home">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>my<span class="brand-light">musics</span></span>
+      </a>
+      <nav class="mode-switch" aria-label="Modes">
+        <a class="mode" href="/">Radio</a>
+        <a class="mode" href="/music.html">Music</a>
+      </nav>
+      <div class="side-label">Manage</div>
+      <nav class="sidebar-actions" aria-label="Pages">
+        <a class="sidebar-page" href="/">Radio</a>
+        <a class="sidebar-page" href="/music.html">Music</a>
+        <a class="sidebar-page selected" href="/manage.html#stations" aria-current="page">Management</a>
+        <a class="sidebar-page" href="/help.html">Help</a>
+      </nav>
+      <div class="sidebar-foot"><span class="live-dot"></span> Manage your library</div>
+    </aside>
+
+    <main>
+      <section class="manage-intro">
+        <p class="kicker">Radio</p>
+        <h1>Stations and genres</h1>
+        <p>Add stations, move them between genres, or maintain your library.</p>
+        <section class="update-card" aria-label="MyMusics version and updates">
+          <div class="update-card-copy"><p class="eyebrow">App updates</p><strong id="app-version">Loading version…</strong><p id="update-message" role="status" aria-live="polite">Checking for updates…</p></div>
+          <div class="update-card-actions"><button id="check-update" class="text-button" type="button">Check</button><button id="install-update" class="save-button" type="button" hidden>Install and restart</button></div>
+        </section>
+      </section>
+      <details class="manage-tools panel" open>
+        <summary class="manage-tools-summary">
+          <span><span class="eyebrow">Library tools</span><strong>Organize genres and add stations</strong></span>
+          <span class="manage-tools-toggle" aria-hidden="true"></span>
+        </summary>
+        <div class="manage-tools-content">
+          <section class="genre-tools" aria-labelledby="genre-heading">
+            <div class="panel-heading"><div><p class="eyebrow">Organize</p><h2 id="genre-heading">Manage genre</h2></div><span id="genre-count" class="count"></span></div>
+            <label class="sr-only" for="organize-genre">Select genre to organize</label>
+            <select id="organize-genre" class="genre-picker"></select>
+            <form id="new-genre-form" class="inline-form">
+              <label class="sr-only" for="new-genre">New genre</label>
+              <input id="new-genre" name="name" placeholder="New genre name" maxlength="40" required>
+              <button class="icon-button" aria-label="Add genre">+</button>
+            </form>
+            <form id="rename-form" class="rename-form" hidden>
+              <label for="rename-genre">Rename selected genre</label>
+              <div class="inline-form"><input id="rename-genre" name="name" maxlength="40" required><button class="small-button">Save name</button></div>
+            </form>
+            <div id="genre-delete" class="genre-delete" hidden>
+              <button id="delete-genre" class="delete-genre-button" type="button">Delete genre</button>
+              <p id="genre-delete-hint">Deleting a genre also removes all its stations.</p>
+            </div>
+          </section>
+
+          <section class="station-tools" aria-labelledby="add-station-heading">
+            <div class="panel-heading"><div><p class="eyebrow">New stream</p><h2 id="add-station-heading">Add station</h2></div></div>
+            <p class="tile-copy">Add a stream to <strong id="add-station-genre">the selected genre</strong>.</p>
+            <button id="add-station" class="save-button" type="button">Add station</button>
+          </section>
+          <section class="discover-tools" aria-labelledby="discover-heading">
+            <div class="panel-heading"><div><p class="eyebrow">Directory</p><h2 id="discover-heading">Find stations by country and music</h2></div></div>
+            <form id="station-search-form" class="station-search-form"><label>Country code (optional)<input name="countrycode" maxlength="2" placeholder="NL, US, GB, ES"></label><label>Music style, tag, or station name<input name="tag" maxlength="80" placeholder="rock, golden oldies, or a station name"></label><button class="save-button">Search</button></form>
+            <div id="station-search-results" class="station-search-results" aria-live="polite"></div>
+          </section>
+        </div>
+      </details>
+      <p id="notice" class="notice" role="status" aria-live="polite"></p>
+
+      <details id="genre-stations" class="stations-panel panel" open>
+        <summary class="genre-stations-summary">
+          <span><span class="eyebrow">Stations</span><h2 id="stations-heading">Choose a genre</h2></span>
+          <span id="station-count" class="count" role="status" aria-live="polite"></span>
+          <span class="genre-stations-toggle" aria-hidden="true"></span>
+        </summary>
+        <div class="genre-stations-content">
+          <div id="managed-station-filter-wrap" class="managed-station-filter"><label for="managed-station-filter">Search stations</label><input id="managed-station-filter" type="search" placeholder="Search this genre by name" autocomplete="off" aria-controls="station-list"></div>
+          <div id="station-list" class="managed-stations"></div>
+        </div>
+      </details>
+    </main>
+  </div>
+
+  <dialog id="station-dialog" class="station-dialog" aria-labelledby="form-title">
+    <form id="station-form" class="station-form">
+      <div class="form-heading"><div><p class="eyebrow">Station details</p><h2 id="form-title">Add a station</h2></div><button id="cancel-edit" class="text-button" type="button">Cancel</button></div>
+      <input id="station-index" type="hidden">
+      <label for="station-name">Station name</label>
+      <input id="station-name" name="name" maxlength="100" placeholder="e.g. Radio Example" required>
+      <label for="station-genre">Genre</label>
+      <select id="station-genre" name="genre" required></select>
+      <label for="station-url">Stream URL</label>
+      <input id="station-url" name="url" type="text" inputmode="url" autocapitalize="none" placeholder="radio.example/live.mp3" required>
+      <details id="stream-finder" class="stream-finder">
+        <summary>Find and preview streams</summary>
+        <p class="form-hint">Search by station name. Up to 10 candidates reported online by the directory are ranked by bitrate and popularity. Preview one before selecting it.</p>
+        <label for="stream-search-name">Station name</label>
+        <div class="stream-search-controls"><input id="stream-search-name" type="search" maxlength="80" placeholder="e.g. Radio Example"><button id="stream-search-button" class="small-button" type="button">Search</button></div>
+        <p id="stream-search-status" class="form-hint" role="status" aria-live="polite"></p>
+        <audio id="stream-preview" controls preload="none" aria-label="Preview selected stream" hidden></audio>
+        <div id="stream-search-results" class="stream-search-results" aria-live="polite"></div>
+      </details>
+      <label for="station-website">Station website</label>
+      <input id="station-website" name="website" type="text" inputmode="url" autocapitalize="none" placeholder="https://radio.example">
+      <label for="station-type">Stream type</label>
+      <select id="station-type" name="type"><option value="mp3">MP3 / audio stream</option><option value="hls">HLS (.m3u8)</option></select>
+      <label for="speech-volume-percent">Speech / ad volume (%)</label>
+      <input id="speech-volume-percent" name="speechVolumePercent" type="number" min="0" max="100" step="1" value="30" required>
+      <p class="form-hint">Volume while speech or ads are detected. 30% is the default.</p>
+      <label for="station-image">Station logo</label>
+      <div class="station-image-field"><img id="station-image-preview" alt="" hidden><input id="station-image" type="file" accept="image/png,image/jpeg,image/webp"><button id="remove-station-image" class="text-button" type="button" hidden>Remove logo</button></div>
+      <div class="station-logo-lookup"><label for="station-logo-url">Logo image URL</label><input id="station-logo-url" type="url" inputmode="url" autocapitalize="none" placeholder="https://radio.example/logo.png"><div><button id="find-station-logo" class="text-button" type="button">Find logo from website</button><button id="use-station-logo-url" class="text-button" type="button">Use image URL</button></div><p id="station-logo-status" class="form-hint" role="status">Find a logo on the station website or copy one from an image URL.</p></div>
+      <p class="form-hint">Images are copied to MyMusics, resized to 512 px, and stored as optimized WebP.</p>
+      <button class="save-button" type="submit">Add station</button>
+      <p class="form-hint">HTTPS is added when no protocol is entered. Use http:// for HTTP streams. HLS URLs must end in .m3u8.</p>
+    </form>
+  </dialog>
+  <script defer src="/tv-navigation.js"></script>
+  <script defer src="/app-meta.js?v=2"></script>
+</body>
+</html>

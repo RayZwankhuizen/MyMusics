@@ -1,0 +1,25 @@
+name: Release runtime package
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: Create runtime package
+        run: |
+          printf '%s\n' "$GITHUB_REF_NAME" > VERSION
+          date -u +'%Y-%m-%dT%H:%M:%SZ' > BUILD_DATE
+          node -e 'const fs=require("node:fs");fs.writeFileSync("public/app-info.json",JSON.stringify({version:fs.readFileSync("VERSION","utf8").trim(),date:fs.readFileSync("BUILD_DATE","utf8").trim()})+"\n")'
+          tar -czf mymusics.tar.gz VERSION BUILD_DATE -T deploy/runtime-files.txt
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" mymusics.tar.gz --generate-notes

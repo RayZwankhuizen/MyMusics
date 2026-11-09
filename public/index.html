@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0B0D14">
+  <script>try{const saved=localStorage.getItem('mymusics:tv-mode');document.documentElement.classList.toggle('tv-mode',saved===null?/(AFT|Silk|Fire TV|SmartTV)/i.test(navigator.userAgent):saved==='true');if(new URLSearchParams(location.search).get('tv')==='1'){document.documentElement.classList.add('tv-mode');localStorage.setItem('mymusics:tv-mode','true')}}catch{}</script>
+  <title>MyMusics — Radio</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://coverartarchive.org">
+  <link rel="stylesheet" href="/style.css?v=radio-toolbar-5">
+  <script defer src="/playback-target.js?v=2"></script>
+  <script defer src="/ui-dialogs.js?v=2"></script>
+  <script defer src="/equalizer.js?v=5"></script>
+  <script defer src="/synced-lyrics.js?v=1"></script>
+  <script type="module" src="/app.js?v=radio-20261108-52"></script>
+  <link rel="stylesheet" href="/app-theme.css?v=tv-foundation-1">
+</head>
+<body class="radio-page">
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Radio stations">
+      <a class="brand" href="/" aria-label="MyMusics home">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>my<span class="brand-light">musics</span></span>
+      </a>
+      <nav class="mode-switch" aria-label="Modes">
+        <a class="mode" href="/" aria-current="page">Radio</a>
+        <a class="mode" href="/music.html">Music</a>
+      </nav>
+      <label class="playback-target-setting" for="playback-target">Audio output<select id="playback-target"><option value="browser">This browser</option><option value="host">MyMusics host</option></select></label>
+      <div class="side-label">STATIONS <span id="library-total" aria-live="polite"></span></div>
+      <nav id="genres" class="genre-nav" aria-label="Genres"></nav>
+      <a class="sidebar-manage sidebar-page" href="/manage.html#stations">Manage</a>
+      <div class="sidebar-foot"><span class="live-dot"></span> Independent radio, everywhere</div>
+    </aside>
+
+    <main>
+      <div class="content-layout">
+        <div class="listen-column">
+        <div class="player-bar" aria-label="Radio player">
+          <audio id="audio" preload="none" aria-label="Radio playback"></audio>
+          <div class="radio-player-current"><div id="radio-player-logo" class="radio-player-logo" aria-hidden="true">M</div><div class="radio-player-copy"><strong id="radio-player-station">Choose a station</strong><span id="radio-player-track">Live radio · nothing playing</span></div><span id="radio-player-live" class="radio-player-live" data-state="idle">READY</span></div>
+          <div class="radio-player-controls"><button id="radio-player-toggle" type="button" data-play aria-label="Play radio" disabled>▶</button><label class="radio-player-volume-label" for="radio-player-volume">Volume</label><input id="radio-player-volume" type="range" min="0" max="100" value="100" aria-label="Radio volume" disabled><button id="player-tools-toggle" class="player-tools-toggle" type="button" aria-expanded="false" aria-controls="player-tools">Sound settings</button></div>
+          <div id="host-radio-controls" class="host-radio-controls" hidden><button id="host-radio-toggle" type="button">Pause</button><label>Volume <input id="host-radio-volume" type="range" min="0" max="100" value="100"></label><span id="host-radio-status" role="status"></span></div>
+          <div id="player-tools" class="player-tools" hidden><span class="equalizer" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span id="player-status" role="status" aria-live="polite"></span><button id="equalizer-toggle" class="speech-suppression" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="equalizer-panel">Equalizer</button><button id="speech-suppression" class="speech-suppression" type="button" aria-pressed="false" disabled>Suppress ads / speech</button><button id="speech-volume-open" class="speech-suppression" type="button" disabled>Speech 30%</button><span id="speech-suppression-status" role="status">Off</span></div>
+        </div>
+
+        <dialog id="equalizer-panel" class="equalizer-panel" aria-labelledby="equalizer-title">
+          <div class="equalizer-heading"><div><h3 id="equalizer-title">Equalizer</h3><p id="equalizer-status" role="status">Open while a compatible MP3 station is playing.</p></div><label class="equalizer-preset">Preset<select id="equalizer-preset" disabled><option value="flat">Flat</option><option value="pop">Pop</option><option value="rock">Rock</option><option value="classical">Classical</option><option value="jazz">Jazz</option><option value="electronic">Electronic</option><option value="spoken">Spoken</option><option value="country">Country</option><option value="custom">Custom</option></select></label><button id="equalizer-power" type="button" aria-pressed="false" disabled>EQ Off</button><button id="equalizer-reset" type="button" disabled>Reset</button><button id="equalizer-close" type="button" aria-label="Close equalizer">Close</button></div>
+          <canvas id="equalizer-visual" aria-label="Live audio waves for bass, mids and treble"></canvas>
+          <div class="equalizer-legend" aria-label="Visualizer color legend"><span><i class="bass" aria-hidden="true"></i>Bass · 45–220 Hz</span><span><i class="mids" aria-hidden="true"></i>Mids · 220 Hz–2.2 kHz</span><span><i class="treble" aria-hidden="true"></i>Treble · 2.2–10 kHz</span></div>
+          <label class="equalizer-sensitivity" for="equalizer-sensitivity">Visual sensitivity <input id="equalizer-sensitivity" type="range" min="0.8" max="3" step="0.1" value="1.8"><output id="equalizer-sensitivity-value" for="equalizer-sensitivity">1.8×</output></label>
+          <div id="equalizer-bands" class="equalizer-bands"></div>
+        </dialog>
+
+        <dialog id="radio-search-dialog" class="radio-search-dialog" aria-labelledby="radio-search-title">
+          <div class="radio-search-heading"><h2 id="radio-search-title">Search</h2><button id="radio-search-close" type="button">Close</button></div>
+          <form id="radio-search-form"><input id="radio-search" type="search" placeholder="Search all radio stations" autocomplete="off" aria-label="Search all radio stations"></form>
+          <div id="radio-search-results" class="radio-search-results" aria-live="polite"><p>Enter a station name to search.</p></div>
+        </dialog>
+        <dialog id="metadata-dialog" class="metadata-dialog" aria-labelledby="metadata-dialog-title">
+          <div class="metadata-dialog-heading"><h2 id="metadata-dialog-title">MGT · Received metadata</h2><button id="metadata-close" type="button" aria-label="Close metadata">Close</button></div>
+          <div id="metadata-stream-info" class="metadata-stream-info">Select a station to inspect its metadata stream.</div>
+          <div class="metadata-state"><span id="metadata-summary-status">Waiting for station</span><span id="metadata-block-count">0 blocks</span></div>
+          <p class="metadata-hint-legend">Hints use track fields and speech detection; detected speech can include singing.</p>
+          <ol id="metadata-blocks" class="metadata-blocks" aria-live="polite"><li class="metadata-empty">Metadata blocks will appear here as they arrive.</li></ol>
+        </dialog>
+
+        <section class="station-section" aria-label="Stations">
+          <p id="station-count" class="radio-station-count"></p>
+          <p id="favorite-status" class="favorite-status" role="status" aria-live="polite"></p>
+          <div id="station-list" class="station-list" aria-live="polite"></div>
+        </section>
+        </div>
+
+        <section class="now-section" aria-label="Now playing">
+          <div class="now-card">
+            <div class="radio-toolbar">
+              <div class="radio-toolbar-title"><p class="radio-eyebrow">Radio</p><h1>Now playing</h1></div>
+              <div class="radio-toolbar-actions"><button id="radio-search-open" class="radio-search-open" type="button" aria-haspopup="dialog" aria-controls="radio-search-dialog">Search</button><button id="edit-stations-toggle" class="edit-stations-toggle" type="button" aria-pressed="false">Edit</button></div>
+            </div>
+            <div id="cover-frame" class="cover-frame"><div class="cover-placeholder" aria-hidden="true"><span>◖</span><span>♫</span></div><img id="cover-art" alt="Album cover art" hidden></div>
+            <div class="track-info"><h2 id="now-heading">Choose a station</h2><div class="track-divider"></div><p class="kicker track-kicker">Track details</p><p id="track-title" class="track-title">Waiting for a track</p><p id="track-artist" class="track-artist">Artist details appear here</p><button id="track-suppression" class="track-suppression" type="button" aria-pressed="true" hidden>Suppress this track</button><div id="speech-feedback" class="speech-feedback" hidden><span>Was this speech or an ad?</span><button type="button" data-suppress="true">Yes, suppress</button><button type="button" data-suppress="false">No, keep volume</button></div><p id="track-album" class="track-album"></p><p id="art-source" class="art-source" hidden></p><p id="lookup-status" class="lookup-status" role="status"></p><p id="radio-build" class="radio-build" aria-label="Radio player build"></p></div>
+          </div>
+          <section class="lyrics-panel" aria-labelledby="lyrics-heading">
+            <div class="lyrics-heading"><div class="lyrics-title"><h3 id="lyrics-heading">Lyrics</h3><span id="start-time-indicator" class="start-time-indicator" data-state="missing" role="status" aria-label="Track start time not sent"><i aria-hidden="true"></i></span><div class="lyrics-speed" aria-label="Lyrics timing adjustment"><button id="lyrics-slower" type="button" aria-label="Show each lyrics line 50 milliseconds later" title="Show lines 50 ms later">−</button><output id="lyrics-delay" aria-live="polite">300 ms</output><button id="lyrics-faster" type="button" aria-label="Show each lyrics line 50 milliseconds earlier" title="Show lines 50 ms earlier">+</button></div></div><span id="lyrics-status" role="status">Choose a station to find lyrics.</span></div>
+            <progress id="lyrics-progress" class="lyrics-progress" max="1" value="0" aria-label="Position in lyrics" hidden></progress>
+            <div id="lyrics-content" class="lyrics-content" aria-live="off"></div>
+          </section>
+        </section>
+      </div>
+    </main>
+  </div>
+  <dialog id="speech-volume-dialog" class="speech-volume-dialog" aria-labelledby="speech-volume-title">
+    <form id="speech-volume-form" class="speech-volume-form">
+      <h2 id="speech-volume-title">Speech and ad volume</h2>
+      <p>Set the playback volume while speech or ads are detected. This value is saved for the current station.</p>
+      <label for="speech-volume-value">Volume (%)</label>
+      <input id="speech-volume-value" type="number" min="0" max="100" step="1" value="30" required>
+      <div><button id="speech-volume-cancel" type="button">Cancel</button><button type="submit">Save</button></div>
+      <p id="speech-volume-message" role="status"></p>
+    </form>
+  </dialog>
+  <dialog id="station-edit-dialog" class="station-edit-dialog" aria-labelledby="station-edit-title">
+    <form id="station-edit-form" class="station-edit-form">
+      <div class="station-edit-heading"><h2 id="station-edit-title">Edit station</h2><button id="station-edit-cancel" type="button">Close</button></div>
+      <label for="station-edit-name">Station name</label>
+      <input id="station-edit-name" name="name" maxlength="100" required>
+      <label for="station-edit-url">Stream URL</label>
+      <input id="station-edit-url" name="url" type="text" inputmode="url" autocapitalize="none" required>
+      <label for="station-edit-type">Stream type</label>
+      <select id="station-edit-type" name="type"><option value="mp3">MP3 / audio stream</option><option value="hls">HLS (.m3u8)</option></select>
+      <label for="station-edit-genre">Genre</label>
+      <select id="station-edit-genre" name="genre" required></select>
+      <div class="station-edit-actions">
+        <button id="station-edit-delete" class="station-edit-delete" type="button">Delete station</button>
+        <button type="submit">Save changes</button>
+      </div>
+      <p id="station-edit-message" role="status" aria-live="polite"></p>
+    </form>
+  </dialog>
+  <script defer src="/tv-navigation.js?v=tv-navigation-2"></script>
+  <script defer src="/app-meta.js?v=2"></script>
+</body>
+</html>
