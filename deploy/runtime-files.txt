@@ -1,8 +1,13 @@
 server.js
 storage.js
 jellyfin.js
+jellyfin-autodj.js
+jellyfin-catalog.js
 host-player.js
 playlists.js
+music-genres.js
+music-genre-mappings.json
+middleware
 routes
 public
 package.json

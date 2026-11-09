@@ -139,11 +139,13 @@ Keep `.env` private. It is ignored by Git. Genius lookup is disabled when no tok
 
 ## Music mode (Jellyfin)
 
+Music mode requires Jellyfin to remain installed and running on your media server. MyMusics connects to it over the network; if Jellyfin runs on the same Ubuntu machine, use `http://127.0.0.1:8096`. Set `JELLYFIN_URL` to the address reachable from the MyMusics service.
+
 `/music.html` adds a second mode next to the radio stations: an endless DJ queue built from your own Jellyfin music library. Radio stations and the music mode stay separate; both are reached from the mode switch at the top of the sidebar.
 
 Both pages let you choose **This browser** or **MyMusics host** as the audio output. Browser output is the default. Host output uses MPV on the MyMusics server and plays through the audio device available to the `mymusics` service account; install MPV on that host and configure the service account to access its headphone/aux output. Radio metadata and Jellyfin playback remain server-proxied. Browser EQ and speech detection are unavailable with host output.
 
-Music mode needs three optional settings in `/etc/mymusics/mymusics.env` (or `.env` in the project root):
+To enable Music mode, set `JELLYFIN_URL` and `JELLYFIN_API_KEY` in `/etc/mymusics/mymusics.env` (or `.env` when running from the project directory). `JELLYFIN_USER_ID` is optional:
 
 ```env
 JELLYFIN_URL=http://jellyfin.local:8096
