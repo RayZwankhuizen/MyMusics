@@ -107,7 +107,7 @@ test("album search keeps playable albums and tolerates failed playability checks
 
     assert.deepEqual(result.map((album) => album.id), ["album-1", "album-3"]);
     assert.deepEqual(result[0], {
-      kind: "album", id: "album-1", title: "One", artist: "A", year: 2001, trackCount: 10, art: "/library/art/album-1"
+      kind: "album", id: "album-1", title: "One", artist: "A", genre: "", year: 2001, trackCount: 10, art: "/library/art/album-1"
     });
     const listing = requests.find((url) => url.searchParams.has("searchTerm"));
     assert.equal(listing.searchParams.get("IncludeItemTypes"), "MusicAlbum");
