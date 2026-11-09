@@ -36,10 +36,10 @@ npm ci
 npm start
 ```
 
-Open [http://localhost:8080](http://localhost:8080) and choose a genre or a station. The server listens on port `8080` by default. Set `PORT` or `HOST` to use a different port or network interface, for example:
+Open [http://localhost:6565](http://localhost:6565) and choose a genre or a station. The server listens on port `6565` by default. Set `PORT` or `HOST` to use a different port or network interface, for example:
 
 ```sh
-HOST=127.0.0.1 PORT=8081 npm start
+HOST=127.0.0.1 PORT=6566 npm start
 ```
 
 ## Ubuntu runtime deployment
@@ -139,13 +139,15 @@ Keep `.env` private. It is ignored by Git. Genius lookup is disabled when no tok
 
 ## Music mode (Jellyfin)
 
-Music mode requires Jellyfin to remain installed and running on your media server. MyMusics connects to it over the network; if Jellyfin runs on the same Ubuntu machine, use `http://127.0.0.1:8096`. Set `JELLYFIN_URL` to the address reachable from the MyMusics service.
+Music mode requires Jellyfin to remain installed and running on your media server. MyMusics connects to it from the server; if Jellyfin runs on the same Ubuntu machine with Docker port 8096 published, use `http://127.0.0.1:8096`. The URL must be reachable from the MyMusics service.
 
 `/music.html` adds a second mode next to the radio stations: an endless DJ queue built from your own Jellyfin music library. Radio stations and the music mode stay separate; both are reached from the mode switch at the top of the sidebar.
 
 Both pages let you choose **This browser** or **MyMusics host** as the audio output. Browser output is the default. Host output uses MPV on the MyMusics server and plays through the audio device available to the `mymusics` service account; install MPV on that host and configure the service account to access its headphone/aux output. Radio metadata and Jellyfin playback remain server-proxied. Browser EQ and speech detection are unavailable with host output.
 
-To enable Music mode, set `JELLYFIN_URL` and `JELLYFIN_API_KEY` in `/etc/mymusics/mymusics.env` (or `.env` when running from the project directory). `JELLYFIN_USER_ID` is optional:
+Configure Jellyfin in **Manage → General → Jellyfin connection**. Enter the server URL and an API key created under **Jellyfin Dashboard → API Keys**, then choose **Save settings** and **Test connection**. You can paste the web address `http://192.168.18.124:8096/web/#/login`; MyMusics removes `/web/#/login` and saves the base URL. The optional user ID pins a Jellyfin account; leave it blank to use the first enabled user.
+
+MyMusics stores these settings in `jellyfin-settings.json` in its data directory (on Ubuntu, `/var/lib/mymusics/jellyfin-settings.json`) with owner-only file permissions. The saved API key is never returned to the browser; leaving the key field blank keeps the existing key. The page sends settings over the MyMusics connection, so use it only on a trusted network while the app is using HTTP. Environment variables remain available for headless setup or as a fallback:
 
 ```env
 JELLYFIN_URL=http://jellyfin.local:8096

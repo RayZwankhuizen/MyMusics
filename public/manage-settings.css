@@ -1,0 +1,17 @@
+.management-page .general-settings{display:grid;gap:18px;max-width:860px;margin:0 0 20px;scroll-margin-top:20px}
+.management-page .general-settings-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.management-page .general-settings-heading h2{margin:0 0 7px;font-size:20px}
+.management-page .general-settings-heading p:last-child{max-width:620px;margin:0;color:var(--muted);font-size:13px;line-height:1.55}
+.management-page .general-config-badge{flex:none;padding:6px 10px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:11px}
+.management-page .general-settings-form{display:grid;grid-template-columns:minmax(140px,.38fr) minmax(0,1fr);align-items:center;gap:9px 16px}
+.management-page .general-settings-form>label{color:var(--ink);font-size:12px;font-weight:600}
+.management-page .general-settings-form>label span{color:var(--muted);font-weight:400}
+.management-page .general-settings-form>input{width:100%;min-width:0;min-height:42px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#0b0d14;color:var(--ink);font:13px var(--sans)}
+.management-page .general-settings-form>input:focus-visible{border-color:var(--accent);outline:2px solid var(--accent);outline-offset:2px}
+.management-page .general-settings-form .form-hint{grid-column:2;margin:-4px 0 5px;color:var(--muted);font-size:11px;line-height:1.5}
+.management-page .general-settings-actions{grid-column:2;display:flex;flex-wrap:wrap;gap:9px}
+.management-page .general-settings-actions .save-button,.management-page .general-settings-actions .text-button{min-height:40px;padding:0 14px}
+.management-page .general-settings-actions button:disabled{opacity:.55;cursor:wait}
+.management-page #jellyfin-settings-status{margin:0;font-weight:500}
+.management-page #jellyfin-settings-status.error{color:#ff9e93}
+@media(max-width:640px){.management-page .general-settings-form{grid-template-columns:1fr;gap:7px}.management-page .general-settings-form .form-hint,.management-page .general-settings-actions{grid-column:1}.management-page .general-settings-form .form-hint{margin:0 0 8px}.management-page .general-settings-heading{flex-direction:column}}

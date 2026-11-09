@@ -5,6 +5,7 @@ data/station-images/
 .env.*
 !.env.example
 music-playlists.json
+jellyfin-settings.json
 
 # Local data and generated files
 *.log

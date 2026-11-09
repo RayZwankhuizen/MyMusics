@@ -1,6 +1,7 @@
 import { wireManageUpdates } from "./manage-updates.mjs";
 import { wireManagePlaylists } from "./manage-playlists.mjs";
 import { wireManageMusicGenres } from "./manage-music-genres.mjs";
+import { wireManageJellyfinSettings } from "./manage-jellyfin-settings.mjs";
 import { request } from "./manage-api.mjs";
 import { createManageCatalog } from "./manage-catalog.mjs";
 import { wireStationSearch } from "./manage-station-search.mjs";
@@ -19,6 +20,7 @@ const stationPreview = wireManageStationPreview();
 const catalog = createManageCatalog({ el, request, notice, stationImages, streamFinder, stationPreview });
 wireManagePlaylists({ el, initialPlaylistId: new URLSearchParams(location.search).get("playlist") || "" });
 wireManageMusicGenres({ el, request });
+wireManageJellyfinSettings({ el, request });
 
 wireStationSearch({
   el, request, route: catalog.route,

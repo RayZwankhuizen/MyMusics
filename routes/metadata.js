@@ -29,7 +29,7 @@ module.exports = function registerMetadataRoutes(app, { getStations }) {
         const wait = Math.max(0, nextMusicBrainzRequest - Date.now());
         nextMusicBrainzRequest = Date.now() + wait + 1100;
         if (wait) await new Promise((resolve) => setTimeout(resolve, wait));
-        const response = await fetch(url, { headers: { "User-Agent": "MyMusics/1.0 (http://localhost:8080)" }, timeout: 8000 });
+        const response = await fetch(url, { headers: { "User-Agent": "MyMusics/1.0 (http://localhost:6565)" }, timeout: 8000 });
         if (!response.ok) return fallback;
         const { recordings = [] } = await response.json();
         const recording = recordings[0];

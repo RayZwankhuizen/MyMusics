@@ -1,5 +1,5 @@
 module.exports = function registerHostPlayerRoutes(app, { hostPlayer, getStations }) {
-  const port = Number(process.env.PORT) || 8080;
+  const port = Number(process.env.PORT) || 6565;
   const validDeck = (value) => value === "a" || value === "b";
   const allStations = () => Object.values(getStations()).flat();
 

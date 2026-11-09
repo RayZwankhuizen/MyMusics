@@ -9,9 +9,10 @@
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/style.css">
   <link rel="stylesheet" href="/manage.css">
-  <script type="module" src="/manage.js?v=music-genre-management-3"></script>
+  <script type="module" src="/manage.js?v=jellyfin-general-settings-1"></script>
   <link rel="stylesheet" href="/app-theme.css?v=tv-foundation-1">
   <link rel="stylesheet" href="/management-theme.css?v=music-genre-management-1">
+  <link rel="stylesheet" href="/manage-settings.css?v=jellyfin-general-settings-1">
 </head>
 <body class="management-page">
   <div class="app-shell manage-shell">
@@ -23,6 +24,10 @@
       <nav class="mode-switch" aria-label="Modes">
         <a class="mode" href="/">Radio</a>
         <a class="mode" href="/music.html">Music</a>
+      </nav>
+      <div class="side-label">General</div>
+      <nav class="sidebar-actions" aria-label="General settings">
+        <a class="sidebar-page" data-manage-section="general" href="/manage.html#general">Jellyfin connection</a>
       </nav>
       <div class="side-label">Radio</div>
       <nav class="sidebar-actions" aria-label="Radio management">
@@ -42,9 +47,24 @@
     </aside>
 
     <main>
-      <header class="manage-page-heading"><p class="kicker">MyMusics</p><h1>Management</h1><p>Maintain your radio stations, genres, and music playlists.</p></header>
+      <header class="manage-page-heading"><p class="kicker">MyMusics</p><h1>Management</h1><p>Configure Jellyfin and maintain your radio stations, genres, and music playlists.</p></header>
       <aside id="tv-manage-notice" class="tv-manage-notice" role="status">Editing stations is easier from a phone or computer. Open this page there to make changes.</aside>
       <p id="notice" class="notice" role="status" aria-live="polite"></p>
+      <section id="general" class="general-settings panel" aria-labelledby="general-heading">
+        <header class="general-settings-heading"><div><p class="eyebrow">General</p><h2 id="general-heading">Jellyfin connection</h2><p>Jellyfin must be running on your media server. MyMusics connects from this server to Jellyfin.</p></div><span id="jellyfin-config-badge" class="general-config-badge" role="status">Checking</span></header>
+        <form id="jellyfin-settings-form" class="general-settings-form">
+          <label for="jellyfin-url">Jellyfin server URL</label>
+          <input id="jellyfin-url" name="url" type="url" inputmode="url" autocomplete="url" placeholder="http://127.0.0.1:8096" maxlength="500" required>
+          <p class="form-hint">Use the address reachable from UbuntuMedia. If Jellyfin runs on the same machine with Docker port 8096 published, use <code>http://127.0.0.1:8096</code>. You can paste the Jellyfin web address; `/web/#/login` will be removed.</p>
+          <label for="jellyfin-api-key">Jellyfin API key</label>
+          <input id="jellyfin-api-key" name="apiKey" type="password" autocomplete="new-password" placeholder="Leave blank to keep the saved key" maxlength="512">
+          <p class="form-hint">Create a key in Jellyfin under Dashboard → API Keys. The saved key is stored on the MyMusics server and is never sent back to this page. Use this form only on a trusted network; MyMusics currently uses HTTP.</p>
+          <label for="jellyfin-user-id">Jellyfin user ID <span>(optional)</span></label>
+          <input id="jellyfin-user-id" name="userId" type="text" autocomplete="off" maxlength="200" placeholder="Use the first enabled user">
+          <div class="general-settings-actions"><button class="save-button" type="submit">Save settings</button><button id="jellyfin-test" class="text-button" type="button">Test connection</button></div>
+          <p id="jellyfin-settings-status" class="form-hint" role="status" aria-live="polite">Loading Jellyfin settings…</p>
+        </form>
+      </section>
       <section id="stations" class="manage-workspace" aria-label="Stations and genres">
         <aside class="genre-master panel" aria-labelledby="genre-heading">
           <div class="panel-heading"><div><p class="eyebrow">Catalog</p><h2 id="genre-heading">Genres</h2></div><span id="genre-count" class="count"></span></div>

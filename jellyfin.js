@@ -1,14 +1,19 @@
 const fetch = require("node-fetch");
+const storage = require("./storage");
 const createAutoDj = require("./jellyfin-autodj");
 const createJellyfinCatalog = require("./jellyfin-catalog");
 
 // Server-side Jellyfin client for the music mode. Every request stays on this
-// server so the API key never reaches the browser and Web Audio keeps working
-// on same-origin audio.
+// server so playback credentials stay out of audio requests and Web Audio
+// keeps working on same-origin audio. Saved keys are never returned by settings APIs.
 // Container is what lets the browser decide whether it can decode a track
 // itself. Jellyfin reports it only when asked for it explicitly.
 const requestTimeout = 10000;
 const userCacheTtl = 600000;
+
+let savedSettings;
+try { savedSettings = storage.readJellyfinSettings(); }
+catch (error) { console.error("Could not read saved Jellyfin settings:", error.message); }
 
 let cachedUserId = "";
 let cachedUserIdAt = 0;
@@ -54,10 +59,11 @@ async function libraryRefreshStatus() {
 }
 
 function config() {
+  const source = savedSettings || process.env;
   return {
-    url: String(process.env.JELLYFIN_URL || "").trim().replace(/\/+$/, ""),
-    key: String(process.env.JELLYFIN_API_KEY || "").trim(),
-    userId: String(process.env.JELLYFIN_USER_ID || "").trim()
+    url: String(source.url ?? process.env.JELLYFIN_URL ?? "").trim().replace(/\/+$/, ""),
+    key: String(source.apiKey ?? process.env.JELLYFIN_API_KEY ?? "").trim(),
+    userId: String(source.userId ?? process.env.JELLYFIN_USER_ID ?? "").trim()
   };
 }
 
@@ -68,6 +74,32 @@ function configured() {
 
 function serverUrl() {
   return config().url;
+}
+
+function settingsStatus() {
+  const { url, key, userId } = config();
+  return { url, userId, configured: Boolean(url && key), hasApiKey: Boolean(key) };
+}
+
+function saveSettings({ url, apiKey, userId }) {
+  const current = config();
+  const next = {
+    url: String(url || "").trim().replace(/\/+$/, ""),
+    apiKey: String(url || "").trim() ? String(apiKey || "").trim() || current.key : "",
+    userId: String(userId || "").trim()
+  };
+  storage.writeJellyfinSettings(next);
+  savedSettings = next;
+  clearCache();
+  return settingsStatus();
+}
+
+async function testConnection() {
+  const { url } = config();
+  if (!configured()) throw new Error("Save the Jellyfin URL and API key first.");
+  const response = await fetch(`${url}/Users`, { headers: authHeaders(), timeout: requestTimeout });
+  if (!response.ok) throw new Error(`Jellyfin returned HTTP ${response.status}. Check the URL and API key.`);
+  return true;
 }
 
 function authHeaders() {
@@ -159,6 +191,9 @@ async function image(id, size = 480) {
 module.exports = {
   configured,
   serverUrl,
+  settingsStatus,
+  saveSettings,
+  testConnection,
   ...catalog.api,
   nextTracks,
   streamAudio,

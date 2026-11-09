@@ -21,6 +21,7 @@ const musicGenres = require("./music-genres");
 const registerUpdateRoutes = require("./routes/updates");
 const registerStationRoutes = require("./routes/stations");
 const registerMusicRoutes = require("./routes/music");
+const registerJellyfinSettingsRoutes = require("./routes/jellyfin-settings");
 const registerMetadataRoutes = require("./routes/metadata");
 const registerMetadataProviderRoutes = require("./routes/metadata-providers");
 const registerRadioStreamRoute = require("./routes/radio-stream");
@@ -40,6 +41,7 @@ app.use(apiRequest);
 app.use(express.json({ limit: "1mb" }));
 registerHealthRoute(app, appVersion);
 registerUpdateRoutes(app, { storage, appVersion, appBuildDate, updateScript });
+registerJellyfinSettingsRoutes(app, jellyfin);
 const getStations = registerStationRoutes(app, { storage });
 registerRadioStreamRoute(app, { getStations });
 const hostPlayer = new HostPlayer();
@@ -52,7 +54,7 @@ app.use(apiError);
 
 app.use("/station-images", express.static(imageDir, { fallthrough: false, maxAge: "1d" }));
 app.use(express.static(path.join(__dirname, "public")));
-const port = Number(process.env.PORT) || 8080;
+const port = Number(process.env.PORT) || 6565;
 const host = process.env.HOST || "0.0.0.0";
 const server = app.listen(port, host, () => {
   console.log(`MyMusics listening on ${host}:${port} (also available at http://localhost:${port})`);

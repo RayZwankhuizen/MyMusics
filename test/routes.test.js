@@ -332,7 +332,7 @@ test("host-player APIs validate inputs and pass playback commands to the host", 
     method: "POST", body: { id: "0123456789abcdef", deck: "b", crossfade: true, fadeSeconds: 4, naturalFadeIn: true }
   })).status, 200);
   assert.deepEqual(calls[1], ["music", {
-    id: "0123456789abcdef", deck: "b", port: Number(process.env.PORT) || 8080,
+    id: "0123456789abcdef", deck: "b", port: Number(process.env.PORT) || 6565,
     crossfade: true, fadeSeconds: 4, naturalFadeIn: true
   }]);
 

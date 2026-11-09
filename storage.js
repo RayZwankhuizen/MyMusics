@@ -9,6 +9,7 @@ function createStorage({ dataDir: configuredDir = process.env.MYMUSICS_DATA_DIR,
     images: dataDir ? path.join(dataDir, "station-images") : path.join(root, "data", "station-images"),
     playlists: path.join(dataDir || root, "music-playlists.json"),
     musicGenres: path.join(dataDir || root, "music-genre-mappings.json"),
+    jellyfinSettings: path.join(dataDir || root, "jellyfin-settings.json"),
     updateStatus: path.join(dataDir || path.join(root, "data"), "update-status.json")
   };
 
@@ -41,11 +42,11 @@ function createStorage({ dataDir: configuredDir = process.env.MYMUSICS_DATA_DIR,
     return value;
   }
 
-  function writeAtomically(file, contents) {
+  function writeAtomically(file, contents, mode = 0o644) {
     fs.mkdirSync(path.dirname(file), { recursive: true });
     const temporary = `${file}.${process.pid}.${Math.random().toString(16).slice(2)}.tmp`;
     try {
-      fs.writeFileSync(temporary, contents, { flag: "wx" });
+      fs.writeFileSync(temporary, contents, { flag: "wx", mode });
       fs.renameSync(temporary, file);
     } catch (error) {
       try { fs.rmSync(temporary, { force: true }); } catch {}
@@ -53,8 +54,8 @@ function createStorage({ dataDir: configuredDir = process.env.MYMUSICS_DATA_DIR,
     }
   }
 
-  function writeJson(file, value) {
-    writeAtomically(file, `${JSON.stringify(value, null, 2)}\n`);
+  function writeJson(file, value, mode) {
+    writeAtomically(file, `${JSON.stringify(value, null, 2)}\n`, mode);
   }
 
   function validStations(value) {
@@ -74,6 +75,20 @@ function createStorage({ dataDir: configuredDir = process.env.MYMUSICS_DATA_DIR,
   function readUpdateStatus() {
     try { return readJson(paths.updateStatus, { state: "idle", version: "", message: "" }); }
     catch { return { state: "idle", version: "", message: "" }; }
+  }
+
+  function validJellyfinSettings(value) {
+    return Boolean(value && typeof value === "object" && !Array.isArray(value)
+      && typeof value.url === "string" && typeof value.apiKey === "string" && typeof value.userId === "string");
+  }
+
+  function readJellyfinSettings() {
+    return readJson(paths.jellyfinSettings, null, validJellyfinSettings);
+  }
+
+  function writeJellyfinSettings(value) {
+    if (!validJellyfinSettings(value)) throw new Error("Jellyfin settings have an invalid structure.");
+    writeJson(paths.jellyfinSettings, value, 0o600);
   }
 
   function hasStationImage(image) {
@@ -97,6 +112,7 @@ function createStorage({ dataDir: configuredDir = process.env.MYMUSICS_DATA_DIR,
 
   initialize();
   return { paths, readJson, writeJson, readStations, writeStations, readUpdateStatus,
+    readJellyfinSettings, writeJellyfinSettings,
     hasStationImage, writeStationImage, removeUnusedStationImages };
 }
 
