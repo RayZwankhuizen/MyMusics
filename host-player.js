@@ -40,12 +40,19 @@ class MpvDeck {
     const binary = process.env.MPV_BIN || "mpv";
     this.child = spawn(binary, [
       "--no-config", "--no-video", "--audio-display=no", "--force-window=no",
-      "--idle=yes", "--no-terminal", `--input-ipc-server=${this.socketPath}`
+      "--idle=yes", "--no-terminal", "--msg-level=all=info", `--input-ipc-server=${this.socketPath}`
     ], { stdio: ["ignore", "ignore", "pipe"], windowsHide: true });
     this.child.stderr.setEncoding("utf8");
     this.child.stderr.on("data", (chunk) => {
-      const message = chunk.trim().split("\n").at(-1);
-      if (/error|failed|cannot|unavailable/i.test(message)) this.playbackError = message.slice(-300);
+      this.stderrBuffer = (this.stderrBuffer || "") + chunk;
+      let end;
+      while ((end = this.stderrBuffer.indexOf("\n")) >= 0) {
+        const message = this.stderrBuffer.slice(0, end).trimEnd();
+        this.stderrBuffer = this.stderrBuffer.slice(end + 1);
+        if (!message) continue;
+        console.error(`[mpv:${this.key}] ${message}`);
+        if (/error|failed|cannot|unavailable/i.test(message)) this.playbackError = message.slice(-300);
+      }
     });
     this.child.once("error", (error) => { this.error = error.code === "ENOENT" ? "MPV is not installed on the MyMusics host." : error.message; });
     this.child.once("exit", (code) => {
