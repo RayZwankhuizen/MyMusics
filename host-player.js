@@ -19,8 +19,10 @@ class MpvDeck {
     this.buffer = "";
     this.requestId = 0;
     this.pending = new Map();
+    this.loadWaiters = new Set();
     this.error = "";
     this.playbackError = "";
+    this.lastEnd = null;
   }
 
   async ensure() {
@@ -89,9 +91,17 @@ class MpvDeck {
       this.buffer = this.buffer.slice(end + 1);
       let message;
       try { message = JSON.parse(line); } catch { continue; }
-      if (message.event === "end-file" && message.data?.reason === "error") {
-        this.playbackError = message.data.file_error || "MPV could not open the media stream.";
-      } else if (message.event === "file-loaded") this.playbackError = "";
+      if (message.event === "end-file") {
+        this.lastEnd = { reason: message.data?.reason || "unknown", error: message.data?.file_error || "" };
+        if (message.data?.reason === "error") {
+          this.playbackError = this.lastEnd.error || "MPV could not open the media stream.";
+          for (const waiter of this.loadWaiters) waiter.reject(new Error(this.playbackError));
+        }
+      } else if (message.event === "file-loaded") {
+        this.playbackError = "";
+        this.lastEnd = null;
+        for (const waiter of this.loadWaiters) waiter.resolve();
+      }
       const pending = this.pending.get(message.request_id);
       if (!pending) continue;
       clearTimeout(pending.timer);
@@ -133,10 +143,33 @@ class MpvDeck {
   }
 
   async set(name, value) { return this.command(["set_property", name, value]); }
+  waitForFileLoaded() {
+    let waiter;
+    let timer;
+    const promise = new Promise((resolve, reject) => {
+      const finish = (callback, value) => {
+        clearTimeout(timer);
+        this.loadWaiters.delete(waiter);
+        callback(value);
+      };
+      waiter = {
+        resolve: () => finish(resolve),
+        reject: (error) => finish(reject, error)
+      };
+      timer = setTimeout(() => waiter.reject(new Error("MPV did not confirm that the media loaded within 15 seconds.")), 15_000);
+      this.loadWaiters.add(waiter);
+    });
+    return { promise, cancel: () => { clearTimeout(timer); this.loadWaiters.delete(waiter); } };
+  }
+
   async load(url, volume = 100) {
     this.playbackError = "";
+    this.lastEnd = null;
     await this.set("volume", volume);
-    await this.command(["loadfile", url, "replace"]);
+    const load = this.waitForFileLoaded();
+    try { await this.command(["loadfile", url, "replace"]); }
+    catch (error) { load.cancel(); throw error; }
+    await load.promise;
   }
   async stop() {
     if (!this.socket?.writable) return;
@@ -154,7 +187,8 @@ class MpvDeck {
       playing: Boolean(file) && !paused && !idle,
       paused: Boolean(paused), path: typeof file === "string" ? file : "",
       time: Number(time) || 0, duration: Number(duration) || 0,
-      volume: Number(volume) || 0, ended: Boolean(eof), error: this.playbackError
+      volume: Number(volume) || 0, ended: Boolean(eof), error: this.playbackError,
+      endReason: this.lastEnd?.reason || "", endError: this.lastEnd?.error || ""
     };
   }
 
@@ -202,6 +236,7 @@ class HostPlayer {
     if (outgoing && !seconds) await outgoing.command(["set_property", "pause", true]).catch(() => {});
     try { await incoming.load(url, seconds ? 0 : 100); }
     catch (error) {
+      this.lastError = error.message;
       if (outgoing && !seconds) await outgoing.set("pause", false).catch(() => {});
       throw error;
     }
