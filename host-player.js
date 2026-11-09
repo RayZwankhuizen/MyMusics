@@ -32,7 +32,7 @@ class MpvDeck {
 
   async start() {
     await fs.mkdir(this.socketDir, { recursive: true, mode: 0o700 });
-    await fs.rm(this.socketDir, { recursive: true, force: true });
+    await fs.rm(this.socketPath, { force: true });
     this.error = "";
     const binary = process.env.MPV_BIN || "mpv";
     this.child = spawn(binary, [
