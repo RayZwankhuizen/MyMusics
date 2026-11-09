@@ -9,7 +9,34 @@ export function wireManageJellyfinSettings({ el, request }) {
   const mpvStatus = el("#mpv-install-status");
   const checkMpvButton = el("#check-mpv");
   const installMpvButton = el("#install-mpv");
+  const audioDevice = el("#host-audio-device");
+  const audioTestButton = el("#host-audio-test-button");
+  const audioTestStatus = el("#host-audio-test-status");
   let installingMpv = false;
+  let audioDevicesLoaded = false;
+  async function loadAudioDevices() {
+    if (audioDevicesLoaded) return;
+    audioDevice.disabled = true;
+    audioTestButton.disabled = true;
+    try {
+      const { devices } = await request("/api/host-player/audio-devices");
+      audioDevice.replaceChildren(...devices.map((device) => {
+        const option = document.createElement("option");
+        option.value = device.name;
+        option.textContent = `${device.description}${device.isDefault ? " (default)" : ""}`;
+        return option;
+      }));
+      audioDevice.disabled = devices.length === 0;
+      audioTestButton.disabled = devices.length === 0;
+      audioTestStatus.textContent = devices.length ? "Select an output and play a short test tone." : "MPV did not detect any audio output devices.";
+      audioTestStatus.classList.toggle("error", devices.length === 0);
+      audioDevicesLoaded = devices.length > 0;
+    } catch (error) {
+      audioDevice.replaceChildren(new Option("Audio devices unavailable", ""));
+      audioTestStatus.textContent = error.message;
+      audioTestStatus.classList.add("error");
+    }
+  }
   const setState = (message, error = false) => {
     status.textContent = message;
     status.classList.toggle("error", error);
@@ -20,6 +47,7 @@ export function wireManageJellyfinSettings({ el, request }) {
     if (settings.installed) {
       mpvStatus.textContent = `MPV is installed on this host${settings.version ? ` (${settings.version})` : ""}. Host audio is available.`;
       mpvStatus.classList.remove("error");
+      loadAudioDevices();
     } else if (settings.installing || installingMpv) {
       mpvStatus.textContent = "MyMusics is restarting and installing MPV on the host…";
       mpvStatus.classList.remove("error");
@@ -148,6 +176,20 @@ export function wireManageJellyfinSettings({ el, request }) {
 
   checkMpvButton.addEventListener("click", checkMpv);
   installMpvButton.addEventListener("click", installMpv);
+  audioTestButton.addEventListener("click", async () => {
+    audioTestButton.disabled = true;
+    audioTestStatus.textContent = "Playing test tone on the host…";
+    audioTestStatus.classList.remove("error");
+    try {
+      await request("/api/host-player/audio-test", "POST", { device: audioDevice.value });
+      audioTestStatus.textContent = "MPV completed the test tone on the selected output.";
+    } catch (error) {
+      audioTestStatus.textContent = error.message;
+      audioTestStatus.classList.add("error");
+    } finally {
+      audioTestButton.disabled = audioDevice.disabled;
+    }
+  });
 
   load();
   checkMpv();

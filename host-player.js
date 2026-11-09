@@ -308,6 +308,54 @@ class HostPlayer {
     }
   }
 
+  async audioDevices() {
+    const devices = await this.decks.a.command(["get_property", "audio-device-list"]);
+    if (!Array.isArray(devices)) throw new Error("MPV did not return an audio device list.");
+    return devices.filter((device) => device && typeof device.name === "string" && device.name)
+      .map(({ name, description, "is-default": isDefault }) => ({ name, description: description || name, isDefault: Boolean(isDefault) }));
+  }
+
+  async testAudioDevice(device) {
+    const [devices, status] = await Promise.all([this.audioDevices(), this.status()]);
+    if (!devices.some((entry) => entry.name === device)) throw new Error("Choose an audio device reported by MPV.");
+    if (Object.values(status.decks).some((deck) => deck.playing)) throw new Error("Stop host playback before testing an audio device.");
+
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), "mymusics-audio-test-"));
+    const file = path.join(directory, "tone.wav");
+    const rate = 22050;
+    const frames = rate;
+    const wav = Buffer.alloc(44 + frames * 2);
+    wav.write("RIFF", 0); wav.writeUInt32LE(wav.length - 8, 4); wav.write("WAVE", 8);
+    wav.write("fmt ", 12); wav.writeUInt32LE(16, 16); wav.writeUInt16LE(1, 20);
+    wav.writeUInt16LE(1, 22); wav.writeUInt32LE(rate, 24); wav.writeUInt32LE(rate * 2, 28);
+    wav.writeUInt16LE(2, 32); wav.writeUInt16LE(16, 34); wav.write("data", 36); wav.writeUInt32LE(frames * 2, 40);
+    for (let i = 0; i < frames; i++) wav.writeInt16LE(Math.round(Math.sin(2 * Math.PI * 660 * i / rate) * 3932), 44 + i * 2);
+
+    try {
+      await fs.writeFile(file, wav, { mode: 0o600 });
+      const binary = process.env.MPV_BIN || "mpv";
+      await new Promise((resolve, reject) => {
+        const started = Date.now();
+        const child = spawn(binary, ["--no-config", "--no-video", "--no-terminal", `--audio-device=${device}`, file], {
+          stdio: ["ignore", "ignore", "pipe"], windowsHide: true
+        });
+        let diagnostics = "";
+        const timer = setTimeout(() => { child.kill("SIGTERM"); reject(new Error("MPV audio test timed out.")); }, 8000);
+        child.stderr.setEncoding("utf8");
+        child.stderr.on("data", (chunk) => { diagnostics = (diagnostics + chunk).slice(-1200); });
+        child.once("error", (error) => { clearTimeout(timer); reject(new Error(error.code === "ENOENT" ? "MPV is not installed on this host." : error.message)); });
+        child.once("exit", (code) => {
+          clearTimeout(timer);
+          const outputError = /audio output initialization failed|failed to initialize audio|could not open.*audio|error opening audio/i.test(diagnostics);
+          if (code === 0 && Date.now() - started >= 700 && !outputError) resolve();
+          else reject(new Error((diagnostics.split(/\r?\n/).filter(Boolean).slice(-3).join(" ") || (Date.now() - started < 700 ? "MPV stopped before the test tone completed." : `MPV exited with code ${code}.`)).slice(-500)));
+        });
+      });
+    } finally {
+      await fs.rm(directory, { recursive: true, force: true });
+    }
+  }
+
   async close() { await Promise.all([this.decks.a.close(), this.decks.b.close()]); }
 }
 

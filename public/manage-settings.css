@@ -1,4 +1,7 @@
 .management-page .general-settings{display:grid;gap:18px;max-width:860px;margin:0 0 20px;scroll-margin-top:20px}
+.management-page .general-intro{max-width:860px;margin:0 0 16px;padding:18px 20px;scroll-margin-top:20px}
+.management-page .general-intro h2{margin:0 0 7px;font-size:20px}
+.management-page .general-intro p:last-child{margin:0;color:var(--muted);font-size:13px;line-height:1.55}
 .management-page .general-settings-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--line)}
 .management-page .general-settings-heading h2{margin:0 0 7px;font-size:20px}
 .management-page .general-settings-heading p:last-child{max-width:620px;margin:0;color:var(--muted);font-size:13px;line-height:1.55}
@@ -21,4 +24,11 @@
 .management-page .general-mpv-settings .general-settings-actions{grid-column:1;flex-wrap:wrap}
 .management-page #mpv-install-status{margin:0}
 .management-page #mpv-install-status.error{color:#ff9e93}
+.management-page .host-audio-test-controls{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.management-page .host-audio-test-controls label{font-size:12px;font-weight:600}
+.management-page .host-audio-test-controls select{min-width:min(100%,320px);min-height:40px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#0b0d14;color:var(--ink);font:13px var(--sans)}
+.management-page .host-audio-test-controls button{min-height:40px;padding:0 14px}
+.management-page .host-audio-test-controls button:disabled,.management-page .host-audio-test-controls select:disabled{opacity:.55;cursor:wait}
+.management-page #host-audio-test-status{margin:0}
+.management-page #host-audio-test-status.error{color:#ff9e93}
 @media(max-width:640px){.management-page .general-settings-form{grid-template-columns:1fr;gap:7px}.management-page .general-settings-form .form-hint,.management-page .general-settings-actions{grid-column:1}.management-page .general-settings-form .form-hint{margin:0 0 8px}.management-page .general-settings-heading{flex-direction:column}}

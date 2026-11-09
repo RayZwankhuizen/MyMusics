@@ -314,7 +314,9 @@ test("host-player APIs validate inputs and pass playback commands to the host", 
     playRadio: async (url) => calls.push(["radio", url]),
     playMusic: async (options) => calls.push(["music", options]),
     control: async (...args) => calls.push(["control", ...args]),
-    stop: async () => calls.push(["stop"])
+    stop: async () => calls.push(["stop"]),
+    audioDevices: async () => [{ name: "alsa/plughw:1,0", description: "Analog", isDefault: true }],
+    testAudioDevice: async (device) => calls.push(["audio-test", device])
   };
   const base = await testServer(t, { hostPlayer });
   const station = await request(base, "/api/genres/Jazz/stations", {
@@ -323,22 +325,29 @@ test("host-player APIs validate inputs and pass playback commands to the host", 
   assert.equal(station.status, 200);
 
   assert.deepEqual((await request(base, "/api/host-player/status")).body.activeDeck, "a");
+  assert.deepEqual((await request(base, "/api/host-player/audio-devices")).body.devices, [
+    { name: "alsa/plughw:1,0", description: "Analog", isDefault: true }
+  ]);
+  assert.equal((await request(base, "/api/host-player/audio-test", {
+    method: "POST", body: { device: "alsa/plughw:1,0" }, headers: { Origin: base }
+  })).status, 200);
+  assert.deepEqual(calls[0], ["audio-test", "alsa/plughw:1,0"]);
   assert.equal((await request(base, "/api/host-player/radio", { method: "POST", body: { url: "https://unknown.test/stream" } })).status, 400);
   assert.equal((await request(base, "/api/host-player/radio", { method: "POST", body: { url: "https://radio.example/stream" } })).status, 200);
-  assert.deepEqual(calls[0], ["radio", "https://radio.example/stream"]);
+  assert.deepEqual(calls[1], ["radio", "https://radio.example/stream"]);
 
   assert.equal((await request(base, "/api/host-player/music", { method: "POST", body: { id: "bad", deck: "a" } })).status, 400);
   assert.equal((await request(base, "/api/host-player/music", {
     method: "POST", body: { id: "0123456789abcdef", deck: "b", crossfade: true, fadeSeconds: 4, naturalFadeIn: true }
   })).status, 200);
-  assert.deepEqual(calls[1], ["music", {
+  assert.deepEqual(calls[2], ["music", {
     id: "0123456789abcdef", deck: "b", port: Number(process.env.PORT) || 6565,
     crossfade: true, fadeSeconds: 4, naturalFadeIn: true
   }]);
 
   assert.equal((await request(base, "/api/host-player/control", { method: "POST", body: { deck: "x", action: "pause" } })).status, 400);
   assert.equal((await request(base, "/api/host-player/control", { method: "POST", body: { deck: "b", action: "seek", value: 42 } })).status, 200);
-  assert.deepEqual(calls[2], ["control", "b", "seek", 42]);
+  assert.deepEqual(calls[3], ["control", "b", "seek", 42]);
   assert.equal((await request(base, "/api/host-player/control", { method: "POST", body: { action: "stop" } })).status, 200);
-  assert.deepEqual(calls[3], ["stop"]);
+  assert.deepEqual(calls[4], ["stop"]);
 });

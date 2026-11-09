@@ -51,6 +51,26 @@ module.exports = function registerHostPlayerRoutes(app, { hostPlayer, getStation
     res.json(await hostPlayer.status());
   });
 
+  app.get("/api/host-player/audio-devices", async (_req, res) => {
+    try { res.json({ devices: await hostPlayer.audioDevices() }); }
+    catch (error) { res.status(503).json({ error: error.message || "Could not read MPV audio devices." }); }
+  });
+
+  app.post("/api/host-player/audio-test", async (req, res) => {
+    if (!req.is("application/json")) return res.status(415).json({ error: "Audio test requests must use JSON." });
+    if (req.get("origin") !== `${req.protocol}://${req.get("host")}`) {
+      return res.status(403).json({ error: "Audio tests can only be started from this MyMusics page." });
+    }
+    const device = typeof req.body?.device === "string" ? req.body.device : "";
+    if (!device || device.length > 500) return res.status(400).json({ error: "Choose an audio output device." });
+    try {
+      await hostPlayer.testAudioDevice(device);
+      res.json({ ok: true });
+    } catch (error) {
+      res.status(503).json({ error: error.message || "The MPV audio test failed." });
+    }
+  });
+
   app.post("/api/host-player/radio", async (req, res) => {
     const url = String(req.body?.url || "");
     if (!allStations().some((station) => station.url === url)) return res.status(400).json({ error: "Choose a saved radio station." });
