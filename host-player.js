@@ -20,6 +20,7 @@ class MpvDeck {
     this.requestId = 0;
     this.pending = new Map();
     this.error = "";
+    this.playbackError = "";
   }
 
   async ensure() {
@@ -38,7 +39,12 @@ class MpvDeck {
     this.child = spawn(binary, [
       "--no-config", "--no-video", "--audio-display=no", "--force-window=no",
       "--idle=yes", "--no-terminal", `--input-ipc-server=${this.socketPath}`
-    ], { stdio: "ignore", windowsHide: true });
+    ], { stdio: ["ignore", "ignore", "pipe"], windowsHide: true });
+    this.child.stderr.setEncoding("utf8");
+    this.child.stderr.on("data", (chunk) => {
+      const message = chunk.trim().split("\n").at(-1);
+      if (/error|failed|cannot|unavailable/i.test(message)) this.playbackError = message.slice(-300);
+    });
     this.child.once("error", (error) => { this.error = error.code === "ENOENT" ? "MPV is not installed on the MyMusics host." : error.message; });
     this.child.once("exit", (code) => {
       this.socket?.destroy();
@@ -66,6 +72,9 @@ class MpvDeck {
           this.rejectPending(new Error("MPV control socket closed."));
         });
         this.error = "";
+        await Promise.all([[1, "path"], [2, "idle-active"], [3, "pause"]].map(([id, name]) =>
+          this.command(["observe_property", id, name]).catch(() => {})
+        ));
         return;
       } catch { await wait(75); }
     }
@@ -80,6 +89,9 @@ class MpvDeck {
       this.buffer = this.buffer.slice(end + 1);
       let message;
       try { message = JSON.parse(line); } catch { continue; }
+      if (message.event === "end-file" && message.data?.reason === "error") {
+        this.playbackError = message.data.file_error || "MPV could not open the media stream.";
+      } else if (message.event === "file-loaded") this.playbackError = "";
       const pending = this.pending.get(message.request_id);
       if (!pending) continue;
       clearTimeout(pending.timer);
@@ -122,6 +134,7 @@ class MpvDeck {
 
   async set(name, value) { return this.command(["set_property", name, value]); }
   async load(url, volume = 100) {
+    this.playbackError = "";
     await this.set("volume", volume);
     await this.command(["loadfile", url, "replace"]);
   }
@@ -141,7 +154,7 @@ class MpvDeck {
       playing: Boolean(file) && !paused && !idle,
       paused: Boolean(paused), path: typeof file === "string" ? file : "",
       time: Number(time) || 0, duration: Number(duration) || 0,
-      volume: Number(volume) || 0, ended: Boolean(eof)
+      volume: Number(volume) || 0, ended: Boolean(eof), error: this.playbackError
     };
   }
 
@@ -236,7 +249,11 @@ class HostPlayer {
 
   async status() {
     const decks = await Promise.all([this.decks.a.status(), this.decks.b.status()]);
-    return { available: Boolean(this.decks.a.child || this.decks.b.child), activeDeck: this.activeDeck, error: this.lastError, decks: { a: decks[0], b: decks[1] } };
+    return {
+      available: Boolean(this.decks.a.child || this.decks.b.child), activeDeck: this.activeDeck,
+      error: this.lastError || (this.activeDeck ? decks[this.activeDeck === "a" ? 0 : 1].error : ""),
+      decks: { a: decks[0], b: decks[1] }
+    };
   }
 
   async mpvStatus() {
