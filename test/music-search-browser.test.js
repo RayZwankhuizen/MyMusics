@@ -509,6 +509,8 @@ test("failed deck playback restores the previous active track", async () => {
 test("host playback sends the deck contract and updates the jukebox", async () => {
   const page = await browser.newPage();
   const hostRequests = [];
+  const pageErrors = [];
+  page.on("pageerror", (error) => pageErrors.push(error.message));
   await page.route("**/api/**", async (route) => {
     const url = new URL(route.request().url());
     let body = {};
@@ -545,6 +547,7 @@ test("host playback sends the deck contract and updates the jukebox", async () =
   assert.equal(await page.locator("#jb-title").textContent(), "Host Song");
   assert.equal(await page.locator("#audio").isHidden(), true);
   assert.equal(await page.locator("#audio2").isHidden(), true);
+  assert.deepEqual(pageErrors, []);
   await page.close();
 });
 

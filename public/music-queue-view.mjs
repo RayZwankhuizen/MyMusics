@@ -44,7 +44,7 @@ export function createMusicQueueView({ state, el, emptyRow, trackRow, textButton
       row.append(queueActions(track, index));
       list.append(row);
     });
-    requestAnimationFrame(scrollQueueText);
+    requestAnimationFrame(() => scrollQueueText());
     // Keep the next track ready on the inactive deck.
     preloadNextToDeck();
   }

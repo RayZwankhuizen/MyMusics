@@ -104,7 +104,7 @@ export function createMusicResultView({ el, emptyRow, textButton, scrollQueueTex
     }
     const needle = searchTerm.trim().toLocaleLowerCase();
     for (const item of results) list.append(row(item, { showAlbum: !needle || item.album?.toLocaleLowerCase() !== needle }));
-    requestAnimationFrame(scrollQueueText);
+    requestAnimationFrame(() => scrollQueueText());
   }
 
   return Object.freeze({ details, action, row, render });
@@ -151,7 +151,7 @@ export function createMusicInfoView({ kindLabels, formatDuration, scrollQueueTex
       if (label !== "About") detail.classList.add("scroll-line");
       list.append(term, detail);
     }
-    requestAnimationFrame(scrollQueueText);
+    requestAnimationFrame(() => scrollQueueText());
   }
 
   function renderActions(info) {

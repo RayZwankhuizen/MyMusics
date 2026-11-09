@@ -108,7 +108,7 @@ export function createMusicJukeboxDecks({ state, deckState, el, getHostDeckStatu
       el(`.jb-info-${key}`).classList.toggle("is-active", isActive);
       el(`#jb-add-playlist-${key}`).hidden = !isActive || !(deckTracks[key] || state.current)?.id;
     }
-    requestAnimationFrame(scrollQueueText);
+    requestAnimationFrame(() => scrollQueueText());
     syncPlaying();
   }
 

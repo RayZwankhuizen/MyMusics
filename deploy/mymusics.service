@@ -7,6 +7,7 @@ After=network-online.target
 Type=simple
 User=mymusics
 Group=mymusics
+SupplementaryGroups=audio
 WorkingDirectory=/opt/mymusics
 Environment=NODE_ENV=production
 Environment=HOST=0.0.0.0

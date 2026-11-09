@@ -372,7 +372,7 @@ function wireEvents() {
 
   wireMusicGenrePulldown({ el, emptyRow, resultRow: musicResultView.row });
   musicEqualizer.wireEvents();
-  window.addEventListener("resize", () => requestAnimationFrame(scrollQueueText));
+  window.addEventListener("resize", () => requestAnimationFrame(() => scrollQueueText()));
 }
 
 async function init() {
