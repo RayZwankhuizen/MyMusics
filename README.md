@@ -2,7 +2,7 @@
 
 MyMusics is a self-hosted web radio player and station library. Play internet radio in a browser, organize stations by genre, keep a separate Favorites list, and manage the library from a second page. The app runs on Node.js and stores its station data in `stations.json` in the configured data directory.
 
-MyMusics also connects to an optional Jellyfin server for personal music playback. Browse and search tracks, albums, artists, genres, and playlists; build an automatic DJ queue; and play through the browser or the MyMusics host. The radio and music libraries remain separate, and Jellyfin credentials stay on the server.
+MyMusics currently connects to a Jellyfin server for personal music playback. Browse and search tracks, albums, artists, genres, and playlists; build an automatic DJ queue; and play through the browser or the MyMusics host. The radio and music libraries remain separate, and Jellyfin credentials stay on the server.
 
 MyMusics is completely vibe-coded.
 
