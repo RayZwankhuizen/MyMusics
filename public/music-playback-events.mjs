@@ -30,15 +30,57 @@ export function wireAudioDeckEvents({ deckState, ...handlers }) {
   }
 }
 
-export function wirePlaybackLifecycleEvents({ deckState, handleDeckEnded, renderDeckTime, refreshHostStatus, syncJukeboxPlaying, state, audioUrl, setStatus, renderNow }) {
+export function wirePlaybackLifecycleEvents({ deckState, handleDeckEnded, renderDeckTime, refreshHostStatus, nextHostPollDelay, syncJukeboxPlaying, state, audioUrl, setStatus, renderNow }) {
   const { decks, armDropped } = deckState;
-  setInterval(refreshHostStatus, 1000);
+  let hostPollTimer;
+  let fastPollUntil = 0;
+  let polling = false;
+  let pollAgain = false;
+
+  function scheduleHostPoll(delay) {
+    clearTimeout(hostPollTimer);
+    if (!window.MyMusicsPlayback?.isHost || delay == null) return;
+    hostPollTimer = setTimeout(pollHostStatus, Math.max(0, delay));
+  }
+
+  async function pollHostStatus() {
+    if (!window.MyMusicsPlayback?.isHost) return;
+    if (polling) { pollAgain = true; return; }
+    polling = true;
+    try { await refreshHostStatus(); }
+    finally {
+      polling = false;
+      const delay = nextHostPollDelay();
+      scheduleHostPoll(pollAgain ? 0 : Date.now() < fastPollUntil ? Math.min(delay ?? 1000, 1000) : delay);
+      pollAgain = false;
+    }
+  }
+
+  function requestHostStatus() {
+    if (!window.MyMusicsPlayback?.isHost) {
+      clearTimeout(hostPollTimer);
+      return;
+    }
+    fastPollUntil = Date.now() + 5_000;
+    scheduleHostPoll(0);
+  }
+
+  window.addEventListener("mymusics:host-status-needed", requestHostStatus);
+  window.addEventListener("mymusics:playback-target-change", requestHostStatus);
+  document.addEventListener("click", (event) => {
+    if (event.target.closest("#jb-play-a,#jb-play-b,#jb-pause-a,#jb-pause-b,#jb-progress,#jb-progress-b")) requestHostStatus();
+  }, true);
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) return;
-    if (window.MyMusicsPlayback?.isHost) void refreshHostStatus();
+    if (window.MyMusicsPlayback?.isHost) requestHostStatus();
     else if (decks[deckState.activeDeck].ended) handleDeckEnded(deckState.activeDeck);
     else renderDeckTime(deckState.activeDeck);
   });
+  setInterval(() => {
+    if (!window.MyMusicsPlayback?.isHost) return;
+    for (const key of ["a", "b"]) renderDeckTime(key);
+  }, 1000);
+  if (window.MyMusicsPlayback?.isHost) requestHostStatus();
   const syncDeck = (deck, status, live = false) => {
     if (status === "PLAYING") armDropped[deck] = true;
     syncJukeboxPlaying();
@@ -120,7 +162,7 @@ export function wireDeckSeekEvents({ deckState, getHostDeckStatus, isHostOutput,
           body: JSON.stringify({ deck: key, action: "seek", value: time })
         }).then((response) => {
           if (!response.ok) throw new Error("Seek failed.");
-        }).catch(() => setStatus("SEEK FAILED"));
+        }).then(() => window.dispatchEvent(new Event("mymusics:host-status-needed"))).catch(() => setStatus("SEEK FAILED"));
       } else {
         try {
           const ranges = deckState.decks[key].seekable;

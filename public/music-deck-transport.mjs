@@ -17,7 +17,8 @@ export function createMusicDeckTransport({ state, deckState, isHostOutput, getHo
   function pauseDeck(key) {
     if (isHostOutput()) {
       const paused = getHostDeckStatus()?.[key]?.paused;
-      fetch("/api/host-player/control", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ deck: key, action: paused ? "resume" : "pause" }) }).catch(() => {});
+      fetch("/api/host-player/control", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ deck: key, action: paused ? "resume" : "pause" }) })
+        .finally(() => window.dispatchEvent(new Event("mymusics:host-status-needed"))).catch(() => {});
       return;
     }
     decks[key].pause();

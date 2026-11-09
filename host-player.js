@@ -92,8 +92,8 @@ class MpvDeck {
       let message;
       try { message = JSON.parse(line); } catch { continue; }
       if (message.event === "end-file") {
-        this.lastEnd = { reason: message.data?.reason || "unknown", error: message.data?.file_error || "" };
-        if (message.data?.reason === "error") {
+        this.lastEnd = { reason: message.reason || "unknown", error: message.file_error || "" };
+        if (message.reason === "error") {
           this.playbackError = this.lastEnd.error || "MPV could not open the media stream.";
           for (const waiter of this.loadWaiters) waiter.reject(new Error(this.playbackError));
         }

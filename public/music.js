@@ -73,6 +73,7 @@ const hostPlayback = createMusicHostPlayback({
   resolveIncomingDeck: (track, key) => deckTransition.resolveIncomingDeck(track, key),
   setNaturalFadeStartedTrack: (id) => { naturalFadeStartedTrack = id; },
   getNaturalFadeStartedTrack: () => naturalFadeStartedTrack,
+  naturalFadeSeconds,
   isHostOutput: () => window.MyMusicsPlayback?.isHost,
   musicEqualizer,
   recordPlayedTrack,
@@ -361,6 +362,7 @@ function wireEvents() {
   wirePlaybackLifecycleEvents({
     deckState,
     handleDeckEnded, renderDeckTime, refreshHostStatus: hostPlayback.refreshStatus,
+    nextHostPollDelay: hostPlayback.nextPollDelay,
     syncJukeboxPlaying, state, audioUrl, setStatus, renderNow
   });
   wireMusicPlaybackTargetChange({ state, deckState, playTrack });
