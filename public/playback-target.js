@@ -3,6 +3,7 @@
   const select = document.querySelector("#playback-target");
   const read = () => { try { return localStorage.getItem(key) === "host" ? "host" : "browser"; } catch { return "browser"; } };
   let target = read();
+  let hostAvailable = false;
   let picker;
   const tvMode = () => document.documentElement.classList.contains("tv-mode");
   const renderPicker = () => {
@@ -28,19 +29,52 @@
     }
     select.hidden = tvMode();
     picker.hidden = !tvMode();
+    const hostOption = select.querySelector('option[value="host"]');
+    hostOption.disabled = !hostAvailable;
+    hostOption.textContent = hostAvailable ? "MyMusics host" : "MyMusics host (MPV required)";
     picker.querySelector(".tv-playback-current").textContent = `Audio output: ${target === "host" ? "MyMusics host" : "This browser"}`;
     picker.querySelectorAll("[data-output]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.output === target)));
+    const hostButton = picker.querySelector('[data-output="host"]');
+    hostButton.disabled = !hostAvailable;
+    hostButton.textContent = hostAvailable ? "MyMusics host" : "MyMusics host (MPV required)";
+    hostButton.title = hostAvailable ? "" : "Install MPV on the MyMusics host first.";
   };
+  function setTarget(value, persist = true) {
+    target = value === "host" && hostAvailable ? "host" : "browser";
+    if (select) select.value = target;
+    if (persist) { try { localStorage.setItem(key, target); } catch {} }
+    renderPicker();
+  }
+  async function refreshHostAvailability() {
+    let available = false;
+    try {
+      const response = await fetch("/api/host-player/mpv", { cache: "no-store" });
+      if (!response.ok) throw new Error("Could not check MPV availability.");
+      available = (await response.json()).installed === true;
+    } catch {}
+    const wasAvailable = hostAvailable;
+    hostAvailable = available;
+    if (!available && target === "host") {
+      setTarget("browser");
+      window.dispatchEvent(new Event("mymusics:playback-target-change"));
+      return;
+    }
+    renderPicker();
+    if (available && !wasAvailable && target === "host") window.dispatchEvent(new Event("mymusics:playback-target-change"));
+  }
   if (select) {
     select.value = target;
     select.addEventListener("change", () => {
-      target = select.value === "host" ? "host" : "browser";
-      try { localStorage.setItem(key, target); } catch {}
+      setTarget(select.value);
       window.dispatchEvent(new Event("mymusics:playback-target-change"));
-      renderPicker();
     });
   }
   renderPicker();
   window.addEventListener("mymusics:tv-mode-change", renderPicker);
-  window.MyMusicsPlayback = { get target() { return target; }, get isHost() { return target === "host"; } };
+  window.MyMusicsPlayback = { get target() { return target; }, get isHost() { return target === "host" && hostAvailable; } };
+  refreshHostAvailability();
+  window.addEventListener("focus", refreshHostAvailability);
+  window.addEventListener("storage", (event) => {
+    if (event.key === "mymusics:mpv-installed") refreshHostAvailability();
+  });
 })();

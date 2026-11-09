@@ -1,10 +1,12 @@
 const { spawn } = require("node:child_process");
+const { promisify } = require("node:util");
 const fs = require("node:fs/promises");
 const net = require("node:net");
 const os = require("node:os");
 const path = require("node:path");
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const execFile = promisify(require("node:child_process").execFile);
 
 class MpvDeck {
   constructor(key) {
@@ -235,6 +237,16 @@ class HostPlayer {
   async status() {
     const decks = await Promise.all([this.decks.a.status(), this.decks.b.status()]);
     return { available: Boolean(this.decks.a.child || this.decks.b.child), activeDeck: this.activeDeck, error: this.lastError, decks: { a: decks[0], b: decks[1] } };
+  }
+
+  async mpvStatus() {
+    const binary = process.env.MPV_BIN || "mpv";
+    try {
+      const { stdout } = await execFile(binary, ["--version"], { timeout: 5000, maxBuffer: 4096 });
+      return { installed: true, version: stdout.split(/\r?\n/, 1)[0] || "MPV installed" };
+    } catch (error) {
+      return { installed: false, error: error.code === "ENOENT" ? "MPV is not installed on the MyMusics host." : "MPV could not be started." };
+    }
   }
 
   async close() { await Promise.all([this.decks.a.close(), this.decks.b.close()]); }

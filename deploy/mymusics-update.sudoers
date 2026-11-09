@@ -1,1 +1,1 @@
-mymusics ALL=(root) NOPASSWD: /usr/bin/systemctl --no-block start mymusics-update.service
+mymusics ALL=(root) NOPASSWD: /usr/bin/systemctl --no-block start mymusics-update.service, /usr/bin/systemctl --no-block restart mymusics.service

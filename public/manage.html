@@ -9,10 +9,10 @@
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/style.css">
   <link rel="stylesheet" href="/manage.css">
-  <script type="module" src="/manage.js?v=jellyfin-general-settings-1"></script>
+  <script type="module" src="/manage.js?v=mpv-host-management-1"></script>
   <link rel="stylesheet" href="/app-theme.css?v=tv-foundation-1">
   <link rel="stylesheet" href="/management-theme.css?v=music-genre-management-1">
-  <link rel="stylesheet" href="/manage-settings.css?v=jellyfin-general-settings-1">
+  <link rel="stylesheet" href="/manage-settings.css?v=mpv-host-management-1">
 </head>
 <body class="management-page">
   <div class="app-shell manage-shell">
@@ -64,6 +64,11 @@
           <div class="general-settings-actions"><button class="save-button" type="submit">Save settings</button><button id="jellyfin-test" class="text-button" type="button">Test connection</button></div>
           <p id="jellyfin-settings-status" class="form-hint" role="status" aria-live="polite">Loading Jellyfin settings…</p>
         </form>
+        <section class="general-mpv-settings" aria-labelledby="mpv-heading">
+          <header><p class="eyebrow">Host audio</p><h3 id="mpv-heading">MPV on this host</h3><p>MPV is needed when audio output is set to MyMusics host. MyMusics installs it from the Ubuntu package repositories.</p></header>
+          <div class="general-settings-actions"><button id="check-mpv" class="text-button" type="button">Check MPV installation</button><button id="install-mpv" class="save-button" type="button" disabled>Install MPV</button></div>
+          <p id="mpv-install-status" class="form-hint" role="status" aria-live="polite">Checking MPV on the host…</p>
+        </section>
       </section>
       <section id="stations" class="manage-workspace" aria-label="Stations and genres">
         <aside class="genre-master panel" aria-labelledby="genre-heading">

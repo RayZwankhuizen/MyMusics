@@ -14,4 +14,11 @@
 .management-page .general-settings-actions button:disabled{opacity:.55;cursor:wait}
 .management-page #jellyfin-settings-status{margin:0;font-weight:500}
 .management-page #jellyfin-settings-status.error{color:#ff9e93}
+.management-page .general-mpv-settings{display:grid;gap:10px;padding-top:16px;border-top:1px solid var(--line)}
+.management-page .general-mpv-settings header{display:grid;gap:5px}
+.management-page .general-mpv-settings h3{margin:0;font-size:15px;font-weight:550}
+.management-page .general-mpv-settings header p:last-child{max-width:620px;margin:0;color:var(--muted);font-size:12px;line-height:1.5}
+.management-page .general-mpv-settings .general-settings-actions{grid-column:1;flex-wrap:wrap}
+.management-page #mpv-install-status{margin:0}
+.management-page #mpv-install-status.error{color:#ff9e93}
 @media(max-width:640px){.management-page .general-settings-form{grid-template-columns:1fr;gap:7px}.management-page .general-settings-form .form-hint,.management-page .general-settings-actions{grid-column:1}.management-page .general-settings-form .form-hint{margin:0 0 8px}.management-page .general-settings-heading{flex-direction:column}}

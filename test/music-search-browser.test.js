@@ -521,12 +521,14 @@ test("host playback sends the deck contract and updates the jukebox", async () =
         ] : []
       };
     }
+    if (url.pathname === "/api/host-player/mpv") body = { installed: true, version: "mpv test", canInstall: false };
     if (url.pathname === "/api/host-player/status") body = { activeDeck: "a", decks: { a: {}, b: {} } };
     if (url.pathname === "/api/host-player/music") hostRequests.push(JSON.parse(route.request().postData() || "{}"));
     await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(body) });
   });
 
   await page.goto(`${baseUrl}/music.html`);
+  await page.waitForFunction(() => !document.querySelector('#playback-target option[value="host"]').disabled);
   await page.locator("#playback-target").selectOption("host");
   await page.waitForFunction(() => window.MyMusicsPlayback.isHost && document.querySelector("#audio").hidden);
   await page.locator("#left-search-dialog").evaluate((dialog) => dialog.showModal());

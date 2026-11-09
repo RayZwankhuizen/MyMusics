@@ -8,6 +8,7 @@ Type=oneshot
 User=root
 EnvironmentFile=-/etc/mymusics/mymusics.env
 ExecStart=/usr/local/sbin/mymusics-update
+TimeoutStartSec=20min
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectHome=true

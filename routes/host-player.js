@@ -1,7 +1,51 @@
+const fs = require("node:fs");
+const { promisify } = require("node:util");
+const execFile = promisify(require("node:child_process").execFile);
+
 module.exports = function registerHostPlayerRoutes(app, { hostPlayer, getStations }) {
   const port = Number(process.env.PORT) || 6565;
   const validDeck = (value) => value === "a" || value === "b";
   const allStations = () => Object.values(getStations()).flat();
+  let mpvInstallQueued = false;
+
+  function canInstallMpv() {
+    return process.env.MYMUSICS_MPV_INSTALL_ENABLED === "true"
+      && fs.existsSync("/opt/mymusics/deploy/mymusics-install-mpv.sh")
+      && fs.existsSync("/etc/sudoers.d/mymusics-update");
+  }
+
+  app.get("/api/host-player/mpv", async (_req, res) => {
+    const { installed, version, error } = await hostPlayer.mpvStatus();
+    if (installed) mpvInstallQueued = false;
+    res.json({
+      installed, version: version || "", error: error || "",
+      installing: mpvInstallQueued && !installed,
+      canInstall: canInstallMpv()
+    });
+  });
+
+  app.post("/api/host-player/mpv/install", async (req, res) => {
+    if (!req.is("application/json")) return res.status(415).json({ error: "MPV installation requests must use JSON." });
+    if (req.get("origin") !== `${req.protocol}://${req.get("host")}`) {
+      return res.status(403).json({ error: "MPV installation can only be started from this MyMusics page." });
+    }
+    const status = await hostPlayer.mpvStatus();
+    if (status.installed) return res.status(409).json({ error: "MPV is already installed on the MyMusics host." });
+    if (mpvInstallQueued) return res.status(409).json({ error: "MPV installation is already starting." });
+    if (!canInstallMpv()) {
+      return res.status(503).json({ error: "Host MPV installation is not configured on this server." });
+    }
+    try {
+      mpvInstallQueued = true;
+      const resetQueued = setTimeout(() => { mpvInstallQueued = false; }, 120_000);
+      resetQueued.unref?.();
+      await execFile("/usr/bin/sudo", ["-n", "/usr/bin/systemctl", "--no-block", "restart", "mymusics.service"], { timeout: 5000 });
+      res.status(202).json({ state: "installing", willRestart: true });
+    } catch {
+      mpvInstallQueued = false;
+      res.status(503).json({ error: "Could not start MPV installation. Check the MyMusics system service setup." });
+    }
+  });
 
   app.get("/api/host-player/status", async (_req, res) => {
     res.json(await hostPlayer.status());

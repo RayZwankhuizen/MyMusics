@@ -1,6 +1,7 @@
 [Unit]
 Description=MyMusics web radio
-After=network.target
+Wants=network-online.target
+After=network-online.target
 
 [Service]
 Type=simple
@@ -12,8 +13,11 @@ Environment=HOST=0.0.0.0
 Environment=PORT=6565
 Environment=MYMUSICS_DATA_DIR=/var/lib/mymusics
 Environment=MYMUSICS_UPDATE_ENABLED=true
+Environment=MYMUSICS_MPV_INSTALL_ENABLED=true
 EnvironmentFile=-/etc/mymusics/mymusics.env
+ExecStartPre=+/bin/bash /opt/mymusics/deploy/mymusics-install-mpv.sh
 ExecStart=/usr/bin/node server.js
+TimeoutStartSec=15min
 Restart=on-failure
 RestartSec=5
 StateDirectory=mymusics

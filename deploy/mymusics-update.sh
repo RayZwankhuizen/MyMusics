@@ -95,7 +95,7 @@ tar -xzf "$WORK_DIR/mymusics.tar.gz" --no-same-owner --no-same-permissions -C "$
 
 for file in VERSION BUILD_DATE server.js storage.js jellyfin.js playlists.js package.json package-lock.json stations.json \
   deploy/runtime-files.txt \
-  deploy/mymusics-update.sh deploy/mymusics.service deploy/mymusics-update.service deploy/mymusics-update.sudoers \
+  deploy/mymusics-update.sh deploy/mymusics-install-mpv.sh deploy/mymusics.service deploy/mymusics-update.service deploy/mymusics-update.sudoers \
   routes/updates.js routes/stations.js routes/station-discovery.js routes/music.js routes/metadata.js routes/health.js; do
   [[ -f "$WORK_DIR/app/$file" ]]
 done
@@ -129,7 +129,7 @@ FAIL_MESSAGE="Updated files failed the startup health check; the previous versio
 systemctl restart mymusics.service
 systemctl is-active --quiet mymusics.service
 healthy=0
-for _ in {1..30}; do
+for _ in {1..960}; do
   if health=$(curl -fsS --connect-timeout 2 --max-time 3 http://127.0.0.1:6565/health 2>/dev/null); then
     if printf '%s' "$health" | EXPECTED_VERSION="$TAG" node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const h=JSON.parse(s);if(h.status==="ok"&&h.version===process.env.EXPECTED_VERSION)process.exit(0)}catch{}process.exit(1)})'; then
       healthy=1

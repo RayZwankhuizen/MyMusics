@@ -26,10 +26,14 @@ test.after(async () => {
 test("TV mode enables remote focus, custom radio controls, and the audio output picker", async () => {
   const page = await browser.newPage();
   await page.route("**/stations", (route) => route.fulfill({ contentType: "application/json", body: JSON.stringify({ Jazz: [{ name: "Test Jazz", url: "https://radio.example/jazz", image: "" }] }) }));
-  await page.route("**/api/host-player/*", (route) => route.fulfill({ contentType: "application/json", body: "{}" }));
+  await page.route("**/api/host-player/*", (route) => {
+    const body = new URL(route.request().url()).pathname.endsWith("/mpv") ? { installed: true } : {};
+    return route.fulfill({ contentType: "application/json", body: JSON.stringify(body) });
+  });
   await page.route("https://radio.example/**", (route) => route.abort());
   await page.goto(`${baseUrl}/?tv=1`);
   await page.waitForSelector("#genres button");
+  await page.waitForFunction(() => !document.querySelector('.tv-playback-options [data-output="host"]').disabled);
 
   assert.equal(await page.locator("html").evaluate((node) => node.classList.contains("tv-mode")), true);
   assert.equal(await page.locator("#audio").evaluate((node) => node.controls), false);

@@ -16,5 +16,6 @@ stations.json
 deploy/runtime-files.txt
 deploy/mymusics.service
 deploy/mymusics-update.sh
+deploy/mymusics-install-mpv.sh
 deploy/mymusics-update.service
 deploy/mymusics-update.sudoers

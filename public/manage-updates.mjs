@@ -56,6 +56,7 @@ export function wireManageUpdates({ request, el }) {
           await checkForUpdates();
           message.textContent = `Updated to ${version}.`;
           install.disabled = false;
+          window.setTimeout(() => window.location.reload(), 1500);
           return;
         }
         message.textContent = "Installing update. MyMusics will restart automatically…";
