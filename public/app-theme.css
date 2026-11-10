@@ -8,6 +8,7 @@ a{color:inherit}
 :focus-visible{outline:3px solid #33e0ff!important;outline-offset:3px}
 .sidebar{width:clamp(220px,15vw,288px);padding:28px 20px;background:#101826;border-color:#2a3552;color:#f5f7fa}
 .sidebar-version{display:grid;gap:4px;margin-top:auto;padding:14px 8px 0;border-top:1px solid #2a3552;color:#8190ab;font:10px/1.4 var(--mono)}
+html.tv-mode .sidebar-version :is(span,time){font-size:14px!important}
 .brand,.brand-light{color:#f5f7fa}.brand-mark{background:#ff3366}
 .side-label,.kicker,.eyebrow,.help-eyebrow{color:#8190ab}
 .genre-nav button,.sidebar-page{color:#a9b6ce}

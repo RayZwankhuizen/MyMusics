@@ -4,15 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0B0D14">
-  <script>try{const saved=localStorage.getItem('mymusics:tv-mode');document.documentElement.classList.toggle('tv-mode',saved===null?/(AFT|Silk|Fire TV|SmartTV)/i.test(navigator.userAgent):saved==='true');if(new URLSearchParams(location.search).get('tv')==='1'){document.documentElement.classList.add('tv-mode');localStorage.setItem('mymusics:tv-mode','true')}}catch{}</script>
+  <script>{const ua=navigator.userAgent||'';const actualSilk=/\bSilk(?:\/|\b)/i.test(ua);let emulateSilk=false,saved=null;try{emulateSilk=localStorage.getItem('mymusics:silk-emulation')==='true';saved=localStorage.getItem('mymusics:tv-mode')}catch{}const detectedTv=actualSilk||/\bAFT[A-Z0-9]*\b|\bKF[A-Z0-9]*\b|Fire TV|SmartTV/i.test(ua);const forceTv=new URLSearchParams(location.search).get('tv')==='1';document.documentElement.classList.toggle('silk-browser',actualSilk||emulateSilk);document.documentElement.classList.toggle('tv-mode',forceTv||(saved===null?detectedTv:saved==='true'));if(forceTv)try{localStorage.setItem('mymusics:tv-mode','true')}catch{}}</script>
   <title>Manage — MyMusics</title>
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/style.css">
   <link rel="stylesheet" href="/manage.css">
-  <script type="module" src="/manage.js?v=manage-audio-device-test-2"></script>
-  <link rel="stylesheet" href="/app-theme.css?v=tv-foundation-1">
+  <script type="module" src="/manage.js?v=browser-info-1"></script>
+  <link rel="stylesheet" href="/app-theme.css?v=browser-info-1">
   <link rel="stylesheet" href="/management-theme.css?v=music-genre-management-1">
-  <link rel="stylesheet" href="/manage-settings.css?v=manage-audio-device-test-2">
+  <link rel="stylesheet" href="/manage-settings.css?v=browser-info-1">
 </head>
 <body class="management-page">
   <div class="app-shell manage-shell">
@@ -30,6 +30,7 @@
         <a class="sidebar-page" data-manage-section="general" href="/manage.html#general">General</a>
         <a class="sidebar-page" data-manage-section="jellyfin-settings" href="/manage.html#jellyfin-settings">Jellyfin</a>
         <a class="sidebar-page" data-manage-section="host-audio-test" href="/manage.html#host-audio-test">Test</a>
+        <a class="sidebar-page" data-manage-section="browser-info" href="/manage.html#browser-info">Browser</a>
         <a class="sidebar-page" data-manage-section="updates" href="/manage.html#updates">Updates</a>
         <a class="sidebar-page" href="/help.html">Help</a>
       </nav>
@@ -76,6 +77,17 @@
         </section>
         <div class="host-audio-test-controls"><label for="host-audio-device">Output device</label><select id="host-audio-device" disabled><option>Checking MPV…</option></select><button id="host-audio-test-button" class="save-button" type="button" disabled>Play test tone</button><button id="host-audio-use-device-button" class="text-button" type="button" hidden disabled>I heard it; use this output</button></div>
         <p id="host-audio-test-status" class="form-hint" role="status" aria-live="polite">Checking MPV audio devices…</p>
+      </section>
+      <section id="browser-info" class="browser-info-panel panel" aria-labelledby="browser-info-heading">
+        <header class="general-settings-heading"><div><p class="eyebrow">This device</p><h2 id="browser-info-heading">Browser information</h2><p>Details reported by this browser. Private browsing, device policies, and browser privacy settings can hide some values.</p></div></header>
+        <div class="browser-emulation-row">
+          <div><h3>Silk layout preview</h3><p>Simulate the MyMusics TV layout on this laptop. This does not change the browser or its reported capabilities.</p></div>
+          <label class="browser-silk-switch"><input id="silk-emulation" type="checkbox" role="switch"><span aria-hidden="true"></span><strong>Emulate Silk</strong></label>
+        </div>
+        <p id="browser-info-status" class="form-hint" role="status" aria-live="polite">Reading browser information…</p>
+        <nav id="browser-preview-links" class="browser-preview-links" aria-label="Silk layout previews" hidden><a class="text-button" href="/">Preview Radio</a><a class="text-button" href="/music.html">Preview Music</a></nav>
+        <div class="browser-info-table-wrap"><dl id="browser-details" class="browser-details" aria-label="Browser details"><dt>Loading</dt><dd>Reading information available to this page…</dd></dl></div>
+        <button id="browser-info-refresh" class="text-button" type="button">Refresh browser information</button>
       </section>
       <section id="stations" class="manage-workspace" aria-label="Stations and genres">
         <aside class="genre-master panel" aria-labelledby="genre-heading">
@@ -128,6 +140,6 @@
     </main>
   </div>
   <script defer src="/tv-navigation.js?v=tv-navigation-2"></script>
-  <script defer src="/app-meta.js?v=2"></script>
+  <script type="module" src="/app-meta.js?v=browser-meta-2"></script>
 </body>
 </html>

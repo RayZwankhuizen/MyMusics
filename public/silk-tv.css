@@ -15,6 +15,8 @@ html.silk-browser.tv-mode .genre-nav button{width:auto;min-width:max-content;min
 html.silk-browser.tv-mode .genre-nav button.selected{border-color:#e58b73;background:#25221e;box-shadow:inset 0 0 0 1px #e58b73;color:#fff}
 html.silk-browser.tv-mode .sidebar-manage,html.silk-browser.tv-mode .sidebar-page[href*="manage"],html.silk-browser.tv-mode .sidebar-foot,html.silk-browser.tv-mode .music-controls-sidebar{display:none!important}
 html.silk-browser.tv-mode .tv-mode-toggle{grid-column:5;grid-row:1;width:auto;min-width:104px;min-height:50px;margin:0;font-size:16px}
+html.silk-browser.tv-mode .sidebar-version{grid-column:1/-1;justify-self:end;display:flex;gap:16px;margin:0;padding:8px 0 0;border:0;font:14px/1.4 var(--mono)}
+html.silk-browser.tv-mode .sidebar-version :is(span,time){font-size:14px!important}
 html.silk-browser.tv-mode main,html.silk-browser.tv-mode body.music-page main{width:auto;max-width:none;margin:0;padding:24px clamp(24px,4vw,64px) 150px}
 html.silk-browser.tv-mode :focus-visible{outline:4px solid #ffe0a0!important;outline-offset:4px;box-shadow:0 0 0 7px #ffc46b55!important;transform:none!important;z-index:5}
 html.silk-browser.tv-mode body :is(p,label,li,span,strong,button,a,output,legend,small,summary){font-size:20px!important}
@@ -68,6 +70,8 @@ html.silk-browser.tv-mode body.music-page #jb-search-dialog .jb-rack-list{max-he
   html.silk-browser.tv-mode .tv-mode-toggle{grid-column:3;grid-row:1}
   html.silk-browser.tv-mode .side-label{grid-column:1;grid-row:3}
   html.silk-browser.tv-mode .genre-nav{grid-column:1/4;grid-row:4}
+  html.silk-browser.tv-mode body.radio-page .sidebar-version{grid-row:5}
+  html.silk-browser.tv-mode body.music-page .sidebar-version{grid-row:3}
   html.silk-browser.tv-mode .radio-page .content-layout{grid-template-columns:minmax(0,1fr);gap:16px}
   html.silk-browser.tv-mode .radio-page .now-section{grid-column:1;grid-row:1}
   html.silk-browser.tv-mode .radio-page .station-section{grid-column:1;grid-row:2;max-height:46vh}

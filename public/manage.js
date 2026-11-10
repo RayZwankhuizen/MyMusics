@@ -8,6 +8,7 @@ import { wireStationSearch } from "./manage-station-search.mjs";
 import { wireStationImages } from "./manage-station-images.mjs";
 import { wireManageStreamFinder } from "./manage-stream-finder.mjs";
 import { wireManageStationPreview } from "./manage-station-preview.mjs";
+import { wireManageBrowserInfo } from "./manage-browser-info.mjs";
 
 const el = (selector) => document.querySelector(selector);
 const notice = (message, error = false) => {
@@ -21,6 +22,7 @@ const catalog = createManageCatalog({ el, request, notice, stationImages, stream
 wireManagePlaylists({ el, initialPlaylistId: new URLSearchParams(location.search).get("playlist") || "" });
 wireManageMusicGenres({ el, request });
 wireManageJellyfinSettings({ el, request });
+wireManageBrowserInfo();
 
 wireStationSearch({
   el, request, route: catalog.route,

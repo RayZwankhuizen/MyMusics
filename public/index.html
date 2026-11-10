@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0B0D14">
-  <script>{const ua=navigator.userAgent||'';const silk=/\bSilk(?:\/|\b)/i.test(ua);document.documentElement.classList.toggle('silk-browser',silk);const detectedTv=silk||/\bAFT[A-Z0-9]*\b|\bKF[A-Z0-9]*\b|Fire TV|SmartTV/i.test(ua);let saved=null;try{saved=localStorage.getItem('mymusics:tv-mode')}catch{}const forceTv=new URLSearchParams(location.search).get('tv')==='1';document.documentElement.classList.toggle('tv-mode',forceTv||(saved===null?detectedTv:saved==='true'));if(forceTv)try{localStorage.setItem('mymusics:tv-mode','true')}catch{}}</script>
+  <script>{const ua=navigator.userAgent||'';const actualSilk=/\bSilk(?:\/|\b)/i.test(ua);let emulateSilk=false,saved=null;try{emulateSilk=localStorage.getItem('mymusics:silk-emulation')==='true';saved=localStorage.getItem('mymusics:tv-mode')}catch{}const detectedTv=actualSilk||emulateSilk||/\bAFT[A-Z0-9]*\b|\bKF[A-Z0-9]*\b|Fire TV|SmartTV/i.test(ua);const forceTv=new URLSearchParams(location.search).get('tv')==='1';document.documentElement.classList.toggle('silk-browser',actualSilk||emulateSilk);document.documentElement.classList.toggle('tv-mode',forceTv||emulateSilk||(saved===null?detectedTv:saved==='true'));if(forceTv)try{localStorage.setItem('mymusics:tv-mode','true')}catch{}}</script>
   <title>MyMusics — Radio</title>
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="preconnect" href="https://coverartarchive.org">
@@ -14,8 +14,8 @@
   <script defer src="/equalizer.js?v=5"></script>
   <script defer src="/synced-lyrics.js?v=1"></script>
   <script type="module" src="/app.js?v=radio-20261108-52"></script>
-  <link rel="stylesheet" href="/app-theme.css?v=tv-foundation-1">
-  <link rel="stylesheet" href="/silk-tv.css?v=silk-tv-1">
+  <link rel="stylesheet" href="/app-theme.css?v=browser-info-1">
+  <link rel="stylesheet" href="/silk-tv.css?v=silk-tv-2">
 </head>
 <body class="radio-page">
   <div class="app-shell">
@@ -121,6 +121,6 @@
     </form>
   </dialog>
   <script defer src="/tv-navigation.js?v=tv-navigation-2"></script>
-  <script defer src="/app-meta.js?v=2"></script>
+  <script type="module" src="/app-meta.js?v=browser-meta-2"></script>
 </body>
 </html>
