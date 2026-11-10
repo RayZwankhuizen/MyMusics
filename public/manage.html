@@ -7,10 +7,10 @@
   <script>{const ua=navigator.userAgent||'';const actualSilk=/\bSilk(?:\/|\b)/i.test(ua);let emulateSilk=false,saved=null;try{emulateSilk=localStorage.getItem('mymusics:silk-emulation')==='true';saved=localStorage.getItem('mymusics:tv-mode')}catch{}const detectedTv=actualSilk||/\bAFT[A-Z0-9]*\b|\bKF[A-Z0-9]*\b|Fire TV|SmartTV/i.test(ua);const forceTv=new URLSearchParams(location.search).get('tv')==='1';document.documentElement.classList.toggle('silk-browser',actualSilk||emulateSilk);document.documentElement.classList.toggle('tv-mode',forceTv||(saved===null?detectedTv:saved==='true'));if(forceTv)try{localStorage.setItem('mymusics:tv-mode','true')}catch{}}</script>
   <title>Manage — MyMusics</title>
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/style.css?v=tv-layout-1">
   <link rel="stylesheet" href="/manage.css">
   <script type="module" src="/manage.js?v=browser-info-1"></script>
-  <link rel="stylesheet" href="/app-theme.css?v=browser-info-1">
+  <link rel="stylesheet" href="/app-theme.css?v=tv-layout-1">
   <link rel="stylesheet" href="/management-theme.css?v=music-genre-management-1">
   <link rel="stylesheet" href="/manage-settings.css?v=browser-info-1">
 </head>
@@ -139,7 +139,7 @@
       <dialog id="genre-delete-dialog" class="genre-delete-dialog" aria-labelledby="genre-delete-title"><form id="genre-delete-form"><h2 id="genre-delete-title">Delete genre</h2><p id="genre-delete-description"></p><label for="genre-delete-confirm-name">Type the genre name to confirm</label><input id="genre-delete-confirm-name" autocomplete="off"><div><button id="genre-delete-cancel" class="text-button" type="button" autofocus>Cancel</button><button id="genre-delete-confirm" class="delete-genre-button" type="submit" disabled>Delete genre</button></div></form></dialog>
     </main>
   </div>
-  <script defer src="/tv-navigation.js?v=tv-navigation-2"></script>
+  <script defer src="/tv-navigation.js?v=tv-navigation-3"></script>
   <script type="module" src="/app-meta.js?v=browser-meta-2"></script>
 </body>
 </html>

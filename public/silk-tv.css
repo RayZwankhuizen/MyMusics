@@ -29,7 +29,7 @@ html.silk-browser.tv-mode .radio-page .station-list{grid-template-columns:repeat
 html.silk-browser.tv-mode .radio-page .station-row{min-height:76px;padding:14px 18px}
 html.silk-browser.tv-mode .radio-page .station-details strong{font-size:22px!important}
 html.silk-browser.tv-mode .radio-page .station-details span{font-size:18px!important}
-html.silk-browser.tv-mode .radio-page .player-bar{inset:auto 4vw 3vh;min-height:104px;padding:16px 24px;border:1px solid #eef0f533;border-radius:16px;background:#11141cf5;backdrop-filter:none}
+html.silk-browser.tv-mode .radio-page .player-bar{inset:auto 4vw calc(1vh + env(safe-area-inset-bottom));width:auto;min-height:88px;padding:8px 16px;border:1px solid #eef0f533;border-radius:16px;background:#11141cf5;backdrop-filter:none}
 html.silk-browser.tv-mode .radio-page .radio-player-current{gap:18px}
 html.silk-browser.tv-mode .radio-page .radio-player-logo{width:68px;height:68px}
 html.silk-browser.tv-mode .radio-page .radio-player-controls button{min-width:64px;min-height:60px}
@@ -61,24 +61,59 @@ html.silk-browser.tv-mode body.music-page #jb-search-dialog .jb-strip-body span{
 html.silk-browser.tv-mode body.music-page #jb-search-dialog .jb-rack-list{max-height:58vh}
 
 @media(max-width:1100px){
-  html.silk-browser.tv-mode .sidebar{grid-template-columns:auto minmax(0,1fr) auto;gap:10px 16px;padding:12px 18px}
+  html.silk-browser.tv-mode .sidebar{grid-template-columns:auto auto minmax(0,1fr) auto;gap:8px 12px;padding:10px clamp(18px,4vw,40px)}
   html.silk-browser.tv-mode .brand{grid-column:1;grid-row:1}
   html.silk-browser.tv-mode .mode-switch{grid-column:2;grid-row:1;justify-self:start}
-  html.silk-browser.tv-mode .playback-target-setting{grid-column:1/3;grid-row:2;justify-self:start}
-  html.silk-browser.tv-mode body.music-page .playback-target-setting{grid-column:1;grid-row:2}
-  html.silk-browser.tv-mode body.music-page .music-volume-setting{grid-column:2/4;grid-row:2;justify-self:end}
-  html.silk-browser.tv-mode .tv-mode-toggle{grid-column:3;grid-row:1}
-  html.silk-browser.tv-mode .side-label{grid-column:1;grid-row:3}
-  html.silk-browser.tv-mode .genre-nav{grid-column:1/4;grid-row:4}
-  html.silk-browser.tv-mode body.radio-page .sidebar-version{grid-row:5}
-  html.silk-browser.tv-mode body.music-page .sidebar-version{grid-row:3}
+  html.silk-browser.tv-mode .tv-mode-toggle{grid-column:4;grid-row:1;min-height:48px}
+  html.silk-browser.tv-mode .playback-target-setting{display:flex;align-items:center;grid-column:3;grid-row:1;justify-self:stretch;gap:0;width:auto;max-width:none;min-width:0;margin:0;padding:0;border:0;font-size:0!important}
+  html.silk-browser.tv-mode .playback-target-setting .tv-playback-picker{position:relative;width:100%}
+  html.silk-browser.tv-mode .playback-target-setting .tv-playback-current{width:100%;min-height:48px;padding:8px 12px;font-size:16px!important;white-space:nowrap}
+  html.silk-browser.tv-mode body.music-page .playback-target-setting{grid-column:1/4;grid-row:2;width:100%}
+  html.silk-browser.tv-mode body.music-page .music-volume-setting{display:flex;align-items:center;gap:8px;grid-column:4;grid-row:2;justify-self:end;width:188px;min-height:48px;margin:0;padding:6px 10px;font-size:14px!important}
+  html.silk-browser.tv-mode body.music-page .music-volume-setting span{flex:1;white-space:nowrap;font-size:14px!important}
+  html.silk-browser.tv-mode body.music-page .music-volume-setting input{width:72px;min-width:48px}
+  html.silk-browser.tv-mode body.radio-page .playback-target-setting{grid-column:3;grid-row:1;width:100%}
+  html.silk-browser.tv-mode .side-label{grid-column:1;grid-row:2;align-self:center;margin:0}
+  html.silk-browser.tv-mode .genre-nav{grid-column:2/-1;grid-row:2;min-width:0;max-height:60px;overflow:auto hidden}
+  html.silk-browser.tv-mode .sidebar-version{display:none}
   html.silk-browser.tv-mode .radio-page .content-layout{grid-template-columns:minmax(0,1fr);gap:16px}
-  html.silk-browser.tv-mode .radio-page .now-section{grid-column:1;grid-row:1}
-  html.silk-browser.tv-mode .radio-page .station-section{grid-column:1;grid-row:2;max-height:46vh}
-  html.silk-browser.tv-mode body.music-page .jb-decks{grid-template-columns:minmax(0,1fr)}
-  html.silk-browser.tv-mode body.music-page .jukebox.jb-vintage .jb-deck{min-height:190px}
+  html.silk-browser.tv-mode .radio-page .station-section{order:2;grid-column:1;grid-row:1;max-height:46vh}
+  html.silk-browser.tv-mode .radio-page .now-section{order:3;grid-column:1;grid-row:2}
+  html.silk-browser.tv-mode body.radio-page main,html.silk-browser.tv-mode body.music-page main{padding:12px clamp(18px,4vw,40px) 150px}
+  html.silk-browser.tv-mode body.radio-page .now-section{margin-top:calc(88px + 2vh);padding-top:8px}
+  html.silk-browser.tv-mode body.radio-page .now-card{grid-template-columns:minmax(110px,140px) minmax(0,1fr);gap:12px;padding:10px}
+  html.silk-browser.tv-mode body.radio-page .radio-toolbar h1{font-size:30px!important}
+  html.silk-browser.tv-mode body.radio-page .track-info :is(.track-kicker,.track-title,.track-artist,.track-album,.lookup-status){font-size:16px!important}
+  html.silk-browser.tv-mode body.radio-page .track-divider{margin:8px 0}
+  html.silk-browser.tv-mode body.music-page .jukebox.jb-vintage{gap:12px;padding:16px}
+  html.silk-browser.tv-mode body.music-page .jb-toolbar{gap:12px;padding-bottom:10px}
+  html.silk-browser.tv-mode body.music-page .jb-decks{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto auto;gap:12px}
+  html.silk-browser.tv-mode body.music-page .jb-center-card{grid-column:1/-1;grid-row:1;display:grid;grid-template-columns:minmax(0,1fr) 1px minmax(0,1fr);align-items:start;gap:10px;padding:10px}
+  html.silk-browser.tv-mode body.music-page .jb-center-card .jb-info{gap:1px}
+  html.silk-browser.tv-mode body.music-page .jb-center-card .jb-info-label{margin:0 0 2px;font-size:13px!important}
+  html.silk-browser.tv-mode body.music-page .jb-center-card .jb-title{font-size:18px!important;line-height:1.15}
+  html.silk-browser.tv-mode body.music-page .jb-center-card .jb-info :is(.jb-artist,.jb-album,.jb-meta,.jb-time){font-size:14px!important;line-height:1.2}
+  html.silk-browser.tv-mode body.music-page .jb-center-card .jb-progress{height:24px;min-height:24px;margin:2px 0 0}
+  html.silk-browser.tv-mode body.music-page .jb-center-divider{width:1px;height:100%;min-height:54px}
+  html.silk-browser.tv-mode body.music-page .jb-center-card .jb-natural-fade{gap:4px;margin:2px 0 0;font-size:13px!important}
+  html.silk-browser.tv-mode body.music-page .jb-center-card .jb-natural-fade input{width:3.5rem;min-height:28px;padding:2px 4px;font-size:14px}
+  html.silk-browser.tv-mode body.music-page .jb-deck-a{grid-column:1;grid-row:2}
+  html.silk-browser.tv-mode body.music-page .jb-deck-b{grid-column:2;grid-row:2}
+  html.silk-browser.tv-mode body.music-page .jukebox.jb-vintage .jb-deck{grid-row:2;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(64px,1fr);gap:4px;justify-items:center;min-height:100px;height:auto;padding:6px;text-align:center}
+  html.silk-browser.tv-mode body.music-page .jukebox.jb-vintage .jb-deck-header{grid-column:1;grid-row:1;text-align:center}
+  html.silk-browser.tv-mode body.music-page .jukebox.jb-vintage .jb-deck .jb-turntable{grid-column:1;grid-row:2;width:clamp(72px,8vw,82px)}
+  html.silk-browser.tv-mode body.music-page .music-dock{inset:auto 4vw calc(1vh + env(safe-area-inset-bottom));min-height:68px;padding:6px 16px}
+  html.silk-browser.tv-mode body.music-page .jb-toolbar{gap:8px;padding-bottom:8px}
+  html.silk-browser.tv-mode body.music-page .jb-toolbar .jb-key{min-height:48px;padding-inline:12px}
+  html.silk-browser.tv-mode body.music-page .jb-center-card :is(.jb-status,.jb-title,.jb-artist,.jb-album,.jb-meta,.jb-time):empty{display:none}
+  html.silk-browser.tv-mode body.music-page .jb-center-card :is(input,button){scroll-margin-bottom:100px}
   html.silk-browser.tv-mode body.music-page #jb-search-dialog .jb-search-workspace{grid-template-columns:minmax(0,1fr)}
-  html.silk-browser.tv-mode body.music-page .music-dock{flex-wrap:wrap;gap:8px;padding:10px}
   html.silk-browser.tv-mode body.music-page .music-dock-label{display:none}
+}
+html.silk-browser.tv-mode .radio-page .player-bar{width:auto}
+@media(min-width:1101px) and (max-height:800px){
+  html.silk-browser.tv-mode .radio-page .station-section{max-height:min(42vh,calc(100vh - 455px));overflow:auto}
+  html.silk-browser.tv-mode body.music-page .jukebox.jb-vintage .jb-deck{min-height:190px;grid-template-rows:auto minmax(125px,1fr);padding:12px}
+  html.silk-browser.tv-mode body.music-page .jukebox.jb-vintage .jb-deck .jb-turntable{width:clamp(105px,12vw,150px)}
 }
 @media(prefers-reduced-motion:reduce){html.silk-browser.tv-mode *{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}

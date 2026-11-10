@@ -101,6 +101,15 @@
     try { token = sessionStorage.getItem(focusKey) || ""; } catch {}
     const previous = token && document.querySelector(token);
     (previous && visible(previous) ? previous : document.querySelector("[data-tv-autofocus]") || document.querySelector(isRadio ? "#genres button" : isMusic ? "#jb-search-open" : "main button,main a[href]"))?.focus({ preventScroll: true });
+    const genres = isRadio && document.querySelector("#genres");
+    if (genres && !genres.querySelector("button") && document.activeElement === document.body) {
+      new MutationObserver((_, observer) => {
+        const firstGenre = genres.querySelector("button");
+        if (!firstGenre || document.activeElement !== document.body) return;
+        firstGenre.focus({ preventScroll: true });
+        observer.disconnect();
+      }).observe(genres, { childList: true, subtree: true });
+    }
   }
   document.addEventListener("keydown", (event) => {
     const target = event.target;

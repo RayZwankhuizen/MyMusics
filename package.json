@@ -1,6 +1,6 @@
 {
   "name": "mymusics",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "private": true,
   "description": "Lightweight browser-based web radio",
   "scripts": {

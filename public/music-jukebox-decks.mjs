@@ -1,5 +1,11 @@
 export function createMusicJukeboxDecks({ state, deckState, el, getHostDeckStatus, isHostOutput, getNaturalFadeStartedTrack, setNaturalFadeStartedTrack, formatDuration, naturalFadeSeconds, scrollQueueText, next }) {
   const { decks, deckTracks, armDropped } = deckState;
+  const setText = (selector, value) => {
+    const node = el(selector);
+    if (!node) return;
+    node.textContent = value;
+    node.hidden = !value;
+  };
   function syncPlaying() {
     const activeDeck = deckState.activeDeck;
     const hostStatus = getHostDeckStatus();
@@ -21,8 +27,8 @@ export function createMusicJukeboxDecks({ state, deckState, el, getHostDeckStatu
       : (deckTracks[activeDeck] || state.current) ? (playing ? "PLAYING" : "PAUSED") : "";
     const inactiveKey = activeDeck === "a" ? "b" : "a";
     const inactiveStatus = deckTracks[inactiveKey] ? "READY" : "";
-    el(activeDeck === "a" ? "#jb-status" : "#jb-status-b").textContent = activeStatus;
-    el(inactiveKey === "a" ? "#jb-status" : "#jb-status-b").textContent = inactiveStatus;
+    setText(activeDeck === "a" ? "#jb-status" : "#jb-status-b", activeStatus);
+    setText(inactiveKey === "a" ? "#jb-status" : "#jb-status-b", inactiveStatus);
   }
 
   function renderTime(key) {
@@ -33,7 +39,7 @@ export function createMusicJukeboxDecks({ state, deckState, el, getHostDeckStatu
     const duration = isHostOutput() ? hostStatus?.[key]?.duration : player.duration;
     const progress = el(key === "a" ? "#jb-progress" : "#jb-progress-b");
     if (!Number.isFinite(duration) || duration <= 0 || !deckTracks[key]) {
-      output.textContent = "";
+      setText(`#jb-time${suffix}`, "");
       if (progress) {
         progress.value = 0;
         progress.disabled = true;
@@ -60,7 +66,7 @@ export function createMusicJukeboxDecks({ state, deckState, el, getHostDeckStatu
       const total = Math.floor(seconds);
       return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
     };
-    output.textContent = `${clock(elapsed)} elapsed · −${clock(duration - elapsed)} remaining`;
+    setText(`#jb-time${suffix}`, `${clock(elapsed)} elapsed · −${clock(duration - elapsed)} remaining`);
     const activeDeck = deckState.activeDeck;
     const track = deckTracks[key] || (key === activeDeck ? state.current : null);
     if (key !== activeDeck || !track || !state.crossfadeEnabled || getNaturalFadeStartedTrack() === track.id) return;
@@ -79,13 +85,14 @@ export function createMusicJukeboxDecks({ state, deckState, el, getHostDeckStatu
     const activeDeck = deckState.activeDeck;
     const updateDeck = (key, track) => {
       const suffix = key === "a" ? "" : "-b";
-      el(`#jb-title${suffix}`).textContent = track?.title || "";
-      el(`#jb-artist${suffix}`).textContent = track ? track.artist || "Unknown artist" : "";
-      el(`#jb-album${suffix}`).textContent = track ? [track.album, track.year].filter(Boolean).join(" · ") : "";
-      el(`#jb-meta${suffix}`).textContent = track ? formatDuration(track.durationMs) : "";
+      setText(`#jb-title${suffix}`, track?.title || "");
+      setText(`#jb-artist${suffix}`, track ? track.artist || "Unknown artist" : "");
+      setText(`#jb-album${suffix}`, track ? [track.album, track.year].filter(Boolean).join(" · ") : "");
+      setText(`#jb-meta${suffix}`, track ? formatDuration(track.durationMs) : "");
       const fadeInput = el(`[data-natural-fadeout="${key}"]`);
       fadeInput.disabled = !track?.id;
       fadeInput.value = naturalFadeSeconds(track) || "";
+      fadeInput.closest(".jb-natural-fade").hidden = !track?.id;
       renderTime(key);
       const art = el(`#jb-art${suffix}`);
       if (track?.art) {

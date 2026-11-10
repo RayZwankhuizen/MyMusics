@@ -40,6 +40,7 @@ body.music-page .music-dock-label{position:absolute;left:22px;color:#8190ab;font
 body.music-page .music-dock .jb-deck-select{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
 body.music-page .jb-natural-fade{display:flex;align-items:center;gap:6px;margin:4px 0 0;color:#bfc5d4;font-size:12px}
 body.music-page .jb-natural-fade input{width:4.5rem;min-height:32px;padding:4px 7px;border:1px solid #554735;border-radius:6px;background:#171923;color:#f2ead7;font:inherit;text-align:center}
+body.music-page .jb-info [hidden]{display:none!important}
 body.music-page .jb-natural-fade input:disabled{opacity:.45}
 body.music-page .music-dock .jb-key{min-width:108px;min-height:46px}
 @media(max-width:1050px){body.music-page .jukebox.jb-vintage .jb-deck{grid-template-columns:minmax(105px,38%) minmax(0,1fr);min-height:280px;padding:14px;gap:10px}.music-page #queue-list .station-details{grid-template-columns:minmax(0,1fr) minmax(0,1.4fr) auto}.music-page #queue-list .station-details>.track-line-album{display:none}}

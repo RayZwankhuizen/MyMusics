@@ -10,7 +10,7 @@ import { createMusicQueueView } from "./music-queue-view.mjs";
 import { createMusicQueueOperations } from "./music-queue-operations.mjs";
 import { createMusicInfoController } from "./music-info-controller.mjs";
 import { createMusicPlaybackNavigation } from "./music-playback-navigation.mjs";
-import { createMusicJukeboxDecks } from "./music-jukebox-decks.mjs";
+import { createMusicJukeboxDecks } from "./music-jukebox-decks.mjs?v=tv-layout-1";
 import { createMusicDeckTransport } from "./music-deck-transport.mjs";
 import { createMusicHostPlayback } from "./music-host-playback.mjs";
 import { wireMusicGenrePulldown } from "./music-genre-pulldown.mjs";
