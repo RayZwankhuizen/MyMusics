@@ -323,7 +323,7 @@ class HostPlayer {
     const directory = await fs.mkdtemp(path.join(os.tmpdir(), "mymusics-audio-test-"));
     const file = path.join(directory, "tone.wav");
     const rate = 22050;
-    const frames = rate;
+    const frames = rate * 3;
     const wav = Buffer.alloc(44 + frames * 2);
     wav.write("RIFF", 0); wav.writeUInt32LE(wav.length - 8, 4); wav.write("WAVE", 8);
     wav.write("fmt ", 12); wav.writeUInt32LE(16, 16); wav.writeUInt16LE(1, 20);
@@ -336,7 +336,7 @@ class HostPlayer {
       const binary = process.env.MPV_BIN || "mpv";
       await new Promise((resolve, reject) => {
         const started = Date.now();
-        const child = spawn(binary, ["--no-config", "--no-video", "--no-terminal", `--audio-device=${device}`, file], {
+        const child = spawn(binary, ["--no-config", "--no-video", "--no-terminal", "--msg-level=all=info", `--audio-device=${device}`, file], {
           stdio: ["ignore", "ignore", "pipe"], windowsHide: true
         });
         let diagnostics = "";

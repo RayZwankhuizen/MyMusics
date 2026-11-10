@@ -182,7 +182,7 @@ export function wireManageJellyfinSettings({ el, request }) {
     audioTestStatus.classList.remove("error");
     try {
       await request("/api/host-player/audio-test", "POST", { device: audioDevice.value });
-      audioTestStatus.textContent = "MPV completed the test tone on the selected output.";
+      audioTestStatus.textContent = "MPV finished the test tone. Confirm that you could hear it on the selected output.";
     } catch (error) {
       audioTestStatus.textContent = error.message;
       audioTestStatus.classList.add("error");
