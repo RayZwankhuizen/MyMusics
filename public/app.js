@@ -1,6 +1,6 @@
 import { inferMetadataKind as classifyMetadataKind, isProgramMetadata as classifyProgramMetadata, metadataTrack } from "./radio-metadata-kind.mjs";
 import { defaultRadioEqualizerPreset } from "./radio-equalizer-preset.mjs";
-import { createRadioStationView } from "./radio-station-view.mjs";
+import { createRadioStationView } from "./radio-station-view.mjs?v=tv-remote-1";
 import { createRadioStationManagement } from "./radio-station-management.mjs";
 import { createRadioSpeechDetector } from "./radio-speech-detector.mjs";
 import { createRadioSuppressionStore, metadataBlockKey as buildMetadataBlockKey, speechTrackKey } from "./radio-suppression-store.mjs";

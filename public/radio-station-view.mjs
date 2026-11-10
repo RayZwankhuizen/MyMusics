@@ -11,6 +11,9 @@ export function createRadioStationView({ genreNav, stationList, searchInput, fav
   searchInput.addEventListener("input", () => renderSearch(getStations()));
 
   function renderGenres(stationsByGenre, activeGenre, showingFavorites) {
+    const focused = genreNav.contains(document.activeElement) ? document.activeElement : null;
+    const focusedGenre = focused?.dataset.genre;
+    const focusedFavorites = focused?.hasAttribute("data-favorites");
     genreNav.replaceChildren();
     const favoritesCount = Object.values(stationsByGenre).flat().filter((station) => station.favorite === true).length;
     const addButton = (name, count, onClick, selected, favoriteView = false) => {
@@ -34,6 +37,10 @@ export function createRadioStationView({ genreNav, stationList, searchInput, fav
     for (const genre of Object.keys(stationsByGenre)) {
       addButton(genre, stationsByGenre[genre].length, () => onChooseGenre(genre), !showingFavorites && activeGenre === genre);
     }
+    const nextFocus = focusedFavorites ? genreNav.querySelector("[data-favorites]")
+      : focusedGenre ? [...genreNav.querySelectorAll("[data-genre]")].find((button) => button.dataset.genre === focusedGenre)
+        : null;
+    nextFocus?.focus({ preventScroll: true });
   }
 
   function renderStations(stationsByGenre, activeGenre, showingFavorites, activeStation) {

@@ -69,6 +69,18 @@
     const current = document.activeElement;
     if (!nodes.length) return;
     if (!nodes.includes(current)) return (document.querySelector('[data-tv-autofocus]') || nodes[0]).focus();
+    if (scope.id === "jb-search-dialog") {
+      const target = direction === "down" && current.matches(".jb-tab")
+        ? scope.querySelector("#jb-rack-list .jb-strip")
+        : direction === "up" && current.matches("#jb-rack-list .jb-strip")
+          ? scope.querySelector('.jb-tab[aria-pressed="true"]')
+          : null;
+      if (target && visible(target)) {
+        target.focus({ preventScroll: true });
+        target.scrollIntoView({ block: "nearest", inline: "nearest" });
+        return;
+      }
+    }
     const box = current.getBoundingClientRect();
     const cx = box.left + box.width / 2, cy = box.top + box.height / 2;
     const candidates = nodes.filter((node) => node !== current).map((node) => {

@@ -230,7 +230,7 @@ export function createJukeboxSearch({ state, searchTypes, el, empty, strip, text
       clearTimer();
       input.value = "";
       run("");
-      el('#jb-tv-keyboard [data-search-key="A"]')?.focus();
+      el('#jb-tv-keyboard [data-search-key="a"]')?.focus();
     });
     input?.addEventListener("input", () => {
       clearTimer();
@@ -242,7 +242,7 @@ export function createJukeboxSearch({ state, searchTypes, el, empty, strip, text
       const value = input.value;
       timer = setTimeout(() => run(value, { focusResult: false }), 300);
     });
-    const focusKeyboard = () => el('#jb-tv-keyboard [data-search-key="A"]')?.focus();
+    const focusKeyboard = () => el('#jb-tv-keyboard [data-search-key="a"]')?.focus();
     const dialog = el("#jb-search-dialog");
     const close = el("#jb-search-close");
     if (close && dialog) close.addEventListener("click", () => window.MyMusicsUI.closeDialog(dialog));
