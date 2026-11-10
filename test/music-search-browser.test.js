@@ -543,7 +543,7 @@ test("host playback sends the deck contract and updates the jukebox", async () =
   await page.locator("#jb-play-a").click();
   await page.waitForFunction(() => document.querySelector("#player-status").textContent === "PLAYING ON MYMUSICS HOST");
 
-  assert.deepEqual(hostRequests, [{ id: "track-host", deck: "a", crossfade: false, naturalFadeIn: false, fadeSeconds: 3 }]);
+  assert.deepEqual(hostRequests, [{ id: "track-host", deck: "a", crossfade: false, naturalFadeIn: false, fadeSeconds: 3, volume: 100 }]);
   assert.equal(await page.locator("#jb-title").textContent(), "Host Song");
   assert.equal(await page.locator("#audio").isHidden(), true);
   assert.equal(await page.locator("#audio2").isHidden(), true);

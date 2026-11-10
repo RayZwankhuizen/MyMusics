@@ -117,7 +117,8 @@ export function createDeckEndedHandler({ state, deckState, getNaturalFadeStarted
     const player = decks[key];
     player.pause();
     player.currentTime = 0;
-    player.volume = 1;
+    deckState.gains[key] = 1;
+    player.volume = deckState.volume;
     player.removeAttribute("src");
     deckTracks[key] = null;
     armDropped[key] = false;

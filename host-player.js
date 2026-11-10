@@ -225,6 +225,9 @@ class HostPlayer {
     this.audioDevice = audioDevice;
     this.decks = { a: new MpvDeck("a", audioDevice), b: new MpvDeck("b", audioDevice) };
     this.activeDeck = null;
+    this.activeType = "";
+    this.musicVolume = 100;
+    this.musicGains = { a: 1, b: 0 };
     this.fadeGeneration = 0;
     this.lastError = "";
   }
@@ -234,16 +237,21 @@ class HostPlayer {
     await Promise.all([this.decks.a.stop(), this.decks.b.stop()]);
     await this.decks.a.load(url, volume);
     this.activeDeck = "a";
+    this.activeType = "radio";
     this.lastError = "";
   }
 
-  async playMusic({ id, deck, port, crossfade, fadeSeconds, naturalFadeIn = false }) {
+  async playMusic({ id, deck, port, crossfade, fadeSeconds, naturalFadeIn = false, volume }) {
+    if (Number.isFinite(Number(volume))) this.musicVolume = Math.min(100, Math.max(0, Number(volume)));
     const incoming = this.decks[deck];
     const outgoingKey = this.activeDeck;
-    const outgoing = outgoingKey && outgoingKey !== deck ? this.decks[outgoingKey] : null;
+    const previousType = this.activeType;
+    const outgoing = previousType === "music" && outgoingKey && outgoingKey !== deck ? this.decks[outgoingKey] : null;
     const url = `http://127.0.0.1:${port}/library/audio/${encodeURIComponent(id)}`;
     const current = await incoming.status();
     if (current.path === url && current.paused) {
+      await incoming.set("volume", Math.round(this.musicVolume * this.musicGains[deck]));
+      this.activeType = "music";
       await incoming.set("pause", false);
       this.activeDeck = deck;
       return;
@@ -252,37 +260,64 @@ class HostPlayer {
     this.fadeGeneration++;
     const generation = this.fadeGeneration;
     const seconds = crossfade && outgoing ? Math.min(60, Math.max(0, Number(fadeSeconds) || 0)) : 0;
+    const previousIncomingGain = this.musicGains[deck];
+    this.musicGains[deck] = seconds ? 0 : 1;
     if (outgoing && !seconds) await outgoing.command(["set_property", "pause", true]).catch(() => {});
-    try { await incoming.load(url, seconds ? 0 : 100); }
+    try { await incoming.load(url, seconds ? 0 : this.musicVolume); }
     catch (error) {
+      this.musicGains[deck] = previousIncomingGain;
       this.lastError = error.message;
       if (outgoing && !seconds) await outgoing.set("pause", false).catch(() => {});
       throw error;
     }
+    if (previousType === "radio" && outgoingKey && outgoingKey !== deck) await this.decks[outgoingKey].stop();
     this.activeDeck = deck;
+    this.activeType = "music";
     this.lastError = "";
     if (outgoing && seconds) {
       const status = await outgoing.status();
       const remaining = status.duration - status.time;
       const fadeSeconds = Number.isFinite(remaining) && remaining > 0 ? Math.min(seconds, remaining) : seconds;
       void this.fade(outgoing, incoming, fadeSeconds, generation, naturalFadeIn);
-    } else if (outgoing) await outgoing.stop();
+    } else if (outgoing) {
+      await outgoing.stop();
+      this.musicGains[outgoingKey] = 1;
+    }
   }
 
   async fade(outgoing, incoming, seconds, generation, fadeInOnly = false) {
-    const oldVolume = Number(await outgoing.property("volume")) || 100;
+    const outgoingKey = this.decks.a === outgoing ? "a" : "b";
+    const incomingKey = this.decks.a === incoming ? "a" : "b";
+    const outgoingGain = this.musicGains[outgoingKey];
     const started = Date.now();
     while (generation === this.fadeGeneration) {
       const progress = Math.min(1, (Date.now() - started) / (seconds * 1000));
-      const changes = [incoming.set("volume", Math.round(progress * 100)).catch(() => {})];
-      if (!fadeInOnly) changes.push(outgoing.set("volume", Math.round(oldVolume * (1 - progress))).catch(() => {}));
+      this.musicGains[incomingKey] = progress;
+      const changes = [incoming.set("volume", Math.round(progress * this.musicVolume)).catch(() => {})];
+      if (!fadeInOnly) {
+        this.musicGains[outgoingKey] = outgoingGain * (1 - progress);
+        changes.push(outgoing.set("volume", Math.round(this.musicGains[outgoingKey] * this.musicVolume)).catch(() => {}));
+      }
       await Promise.all(changes);
       if (progress >= 1) break;
       await wait(50);
     }
     if (generation !== this.fadeGeneration) return;
-    if (!fadeInOnly) await outgoing.stop();
-    await incoming.set("volume", 100).catch(() => {});
+    if (!fadeInOnly) {
+      await outgoing.stop();
+      this.musicGains[outgoingKey] = 1;
+    }
+    this.musicGains[incomingKey] = 1;
+    await incoming.set("volume", this.musicVolume).catch(() => {});
+  }
+
+  async setMusicVolume(value) {
+    this.musicVolume = Math.min(100, Math.max(0, Math.round(Number(value))));
+    if (this.activeType === "music") {
+      await Promise.all(Object.entries(this.decks).map(([key, deck]) => deck.socket?.writable
+        ? deck.set("volume", Math.round(this.musicGains[key] * this.musicVolume)) : Promise.resolve()));
+    }
+    return this.musicVolume;
   }
 
   async control(deck, action, value) {
@@ -299,6 +334,7 @@ class HostPlayer {
     this.fadeGeneration++;
     await Promise.all([this.decks.a.stop(), this.decks.b.stop()]);
     this.activeDeck = null;
+    this.activeType = "";
   }
 
   async status() {

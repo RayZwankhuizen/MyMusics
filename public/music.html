@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0A0F1F">
-  <script>try{const saved=localStorage.getItem('mymusics:tv-mode');document.documentElement.classList.toggle('tv-mode',saved===null?/(AFT|Silk|Fire TV|SmartTV)/i.test(navigator.userAgent):saved==='true');if(new URLSearchParams(location.search).get('tv')==='1'){document.documentElement.classList.add('tv-mode');localStorage.setItem('mymusics:tv-mode','true')}}catch{}</script>
+  <script>{const ua=navigator.userAgent||'';const silk=/\bSilk(?:\/|\b)/i.test(ua);document.documentElement.classList.toggle('silk-browser',silk);const detectedTv=silk||/\bAFT[A-Z0-9]*\b|\bKF[A-Z0-9]*\b|Fire TV|SmartTV/i.test(ua);let saved=null;try{saved=localStorage.getItem('mymusics:tv-mode')}catch{}const forceTv=new URLSearchParams(location.search).get('tv')==='1';document.documentElement.classList.toggle('tv-mode',forceTv||(saved===null?detectedTv:saved==='true'));if(forceTv)try{localStorage.setItem('mymusics:tv-mode','true')}catch{}}</script>
   <title>Music — MyMusics</title>
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/style.css?v=radio-button-size-1">
@@ -12,9 +12,10 @@
   <script defer src="/playback-target.js?v=mpv-host-gate-1"></script>
   <script defer src="/ui-dialogs.js?v=2"></script>
   <script defer src="/equalizer.js?v=5"></script>
-  <script type="module" src="/music.js?v=album-genre-edit-2"></script>
+  <script type="module" src="/music.js?v=music-volume-1"></script>
   <link rel="stylesheet" href="/app-theme.css?v=tv-foundation-1">
-  <link rel="stylesheet" href="/music-theme.css?v=album-genre-edit-2">
+  <link rel="stylesheet" href="/music-theme.css?v=music-volume-1">
+  <link rel="stylesheet" href="/silk-tv.css?v=silk-tv-1">
 </head>
 <body class="music-page">
   <div class="app-shell">
@@ -28,6 +29,7 @@
         <a class="mode" href="/music.html" aria-current="page">Music</a>
       </nav>
       <label class="playback-target-setting" for="playback-target">Audio output<select id="playback-target"><option value="browser">This browser</option><option value="host">MyMusics host</option></select></label>
+      <label class="music-volume-setting" for="music-volume"><span>Volume <output id="music-volume-value">100%</output></span><input id="music-volume" type="range" min="0" max="100" step="1" value="100" aria-label="Music player volume"></label>
 
       <section class="music-controls-sidebar" aria-labelledby="music-controls-title">
         <h2 id="music-controls-title"></h2>
@@ -54,7 +56,7 @@
             <div class="jb-toolbar">
               <div><p class="music-eyebrow">Local music</p><h2>Now playing</h2></div>
               <div id="music-toolbar-actions" class="music-toolbar-actions">
-                <button id="jb-search-open" data-open-search class="jb-key jb-key-main" type="button">Search</button>
+                <button id="jb-search-open" data-open-search class="jb-key jb-key-main" type="button">Browse music</button>
                 <button id="music-refresh" class="jb-key" type="button">Refresh library</button>
                 <div class="music-refresh-feedback">
                   <progress id="music-refresh-progress" max="100" hidden aria-label="Jellyfin library refresh progress"></progress>

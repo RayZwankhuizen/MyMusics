@@ -32,7 +32,7 @@ export function createMusicHostPlayback({ state, deckState, resolveIncomingDeck,
     const crossfade = Boolean(state.current && incomingKey !== outgoingKey && state.crossfadeEnabled);
     deckState.decks.a.pause(); deckState.decks.b.pause(); deckState.decks.a.hidden = true; deckState.decks.b.hidden = true;
     const fadeSeconds = naturalFadeIn ? naturalFadeDuration : crossfadeDuration ?? state.fadeSeconds;
-    const response = await fetch("/api/host-player/music", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: track.id, deck: incomingKey, crossfade, naturalFadeIn, fadeSeconds }) });
+    const response = await fetch("/api/host-player/music", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: track.id, deck: incomingKey, crossfade, naturalFadeIn, fadeSeconds, volume: Math.round(deckState.volume * 100) }) });
     const result = await response.json();
     if (!response.ok) {
       setStatus(result.error || "HOST AUDIO UNAVAILABLE");

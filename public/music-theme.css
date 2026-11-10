@@ -149,6 +149,10 @@ body.music-page .mode-switch .mode{font:500 13px/20px var(--sans);letter-spacing
 body.music-page .mode-switch .mode[aria-current="page"]{background:#23252b;color:var(--ink);box-shadow:none}
 body.music-page .playback-target-setting,body.music-page .sidebar-manage{border-color:var(--line);color:var(--muted)}
 body.music-page .playback-target-setting select{border-color:var(--line);background:#11141c;color:var(--ink)}
+body.music-page .music-volume-setting{display:grid;gap:8px;margin:0 0 14px;padding:10px;border:1px solid var(--line);border-radius:8px;color:var(--muted);font:11px var(--mono)}
+body.music-page .music-volume-setting span{display:flex;justify-content:space-between;gap:12px}
+body.music-page .music-volume-setting output{color:var(--ink)}
+body.music-page .music-volume-setting input{width:100%;margin:0;accent-color:var(--accent)}
 body.music-page .music-controls-sidebar{padding:12px;border:1px solid var(--line);border-radius:12px;background:#11141c;color:var(--muted)}
 body.music-page .music-controls-sidebar h2{margin-bottom:8px;color:var(--muted);font:400 12px/16px var(--sans);letter-spacing:0;text-transform:none}
 body.music-page .music-controls-sidebar .jb-options-content{gap:4px}

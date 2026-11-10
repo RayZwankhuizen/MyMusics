@@ -4,7 +4,8 @@ export function createMusicPlaybackNavigation({ state, deckState, deckTransition
     for (const key of ["a", "b"]) {
       deckState.decks[key].pause();
       deckState.decks[key].removeAttribute("src");
-      deckState.decks[key].volume = 1;
+      deckState.gains[key] = 1;
+      deckState.decks[key].volume = deckState.volume;
       deckState.deckTracks[key] = null;
       deckState.armDropped[key] = false;
       try { deckState.decks[key].load(); } catch {}

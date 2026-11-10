@@ -20,6 +20,7 @@ import { emptyRow, textButton, markAdded, formatMusicDuration, createMusicTrackR
 import { wireMusicAutoDj } from "./music-autodj.mjs";
 import { createMusicSessionStorage } from "./music-session-storage.mjs";
 import { createMusicPlaylistActions } from "./music-playlist-actions.mjs";
+import { wireMusicVolume } from "./music-volume.mjs";
 
 // Music mode: plays the Jellyfin library through this server and builds the
 // queue with the AutoDJ endpoint. Radio page logic stays in app.js.
@@ -27,6 +28,7 @@ const deckState = createMusicDeckState({
   a: document.querySelector("#audio"),
   b: document.querySelector("#audio2")
 });
+wireMusicVolume({ deckState, isHostOutput: () => window.MyMusicsPlayback?.isHost });
 const el = (selector) => document.querySelector(selector);
 const { audioUrl, needsTranscode } = createMusicAudioSource(deckState.decks.a);
 

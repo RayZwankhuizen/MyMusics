@@ -2,6 +2,8 @@ export function createMusicDeckState(decks) {
   return {
     decks,
     activeDeck: "a",
+    volume: 1,
+    gains: { a: 1, b: 0 },
     fadingDeck: null,
     fadingOutDeck: null,
     deckTracks: { a: null, b: null },
@@ -29,6 +31,7 @@ export function createMusicDeckPreload({ state, deckState, isHostOutput, audioUr
     const target = decks[targetKey];
     armDropped[targetKey] = false;
     deckTracks[targetKey] = track;
+    deckState.gains[targetKey] = 0;
     target.src = audioUrl(track, { transcode: needsTranscode(track) });
     target.volume = 0;
     try { target.load(); } catch {}
@@ -81,6 +84,7 @@ export function createMusicDeckTransition({ state, deckState, setNaturalFadeStar
     const deck = decks[key];
     const previousTrack = deckTracks[key];
     const previousArm = armDropped[key];
+    const previousGain = deckState.gains[key];
     const alreadyLoaded = deckTracks[key]?.id === track.id && deck.src;
     deck.pause();
     if (!alreadyLoaded) {
@@ -88,12 +92,13 @@ export function createMusicDeckTransition({ state, deckState, setNaturalFadeStar
       deck.src = audioUrl(track, { transcode: needsTranscode(track) });
       try { deck.load(); } catch {}
     }
-    deck.volume = fadeSeconds ? 0 : 1;
+    deckState.gains[key] = fadeSeconds ? 0 : 1;
+    deck.volume = deckState.volume * deckState.gains[key];
     deckTracks[key] = track;
     state.current = track;
     setNaturalFadeStartedTrack("");
     deckState.activeDeck = key;
-    return { deck, previousTrack, previousArm, alreadyLoaded };
+    return { deck, previousTrack, previousArm, previousGain, alreadyLoaded };
   }
 
   function activateIncomingDeck(track, key, outgoingKey, fadeSeconds) {
@@ -110,7 +115,7 @@ export function createMusicDeckTransition({ state, deckState, setNaturalFadeStar
     renderQueue();
   }
 
-  function restoreAfterFailure({ transition, outgoingKey, incomingKey, outgoing, incoming, previousTrack, previousTranscoding, incomingPreviousTrack, incomingPreviousArm, alreadyLoaded }) {
+  function restoreAfterFailure({ transition, outgoingKey, incomingKey, outgoing, incoming, previousTrack, previousTranscoding, incomingPreviousTrack, incomingPreviousArm, incomingPreviousGain, alreadyLoaded }) {
     if (!isCurrent(transition)) return;
     deckState.activeDeck = outgoingKey;
     state.current = previousTrack;
@@ -124,7 +129,8 @@ export function createMusicDeckTransition({ state, deckState, setNaturalFadeStar
       incoming.removeAttribute("src");
       try { incoming.load(); } catch {}
     }
-    incoming.volume = incoming === outgoing ? 1 : 0;
+    deckState.gains[incomingKey] = incomingPreviousGain;
+    incoming.volume = deckState.volume * incomingPreviousGain;
     renderNow();
     renderQueue();
   }
@@ -133,7 +139,8 @@ export function createMusicDeckTransition({ state, deckState, setNaturalFadeStar
     if (outgoing === incoming || naturalFadeIn) return;
     outgoing.pause();
     outgoing.currentTime = 0;
-    outgoing.volume = 1;
+    deckState.gains[key] = 1;
+    outgoing.volume = deckState.volume;
     deckTracks[key] = null;
     armDropped[key] = false;
     outgoing.removeAttribute("src");
@@ -148,17 +155,20 @@ export function createMusicDeckTransition({ state, deckState, setNaturalFadeStar
   return Object.freeze({ invalidate, isCurrent, resolveIncomingDeck, prepareIncomingDeck, activateIncomingDeck, restoreAfterFailure, releaseOutgoingDeck, finish });
 }
 
-export function runDeckFade(incoming, outgoing, duration, naturalFadeIn, isCurrentTransition) {
+export function runDeckFade(incoming, outgoing, duration, naturalFadeIn, isCurrentTransition, getMasterVolume, outgoingStartGain, updateGains) {
   const remaining = outgoing.duration - outgoing.currentTime;
   if (Number.isFinite(remaining) && remaining > 0) duration = Math.min(duration, remaining);
   const started = performance.now();
-  const outgoingVolume = outgoing.volume;
   return new Promise((resolve) => {
     const step = (now) => {
       if (!isCurrentTransition()) return resolve(false);
       const progress = Math.min(1, (now - started) / (duration * 1000));
-      incoming.volume = progress;
-      if (!naturalFadeIn) outgoing.volume = Math.max(0, outgoingVolume * (1 - progress));
+      const incomingGain = progress;
+      const outgoingGain = naturalFadeIn ? outgoingStartGain : outgoingStartGain * (1 - progress);
+      const masterVolume = getMasterVolume();
+      incoming.volume = masterVolume * incomingGain;
+      if (!naturalFadeIn) outgoing.volume = masterVolume * outgoingGain;
+      updateGains(incomingGain, outgoingGain);
       if (progress < 1) setTimeout(() => step(performance.now()), 50);
       else resolve(true);
     };

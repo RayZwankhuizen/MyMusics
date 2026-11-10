@@ -18,7 +18,7 @@ export function createMusicTrackPlayback({ state, deckState, isHostOutput, hostP
     const fadeSeconds = previousTrack && incomingKey !== outgoingKey && state.crossfadeEnabled
       ? naturalFadeIn ? Number(naturalFadeDuration) || 0 : Number(crossfadeDuration ?? state.fadeSeconds) || 0
       : 0;
-    const { deck: incoming, previousTrack: incomingPreviousTrack, previousArm: incomingPreviousArm, alreadyLoaded } = deckTransition.prepareIncomingDeck(track, incomingKey, fadeSeconds);
+    const { deck: incoming, previousTrack: incomingPreviousTrack, previousArm: incomingPreviousArm, previousGain: incomingPreviousGain, alreadyLoaded } = deckTransition.prepareIncomingDeck(track, incomingKey, fadeSeconds);
     deckTransition.activateIncomingDeck(track, incomingKey, outgoingKey, fadeSeconds);
     try {
       await incoming.play();
@@ -33,6 +33,7 @@ export function createMusicTrackPlayback({ state, deckState, isHostOutput, hostP
         previousTranscoding,
         incomingPreviousTrack,
         incomingPreviousArm,
+        incomingPreviousGain,
         alreadyLoaded
       });
       setStatus("PRESS PLAY TO LISTEN");
@@ -40,7 +41,17 @@ export function createMusicTrackPlayback({ state, deckState, isHostOutput, hostP
     }
     if (record) recordPlayedTrack(track);
     if (fadeSeconds) {
-      const completed = await runDeckFade(incoming, outgoing, fadeSeconds, naturalFadeIn, () => deckTransition.isCurrent(transition));
+      const outgoingStartGain = deckState.gains[outgoingKey];
+      const completed = await runDeckFade(
+        incoming, outgoing, fadeSeconds, naturalFadeIn,
+        () => deckTransition.isCurrent(transition),
+        () => deckState.volume,
+        outgoingStartGain,
+        (incomingGain, outgoingGain) => {
+          deckState.gains[incomingKey] = incomingGain;
+          deckState.gains[outgoingKey] = outgoingGain;
+        }
+      );
       if (!completed) return;
       deckTransition.finish(naturalFadeIn);
     }
