@@ -10,6 +10,7 @@ function createStorage({ dataDir: configuredDir = process.env.MYMUSICS_DATA_DIR,
     playlists: path.join(dataDir || root, "music-playlists.json"),
     musicGenres: path.join(dataDir || root, "music-genre-mappings.json"),
     jellyfinSettings: path.join(dataDir || root, "jellyfin-settings.json"),
+    hostAudioSettings: path.join(dataDir || root, "host-audio-settings.json"),
     updateStatus: path.join(dataDir || path.join(root, "data"), "update-status.json")
   };
 
@@ -91,6 +92,22 @@ function createStorage({ dataDir: configuredDir = process.env.MYMUSICS_DATA_DIR,
     writeJson(paths.jellyfinSettings, value, 0o600);
   }
 
+  function validHostAudioSettings(value) {
+    return Boolean(value && typeof value === "object" && !Array.isArray(value)
+      && typeof value.device === "string" && value.device.length > 0 && value.device.length <= 500);
+  }
+
+  function readHostAudioSettings() {
+    try { return readJson(paths.hostAudioSettings, { device: "auto" }, validHostAudioSettings); }
+    catch { return { device: "auto" }; }
+  }
+
+  function writeHostAudioSettings(value) {
+    if (!validHostAudioSettings(value)) throw new Error("Host audio settings have an invalid structure.");
+    writeJson(paths.hostAudioSettings, value, 0o600);
+    return value;
+  }
+
   function hasStationImage(image) {
     return typeof image === "string" && /^\/station-images\/[\da-f-]+\.(?:png|jpg|webp)$/.test(image)
       && fs.existsSync(path.join(paths.images, path.basename(image)));
@@ -112,7 +129,7 @@ function createStorage({ dataDir: configuredDir = process.env.MYMUSICS_DATA_DIR,
 
   initialize();
   return { paths, readJson, writeJson, readStations, writeStations, readUpdateStatus,
-    readJellyfinSettings, writeJellyfinSettings,
+    readJellyfinSettings, writeJellyfinSettings, readHostAudioSettings, writeHostAudioSettings,
     hasStationImage, writeStationImage, removeUnusedStationImages };
 }
 

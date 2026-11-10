@@ -9,8 +9,9 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const execFile = promisify(require("node:child_process").execFile);
 
 class MpvDeck {
-  constructor(key) {
+  constructor(key, audioDevice = "auto") {
     this.key = key;
+    this.audioDevice = audioDevice;
     this.socketDir = path.join(os.tmpdir(), `mymusics-${process.pid}`);
     this.socketPath = path.join(this.socketDir, `${key}.sock`);
     this.child = null;
@@ -84,6 +85,12 @@ class MpvDeck {
         await Promise.all([[1, "path"], [2, "idle-active"], [3, "pause"]].map(([id, name]) =>
           this.command(["observe_property", id, name]).catch(() => {})
         ));
+        if (this.audioDevice !== "auto") {
+          const devices = await this.command(["get_property", "audio-device-list"]).catch(() => []);
+          if (devices.some((device) => device.name === this.audioDevice)) {
+            await this.command(["set_property", "audio-device", this.audioDevice]).catch(() => { this.audioDevice = "auto"; });
+          } else this.audioDevice = "auto";
+        }
         return;
       } catch { await wait(75); }
     }
@@ -150,6 +157,10 @@ class MpvDeck {
   }
 
   async set(name, value) { return this.command(["set_property", name, value]); }
+  async setAudioDevice(device) {
+    if (this.socket?.writable) await this.set("audio-device", device);
+    this.audioDevice = device;
+  }
   waitForFileLoaded() {
     let waiter;
     let timer;
@@ -210,8 +221,9 @@ class MpvDeck {
 }
 
 class HostPlayer {
-  constructor() {
-    this.decks = { a: new MpvDeck("a"), b: new MpvDeck("b") };
+  constructor({ audioDevice = "auto" } = {}) {
+    this.audioDevice = audioDevice;
+    this.decks = { a: new MpvDeck("a", audioDevice), b: new MpvDeck("b", audioDevice) };
     this.activeDeck = null;
     this.fadeGeneration = 0;
     this.lastError = "";
@@ -313,6 +325,20 @@ class HostPlayer {
     if (!Array.isArray(devices)) throw new Error("MPV did not return an audio device list.");
     return devices.filter((device) => device && typeof device.name === "string" && device.name)
       .map(({ name, description, "is-default": isDefault }) => ({ name, description: description || name, isDefault: Boolean(isDefault) }));
+  }
+
+  async setAudioDevice(device) {
+    const [devices, status] = await Promise.all([this.audioDevices(), this.status()]);
+    if (!devices.some((entry) => entry.name === device)) throw new Error("Choose an audio device reported by MPV.");
+    if (Object.values(status.decks).some((deck) => deck.playing)) throw new Error("Stop host playback before changing the audio output.");
+    const previous = this.audioDevice;
+    try {
+      await Promise.all(Object.values(this.decks).map((deck) => deck.setAudioDevice(device)));
+      this.audioDevice = device;
+    } catch (error) {
+      await Promise.all(Object.values(this.decks).map((deck) => deck.setAudioDevice(previous).catch(() => {})));
+      throw error;
+    }
   }
 
   async testAudioDevice(device) {

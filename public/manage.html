@@ -9,10 +9,10 @@
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/style.css">
   <link rel="stylesheet" href="/manage.css">
-  <script type="module" src="/manage.js?v=manage-audio-device-test-1"></script>
+  <script type="module" src="/manage.js?v=manage-audio-device-test-2"></script>
   <link rel="stylesheet" href="/app-theme.css?v=tv-foundation-1">
   <link rel="stylesheet" href="/management-theme.css?v=music-genre-management-1">
-  <link rel="stylesheet" href="/manage-settings.css?v=manage-audio-device-test-1">
+  <link rel="stylesheet" href="/manage-settings.css?v=manage-audio-device-test-2">
 </head>
 <body class="management-page">
   <div class="app-shell manage-shell">
@@ -68,13 +68,13 @@
         </form>
       </section>
       <section id="host-audio-test" class="general-settings panel" aria-labelledby="host-audio-test-heading">
-        <header class="general-settings-heading"><div><p class="eyebrow">Host audio</p><h2 id="host-audio-test-heading">Test audio output</h2><p>Choose an output detected by MPV on this host. The test plays a short tone through that device.</p></div></header>
+        <header class="general-settings-heading"><div><p class="eyebrow">Host audio</p><h2 id="host-audio-test-heading">Test audio output</h2><p>Test an output detected by MPV, then confirm it as the host output for Radio and Music.</p></div></header>
         <section class="general-mpv-settings" aria-labelledby="mpv-heading">
           <header><p class="eyebrow">Host audio</p><h3 id="mpv-heading">MPV on this host</h3><p>MPV is needed when audio output is set to MyMusics host. MyMusics installs it from the Ubuntu package repositories.</p></header>
           <div class="general-settings-actions"><button id="check-mpv" class="text-button" type="button">Check MPV installation</button><button id="install-mpv" class="save-button" type="button" disabled>Install MPV</button></div>
           <p id="mpv-install-status" class="form-hint" role="status" aria-live="polite">Checking MPV on the host…</p>
         </section>
-        <div class="host-audio-test-controls"><label for="host-audio-device">Output device</label><select id="host-audio-device" disabled><option>Checking MPV…</option></select><button id="host-audio-test-button" class="save-button" type="button" disabled>Play test tone</button></div>
+        <div class="host-audio-test-controls"><label for="host-audio-device">Output device</label><select id="host-audio-device" disabled><option>Checking MPV…</option></select><button id="host-audio-test-button" class="save-button" type="button" disabled>Play test tone</button><button id="host-audio-use-device-button" class="text-button" type="button" hidden disabled>I heard it; use this output</button></div>
         <p id="host-audio-test-status" class="form-hint" role="status" aria-live="polite">Checking MPV audio devices…</p>
       </section>
       <section id="stations" class="manage-workspace" aria-label="Stations and genres">

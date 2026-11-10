@@ -2,7 +2,7 @@ const fs = require("node:fs");
 const { promisify } = require("node:util");
 const execFile = promisify(require("node:child_process").execFile);
 
-module.exports = function registerHostPlayerRoutes(app, { hostPlayer, getStations }) {
+module.exports = function registerHostPlayerRoutes(app, { hostPlayer, getStations, storage }) {
   const port = Number(process.env.PORT) || 6565;
   const validDeck = (value) => value === "a" || value === "b";
   const allStations = () => Object.values(getStations()).flat();
@@ -54,6 +54,29 @@ module.exports = function registerHostPlayerRoutes(app, { hostPlayer, getStation
   app.get("/api/host-player/audio-devices", async (_req, res) => {
     try { res.json({ devices: await hostPlayer.audioDevices() }); }
     catch (error) { res.status(503).json({ error: error.message || "Could not read MPV audio devices." }); }
+  });
+
+  app.get("/api/host-player/audio-device", (_req, res) => {
+    try { res.json(storage.readHostAudioSettings()); }
+    catch (error) { res.status(503).json({ error: error.message || "Could not read the saved audio output." }); }
+  });
+
+  app.put("/api/host-player/audio-device", async (req, res) => {
+    if (!req.is("application/json")) return res.status(415).json({ error: "Audio output settings must use JSON." });
+    if (req.get("origin") !== `${req.protocol}://${req.get("host")}`) {
+      return res.status(403).json({ error: "Audio output settings can only be changed from this MyMusics page." });
+    }
+    const device = typeof req.body?.device === "string" ? req.body.device : "";
+    if (!device || device.length > 500) return res.status(400).json({ error: "Choose a valid audio output device." });
+    const previous = storage.readHostAudioSettings().device || "auto";
+    try {
+      await hostPlayer.setAudioDevice(device);
+      storage.writeHostAudioSettings({ device });
+      res.json({ device });
+    } catch (error) {
+      await hostPlayer.setAudioDevice(previous).catch(() => {});
+      res.status(503).json({ error: error.message || "Could not set the host audio output." });
+    }
   });
 
   app.post("/api/host-player/audio-test", async (req, res) => {

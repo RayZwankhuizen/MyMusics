@@ -11,30 +11,53 @@ export function wireManageJellyfinSettings({ el, request }) {
   const installMpvButton = el("#install-mpv");
   const audioDevice = el("#host-audio-device");
   const audioTestButton = el("#host-audio-test-button");
+  const audioUseButton = el("#host-audio-use-device-button");
   const audioTestStatus = el("#host-audio-test-status");
   let installingMpv = false;
   let audioDevicesLoaded = false;
+  let savedAudioDevice = "auto";
+  let savedAudioDeviceAvailable = true;
+  let testedAudioDevice = "";
+
+  function updateAudioUseButton() {
+    const tested = testedAudioDevice && testedAudioDevice === audioDevice.value;
+    audioUseButton.hidden = !tested;
+    audioUseButton.disabled = !tested || (audioDevice.value === savedAudioDevice && savedAudioDeviceAvailable);
+    audioUseButton.textContent = audioDevice.value === savedAudioDevice && savedAudioDeviceAvailable
+      ? "Already in use" : "I heard it; use this output";
+  }
+
   async function loadAudioDevices() {
     if (audioDevicesLoaded) return;
     audioDevice.disabled = true;
     audioTestButton.disabled = true;
+    audioUseButton.disabled = true;
     try {
-      const { devices } = await request("/api/host-player/audio-devices");
+      const [{ devices }, settings] = await Promise.all([
+        request("/api/host-player/audio-devices"), request("/api/host-player/audio-device")
+      ]);
       audioDevice.replaceChildren(...devices.map((device) => {
         const option = document.createElement("option");
         option.value = device.name;
         option.textContent = `${device.description}${device.isDefault ? " (default)" : ""}`;
         return option;
       }));
+      savedAudioDevice = settings.device || "auto";
+      savedAudioDeviceAvailable = devices.some((device) => device.name === savedAudioDevice);
+      audioDevice.value = savedAudioDeviceAvailable ? savedAudioDevice : "auto";
       audioDevice.disabled = devices.length === 0;
       audioTestButton.disabled = devices.length === 0;
-      audioTestStatus.textContent = devices.length ? "Select an output and play a short test tone." : "MPV did not detect any audio output devices.";
+      audioTestStatus.textContent = !devices.length ? "MPV did not detect any audio output devices."
+        : savedAudioDeviceAvailable ? "Select an output and play the test tone. After you hear it, confirm to use it for Radio and Music."
+          : "The saved output is unavailable. Select and test another output, or choose Auto.";
       audioTestStatus.classList.toggle("error", devices.length === 0);
       audioDevicesLoaded = devices.length > 0;
+      updateAudioUseButton();
     } catch (error) {
       audioDevice.replaceChildren(new Option("Audio devices unavailable", ""));
       audioTestStatus.textContent = error.message;
       audioTestStatus.classList.add("error");
+      audioUseButton.hidden = true;
     }
   }
   const setState = (message, error = false) => {
@@ -176,18 +199,52 @@ export function wireManageJellyfinSettings({ el, request }) {
 
   checkMpvButton.addEventListener("click", checkMpv);
   installMpvButton.addEventListener("click", installMpv);
+  audioDevice.addEventListener("change", () => {
+    testedAudioDevice = "";
+    updateAudioUseButton();
+    audioTestStatus.textContent = "Test this output before using it for Radio and Music.";
+    audioTestStatus.classList.remove("error");
+  });
   audioTestButton.addEventListener("click", async () => {
     audioTestButton.disabled = true;
+    audioDevice.disabled = true;
+    audioUseButton.hidden = true;
+    testedAudioDevice = "";
     audioTestStatus.textContent = "Playing test tone on the host…";
     audioTestStatus.classList.remove("error");
     try {
       await request("/api/host-player/audio-test", "POST", { device: audioDevice.value });
-      audioTestStatus.textContent = "MPV finished the test tone. Confirm that you could hear it on the selected output.";
+      testedAudioDevice = audioDevice.value;
+      audioTestStatus.textContent = "MPV finished the tone. If you heard it, confirm below to use this output for Radio and Music.";
     } catch (error) {
       audioTestStatus.textContent = error.message;
       audioTestStatus.classList.add("error");
     } finally {
-      audioTestButton.disabled = audioDevice.disabled;
+      audioDevice.disabled = false;
+      audioTestButton.disabled = false;
+      updateAudioUseButton();
+    }
+  });
+  audioUseButton.addEventListener("click", async () => {
+    if (!testedAudioDevice || testedAudioDevice !== audioDevice.value) return;
+    audioDevice.disabled = true;
+    audioTestButton.disabled = true;
+    audioUseButton.disabled = true;
+    audioTestStatus.textContent = "Saving this output for Radio and Music…";
+    audioTestStatus.classList.remove("error");
+    try {
+      const settings = await request("/api/host-player/audio-device", "PUT", { device: testedAudioDevice });
+      savedAudioDevice = settings.device;
+      savedAudioDeviceAvailable = true;
+      testedAudioDevice = "";
+      audioTestStatus.textContent = "This output is now selected for Radio and Music host playback.";
+    } catch (error) {
+      audioTestStatus.textContent = error.message;
+      audioTestStatus.classList.add("error");
+    } finally {
+      audioDevice.disabled = false;
+      audioTestButton.disabled = false;
+      updateAudioUseButton();
     }
   });
 
