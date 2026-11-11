@@ -211,6 +211,18 @@ class MpvDeck {
     };
   }
 
+  async radioLevel() {
+    const [metadata, volume] = await Promise.all([
+      this.property("af-metadata/radio-vu"), this.property("volume")
+    ]);
+    if (!metadata || typeof metadata !== "object") return null;
+    const gain = Number(volume) > 0 ? 20 * Math.log10(Number(volume) / 100) : -120;
+    return [1, 2].map((channel) => {
+      const db = Number(metadata[`lavfi.astats.${channel}.RMS_level`]);
+      return Number.isFinite(db) ? Math.max(0, Math.min(1, (db + gain + 54) / 54)) : 0;
+    });
+  }
+
   async close() {
     this.rejectPending(new Error("MPV is shutting down."));
     this.socket?.destroy();
@@ -237,17 +249,24 @@ class HostPlayer {
     if (equalizer) await this.decks[deck].set("af", equalizerFilter(equalizer));
   }
 
+  radioFilter(equalizer) {
+    const filter = equalizerFilter(equalizer);
+    const chain = filter ? filter.slice("lavfi=[".length, -1) : "";
+    return `@radio-vu:lavfi=[${[chain, "astats=metadata=1:reset=1:measure_perchannel=RMS_level:measure_overall=none"].filter(Boolean).join(",")}]`;
+  }
+
   async setEqualizer(value) {
     const equalizer = validateEqualizer(value);
     const keys = this.activeType === "music" ? ["a", "b"] : this.activeDeck ? [this.activeDeck] : [];
-    await Promise.all(keys.filter((key) => this.decks[key].socket?.writable).map((key) => this.applyEqualizer(key, equalizer)));
+    await Promise.all(keys.filter((key) => this.decks[key].socket?.writable).map((key) =>
+      this.decks[key].set("af", this.activeType === "radio" ? this.radioFilter(equalizer) : equalizerFilter(equalizer))));
     return equalizer;
   }
 
   async playRadio(url, volume = 100, equalizer) {
     this.fadeGeneration++;
     await Promise.all([this.decks.a.stop(), this.decks.b.stop()]);
-    await this.applyEqualizer("a", equalizer || { enabled: false, gains: [0, 0, 0, 0, 0] });
+    await this.decks.a.set("af", this.radioFilter(equalizer || { enabled: false, gains: [0, 0, 0, 0, 0] }));
     await this.decks.a.load(url, volume);
     this.activeDeck = "a";
     this.activeType = "radio";
@@ -358,6 +377,11 @@ class HostPlayer {
       error: this.lastError || (this.activeDeck ? decks[this.activeDeck === "a" ? 0 : 1].error : ""),
       decks: { a: decks[0], b: decks[1] }
     };
+  }
+
+  async radioLevel() {
+    if (this.activeType !== "radio" || !this.activeDeck) return null;
+    return this.decks[this.activeDeck].radioLevel();
   }
 
   async mpvStatus() {

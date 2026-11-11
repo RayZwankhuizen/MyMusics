@@ -98,12 +98,12 @@ export function createRadioEqualizerController({ getAudio, getStation, getStatio
     replacement.crossOrigin = "anonymous";
     let switchedAudio = false;
     try {
-      const graph = window.MyMusicsEqualizer.createGraph(audioContext, [replacement], (index) => Number(bands.querySelectorAll("input")[index].value));
+      const graph = window.MyMusicsEqualizer.createGraph(audioContext, [replacement], (index) => Number(bands.querySelectorAll("input")[index].value), true);
       await audioContext.resume();
       if (generation !== getGeneration() || station !== getStation()) { audioContext.close().catch(() => {}); return false; }
       replaceAudio(replacement);
       switchedAudio = true;
-      context = { context: audioContext, analyser: graph.analyser, dryGain: graph.dryGain, wetGain: graph.wetGain };
+      context = { context: audioContext, analyser: graph.analyser, dryGain: graph.dryGain, wetGain: graph.wetGain, meterAnalysers: graph.meterAnalysers };
       filters = graph.filters;
       ready = true;
       bands.querySelectorAll("input").forEach((input) => { input.disabled = false; });
@@ -160,6 +160,15 @@ export function createRadioEqualizerController({ getAudio, getStation, getStatio
     draw,
     enable,
     reset,
+    getMeterLevels() {
+      if (!ready || !context?.meterAnalysers?.length) return null;
+      return context.meterAnalysers.map((analyser) => {
+        const samples = new Float32Array(analyser.fftSize);
+        analyser.getFloatTimeDomainData(samples);
+        const rms = Math.sqrt(samples.reduce((sum, sample) => sum + sample * sample, 0) / samples.length);
+        return Math.max(0, Math.min(1, (20 * Math.log10(Math.max(rms, 0.000001)) + 54) / 54));
+      });
+    },
     get ready() { return ready; },
     closeContext() { context?.context.close().catch(() => {}); context = null; reset(); },
     setHostOutput(host) {

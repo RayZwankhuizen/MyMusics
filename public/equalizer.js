@@ -65,7 +65,7 @@ window.MyMusicsEqualizer = Object.freeze({
     ctx.shadowBlur = 0;
     ctx.globalCompositeOperation = "source-over";
   },
-  createGraph(context, mediaElements, readBandGain) {
+  createGraph(context, mediaElements, readBandGain, stereoMeter = false) {
     const sources = mediaElements.map((media) => context.createMediaElementSource(media));
     const analyser = context.createAnalyser();
     analyser.fftSize = 2048;
@@ -74,6 +74,15 @@ window.MyMusicsEqualizer = Object.freeze({
     analyser.smoothingTimeConstant = 0.72;
     const dryGain = context.createGain();
     const wetGain = context.createGain();
+    const meterAnalysers = stereoMeter ? [context.createAnalyser(), context.createAnalyser()] : [];
+    if (stereoMeter) {
+      const splitter = context.createChannelSplitter(2);
+      sources[0].connect(splitter);
+      meterAnalysers.forEach((analyser, channel) => {
+        analyser.fftSize = 1024;
+        splitter.connect(analyser, channel);
+      });
+    }
     dryGain.gain.value = 0;
     wetGain.gain.value = 1;
     sources.forEach((source) => source.connect(dryGain));
@@ -93,7 +102,7 @@ window.MyMusicsEqualizer = Object.freeze({
     }
     wetGain.connect(analyser);
     analyser.connect(context.destination);
-    return { analyser, dryGain, wetGain, filters };
+    return { analyser, dryGain, wetGain, filters, meterAnalysers };
   },
   setEnabled({ context, dryGain, wetGain }, button, enabled) {
     const time = context.currentTime;

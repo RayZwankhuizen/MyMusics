@@ -140,6 +140,7 @@ const hostPlayerOutput = createRadioHostOutput({ getAudio: radioAudioOutput.getA
 function playStation(station, genre) { return stationPlayback.play(station, genre); }
 wireRadioPlayerBar({
   getAudio: radioAudioOutput.getAudio,
+  getBrowserMeterLevels: () => radioEqualizer.getMeterLevels(),
   getStation: () => activeStation,
   getGenre: () => activeStationGenre,
   getStations: () => stationCatalog.stations,

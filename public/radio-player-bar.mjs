@@ -1,15 +1,51 @@
-export function wireRadioPlayerBar({ getAudio, getStation, getGenre, getStations, isHostOutput, playStation }) {
+export function wireRadioPlayerBar({ getAudio, getBrowserMeterLevels, getStation, getGenre, getStations, isHostOutput, playStation }) {
   const button = document.querySelector("#radio-player-toggle");
   const volume = document.querySelector("#radio-player-volume");
   const stationText = document.querySelector("#radio-player-station");
   const trackText = document.querySelector("#radio-player-track");
   const logo = document.querySelector("#radio-player-logo");
   const live = document.querySelector("#radio-player-live");
+  const meterLabel = document.querySelector(".receiver-vu-label");
+  const meterBars = [...document.querySelectorAll(".receiver-vu-track > i")];
   let status = "READY";
+  let meterTimer;
+
+  function showMeter(levels = []) {
+    const active = status === "ON AIR";
+    const unavailable = active && levels.length < 2;
+    const time = performance.now() / 1000;
+    meterLabel.textContent = "STEREO · VU";
+    meterBars.forEach((bar, index) => {
+      const sway = Math.sin(time * (index ? 5.1 : 4.2) + index * 1.7) * 0.035;
+      const level = !active ? 0 : unavailable
+        ? 0.28 + Math.sin(time * (index ? 4.4 : 3.6) + index * 1.9) * 0.16
+        : 0.04 + Math.min(1, Math.max(0, levels[index])) * 0.96 + sway;
+      bar.style.transform = `scaleX(${1 - Math.max(0.04, Math.min(1, level))})`;
+    });
+  }
+
+  async function pollHostMeter() {
+    clearTimeout(meterTimer);
+    if (!isHostOutput() || status !== "ON AIR" || document.hidden) { showMeter(); return; }
+    try {
+      const response = await fetch("/api/host-player/radio-level", { cache: "no-store" });
+      const { levels = [] } = await response.json();
+      if (isHostOutput() && status === "ON AIR") showMeter(levels);
+    } catch { showMeter([]); }
+    meterTimer = setTimeout(pollHostMeter, 160);
+  }
+
+  function drawBrowserMeter() {
+    if (!isHostOutput()) {
+      const levels = status === "ON AIR" ? getBrowserMeterLevels() : [];
+      showMeter(levels || []);
+    }
+    requestAnimationFrame(drawBrowserMeter);
+  }
 
   function updateButton() {
     const playing = isHostOutput() ? status === "ON AIR" : !getAudio().paused;
-    document.querySelector(".receiver-vu")?.classList.toggle("is-playing", playing && status === "ON AIR");
+    if (!playing) showMeter();
     button.textContent = playing ? "Ⅱ" : "▶";
     button.setAttribute("aria-label", playing ? "Pause radio" : "Play radio");
     button.setAttribute("aria-pressed", String(playing));
@@ -40,6 +76,7 @@ export function wireRadioPlayerBar({ getAudio, getStation, getGenre, getStations
     live.textContent = status === "ON AIR" ? "LIVE" : status;
     live.dataset.state = status === "ON AIR" ? "live" : /BUFFERING|CONNECTING/.test(status) ? "loading" : status === "READY" ? "idle" : "error";
     updateButton();
+    if (isHostOutput()) void pollHostMeter();
     updateMediaSession();
   }
   function setStation(station) {
@@ -90,6 +127,11 @@ export function wireRadioPlayerBar({ getAudio, getStation, getGenre, getStations
   window.addEventListener("mymusics:radio-status", (event) => setStatus(event.detail));
   window.addEventListener("mymusics:radio-station-change", (event) => setStation(event.detail));
   window.addEventListener("mymusics:playback-target-change", () => { volume.disabled = !getStation(); updateButton(); });
+  window.addEventListener("mymusics:playback-target-change", () => {
+    clearTimeout(meterTimer);
+    showMeter();
+    if (isHostOutput()) void pollHostMeter();
+  });
   window.addEventListener("mymusics:media-action", (event) => {
     if (event.detail === "play" || event.detail === "pause" || event.detail === "toggle") button.click();
     if (event.detail === "next") skipStation(1);
@@ -101,6 +143,7 @@ export function wireRadioPlayerBar({ getAudio, getStation, getGenre, getStations
     }
   }
   bindAudio();
+  requestAnimationFrame(drawBrowserMeter);
   setStation(getStation());
   const nowPlaying = document.querySelector("#track-title");
   const artist = document.querySelector("#track-artist");

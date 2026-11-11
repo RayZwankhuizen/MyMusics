@@ -83,14 +83,10 @@ html.silk-browser.tv-mode body.radio-page .receiver-band{bottom:3px;font-size:10
 html body.radio-page .receiver-vu-label{display:block;margin-bottom:5px;font:9px var(--mono);letter-spacing:2px;color:#b8c5d4}
 .receiver-vu-channel{display:flex;align-items:center;gap:8px;margin-top:4px}
 html body.radio-page .receiver-vu-channel>span{width:9px;flex:none;font:9px var(--mono);color:#a7b3c4}
-.receiver-vu-track{position:relative;flex:1;height:7px;overflow:hidden;border-radius:2px;background:linear-gradient(90deg,#68d6a1 0% 65%,#efb65f 65% 85%,#f47b6b 85% 100%)}
-.receiver-vu-track>i{display:block;width:100%;height:100%;transform:scaleX(1);transform-origin:right;background:#29313d}
+.receiver-vu-track{position:relative;flex:1;height:7px;overflow:hidden;border-radius:2px;background:linear-gradient(90deg,#68d6a1 0 65%,#efb65f 65% 85%,#f47b6b 85% 100%)}
+.receiver-vu-track>i{position:absolute;inset:0;display:block;width:100%;height:100%;transform:scaleX(1);transform-origin:right;background:#29313d}
 .receiver-vu-track::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 7px,#151c28 7px 10px)}
-.receiver-vu.is-playing .receiver-vu-track>i{animation:receiver-vu-bounce 1.7s linear infinite}
-.receiver-vu.is-playing .receiver-vu-channel:last-child .receiver-vu-track>i{animation-duration:2.1s;animation-delay:-.6s}
-@keyframes receiver-vu-bounce{0%,100%{transform:scaleX(.63)}12%{transform:scaleX(.28)}24%{transform:scaleX(.51)}35%{transform:scaleX(.09)}47%{transform:scaleX(.4)}58%{transform:scaleX(.22)}72%{transform:scaleX(.57)}85%{transform:scaleX(.15)}}
 html.tv-mode body.radio-page .receiver-vu-label,html.tv-mode body.radio-page .receiver-vu-channel>span{font-size:11px!important}
-@media(prefers-reduced-motion:reduce){.receiver-vu.is-playing .receiver-vu-track>i{animation:none;transform:scaleX(.35)}}
 
 /* One page scroll: station browsing never creates a nested scroll region. */
 html body.radio-page .content-layout .station-section,
