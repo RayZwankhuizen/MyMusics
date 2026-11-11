@@ -1,5 +1,7 @@
+import { createHostEqualizer } from "./host-equalizer.mjs";
 export function createMusicEqualizer({ deckState, getCurrentTrack, isHostOutput }) {
   const decks = [deckState.decks.a, deckState.decks.b];
+  const hostEqualizer = createHostEqualizer(isHostOutput);
   let context = null;
   let ready = false;
   let enabled = false;
@@ -60,8 +62,8 @@ export function createMusicEqualizer({ deckState, getCurrentTrack, isHostOutput 
 
   async function enable() {
     if (isHostOutput()) {
-      el("#equalizer-status").textContent = "Choose This browser audio output to use the equalizer.";
-      return false;
+      hostEqualizer.refresh();
+      return true;
     }
     if (ready) {
       setEnabled(true);
@@ -102,6 +104,13 @@ export function createMusicEqualizer({ deckState, getCurrentTrack, isHostOutput 
     }
   }
 
+  async function prepare() {
+    if (isHostOutput()) return false;
+    if (!ready) return enable();
+    await context.context.resume();
+    return true;
+  }
+
   function wireControls() {
     const panel = el("#equalizer-panel");
     el("#equalizer-close").addEventListener("click", () => panel.close());
@@ -118,13 +127,14 @@ export function createMusicEqualizer({ deckState, getCurrentTrack, isHostOutput 
     });
     window.addEventListener("mymusics:playback-target-change", () => {
       const disabled = isHostOutput();
+      if (disabled) { hostEqualizer.refresh(); return; }
       el("#equalizer-power").disabled = disabled || !ready;
       el("#equalizer-reset").disabled = disabled || !ready;
       el("#equalizer-preset").disabled = disabled || !ready;
       document.querySelectorAll(".equalizer-band input").forEach((input) => { input.disabled = disabled || !ready; });
-      if (disabled) el("#equalizer-status").textContent = "Choose This browser audio output to use the equalizer.";
+      if (ready) setEnabled(enabled);
     });
-    el("#equalizer-power").addEventListener("click", () => setEnabled(!enabled));
+    el("#equalizer-power").addEventListener("click", () => isHostOutput() ? hostEqualizer.toggle() : setEnabled(!enabled));
     el("#equalizer-preset").addEventListener("change", (event) => applyPreset(event.currentTarget.value));
     el("#equalizer-reset").addEventListener("click", () => applyPreset("flat"));
     el("#equalizer-sensitivity").addEventListener("input", (event) => {
@@ -134,5 +144,5 @@ export function createMusicEqualizer({ deckState, getCurrentTrack, isHostOutput 
     document.addEventListener("visibilitychange", () => document.hidden ? cancelAnimationFrame(frame) : draw());
   }
 
-  return Object.freeze({ buildControls, wireEvents: wireControls, autoPreset });
+  return Object.freeze({ buildControls, wireEvents: wireControls, autoPreset, prepare });
 }

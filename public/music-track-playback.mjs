@@ -19,8 +19,9 @@ export function createMusicTrackPlayback({ state, deckState, isHostOutput, hostP
       ? naturalFadeIn ? Number(naturalFadeDuration) || 0 : Number(crossfadeDuration ?? state.fadeSeconds) || 0
       : 0;
     const { deck: incoming, previousTrack: incomingPreviousTrack, previousArm: incomingPreviousArm, previousGain: incomingPreviousGain, alreadyLoaded } = deckTransition.prepareIncomingDeck(track, incomingKey, fadeSeconds);
-    deckTransition.activateIncomingDeck(track, incomingKey, outgoingKey, fadeSeconds);
     try {
+      await deckTransition.activateIncomingDeck(track, incomingKey, outgoingKey, fadeSeconds);
+      if (!deckTransition.isCurrent(transition)) return;
       await incoming.play();
     } catch {
       deckTransition.restoreAfterFailure({

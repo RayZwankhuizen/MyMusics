@@ -52,6 +52,7 @@ export function createManageCatalogView({ el }) {
   function createStationRow(station, index, { onFavorite, onEdit, onTest, onDelete }) {
     const row = document.createElement("article");
     row.className = "managed-station";
+    row.dataset.stationIndex = index;
     const details = document.createElement("div");
     details.className = "station-details";
     const logo = document.createElement("div");

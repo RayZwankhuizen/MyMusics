@@ -1,3 +1,4 @@
+import { hostEqualizerSettings } from "./host-equalizer.mjs";
 export function createMusicHostPlayback({ state, deckState, resolveIncomingDeck, setNaturalFadeStartedTrack, getNaturalFadeStartedTrack, naturalFadeSeconds, isHostOutput, musicEqualizer, recordPlayedTrack, setStatus, refreshPlaybackAndQueue, renderDeckTime, syncJukeboxPlaying, next }) {
   let deckStatus = null;
   let deckStatusAt = 0;
@@ -32,7 +33,8 @@ export function createMusicHostPlayback({ state, deckState, resolveIncomingDeck,
     const crossfade = Boolean(state.current && incomingKey !== outgoingKey && state.crossfadeEnabled);
     deckState.decks.a.pause(); deckState.decks.b.pause(); deckState.decks.a.hidden = true; deckState.decks.b.hidden = true;
     const fadeSeconds = naturalFadeIn ? naturalFadeDuration : crossfadeDuration ?? state.fadeSeconds;
-    const response = await fetch("/api/host-player/music", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: track.id, deck: incomingKey, crossfade, naturalFadeIn, fadeSeconds, volume: Math.round(deckState.volume * 100) }) });
+    musicEqualizer.autoPreset(track);
+    const response = await fetch("/api/host-player/music", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ equalizer: hostEqualizerSettings(), id: track.id, deck: incomingKey, crossfade, naturalFadeIn, fadeSeconds, volume: Math.round(deckState.volume * 100) }) });
     const result = await response.json();
     if (!response.ok) {
       setStatus(result.error || "HOST AUDIO UNAVAILABLE");
@@ -45,7 +47,6 @@ export function createMusicHostPlayback({ state, deckState, resolveIncomingDeck,
     setNaturalFadeStartedTrack("");
     state.transcoding = false;
     if (record) recordPlayedTrack(track);
-    musicEqualizer.autoPreset(track);
     setStatus("PLAYING ON MYMUSICS HOST", true);
     refreshPlaybackAndQueue();
     window.dispatchEvent(new Event("mymusics:host-status-needed"));

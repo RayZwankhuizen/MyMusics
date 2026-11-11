@@ -1,3 +1,4 @@
+const { equalizerFilter, validateEqualizer } = require("./host-equalizer");
 const { spawn } = require("node:child_process");
 const { promisify } = require("node:util");
 const fs = require("node:fs/promises");
@@ -232,22 +233,35 @@ class HostPlayer {
     this.lastError = "";
   }
 
-  async playRadio(url, volume = 100) {
+  async applyEqualizer(deck, equalizer) {
+    if (equalizer) await this.decks[deck].set("af", equalizerFilter(equalizer));
+  }
+
+  async setEqualizer(value) {
+    const equalizer = validateEqualizer(value);
+    const keys = this.activeType === "music" ? ["a", "b"] : this.activeDeck ? [this.activeDeck] : [];
+    await Promise.all(keys.filter((key) => this.decks[key].socket?.writable).map((key) => this.applyEqualizer(key, equalizer)));
+    return equalizer;
+  }
+
+  async playRadio(url, volume = 100, equalizer) {
     this.fadeGeneration++;
     await Promise.all([this.decks.a.stop(), this.decks.b.stop()]);
+    await this.applyEqualizer("a", equalizer || { enabled: false, gains: [0, 0, 0, 0, 0] });
     await this.decks.a.load(url, volume);
     this.activeDeck = "a";
     this.activeType = "radio";
     this.lastError = "";
   }
 
-  async playMusic({ id, deck, port, crossfade, fadeSeconds, naturalFadeIn = false, volume }) {
+  async playMusic({ id, deck, port, crossfade, fadeSeconds, naturalFadeIn = false, volume, equalizer }) {
     if (Number.isFinite(Number(volume))) this.musicVolume = Math.min(100, Math.max(0, Number(volume)));
     const incoming = this.decks[deck];
     const outgoingKey = this.activeDeck;
     const previousType = this.activeType;
     const outgoing = previousType === "music" && outgoingKey && outgoingKey !== deck ? this.decks[outgoingKey] : null;
     const url = `http://127.0.0.1:${port}/library/audio/${encodeURIComponent(id)}`;
+    await this.applyEqualizer(deck, equalizer || { enabled: false, gains: [0, 0, 0, 0, 0] });
     const current = await incoming.status();
     if (current.path === url && current.paused) {
       await incoming.set("volume", Math.round(this.musicVolume * this.musicGains[deck]));

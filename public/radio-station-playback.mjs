@@ -20,7 +20,15 @@ export function createRadioStationPlayback({ state, players, ui }) {
       return;
     }
     ui.hideHostControls();
-    await players.browser.play(station, isHls);
+    if (!isHls) await players.equalizer.enable({ autoplay: false });
+    if (!state.isCurrentGeneration(generation)) return;
+    const played = await players.browser.play(station, isHls);
+    if (played === false && players.equalizer.ready && state.isCurrentGeneration(generation)) {
+      players.equalizer.closeContext();
+      ui.replaceAudio();
+      ui.showEqualizerUnavailable();
+      await players.browser.play(station, isHls);
+    }
   }
 
   function prepare(station, genre, generation, isHls) {

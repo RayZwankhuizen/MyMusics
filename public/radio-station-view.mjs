@@ -59,13 +59,6 @@ export function createRadioStationView({ genreNav, stationList, searchInput, fav
       row.className = "station-row";
       const details = document.createElement("div");
       details.className = "station-details";
-      if (station.image) {
-        const logo = document.createElement("img");
-        logo.className = "station-logo";
-        logo.src = station.image;
-        logo.alt = "";
-        details.append(logo);
-      }
       const viewport = document.createElement("span");
       viewport.className = "station-name-viewport";
       const name = document.createElement("strong");
@@ -81,7 +74,20 @@ export function createRadioStationView({ genreNav, stationList, searchInput, fav
       play.type = "button";
       play.setAttribute("aria-label", `Play ${station.name}`);
       play.setAttribute("aria-pressed", String(activeStation?.url === station.url));
-      play.textContent = "▶";
+      const artworkName = document.createElement("span");
+      artworkName.className = "station-artwork-name";
+      artworkName.textContent = station.name;
+      play.append(artworkName);
+      if (station.image) {
+        const logo = document.createElement("img");
+        logo.className = "station-logo";
+        logo.alt = "";
+        logo.loading = "lazy";
+        logo.addEventListener("load", () => { artworkName.hidden = true; });
+        logo.addEventListener("error", () => { logo.remove(); artworkName.hidden = false; });
+        logo.src = station.image;
+        play.append(logo);
+      }
       play.addEventListener("click", () => onPlay(station, genre));
 
       const favorite = document.createElement("button");
@@ -105,8 +111,8 @@ export function createRadioStationView({ genreNav, stationList, searchInput, fav
       edit.addEventListener("click", () => onEdit(genre, index));
       const actions = document.createElement("div");
       actions.className = "station-actions";
-      actions.append(edit, favorite, play);
-      row.append(details, actions);
+      actions.append(edit, favorite);
+      row.append(play, details, actions);
       stationList.append(row);
       requestAnimationFrame(() => {
         const distance = name.scrollWidth - viewport.clientWidth;
@@ -148,13 +154,25 @@ export function createRadioStationView({ genreNav, stationList, searchInput, fav
       const button = document.createElement("button");
       button.type = "button";
       button.className = "radio-search-result";
+      button.setAttribute("aria-label", `Play ${station.name}`);
+      const artwork = document.createElement("span");
+      artwork.className = "radio-search-artwork";
+      const fallback = document.createElement("span");
+      fallback.className = "radio-search-fallback";
+      fallback.textContent = station.name;
+      artwork.append(fallback);
       if (station.image) {
         const logo = document.createElement("img");
-        logo.src = station.image;
         logo.alt = "";
-        button.append(logo);
+        logo.loading = "lazy";
+        logo.addEventListener("load", () => { fallback.hidden = true; });
+        logo.addEventListener("error", () => { logo.remove(); fallback.hidden = false; });
+        logo.src = station.image;
+        artwork.append(logo);
       }
+      button.append(artwork);
       const details = document.createElement("span");
+      details.className = "radio-search-caption";
       const name = document.createElement("strong");
       name.textContent = station.name;
       const meta = document.createElement("small");

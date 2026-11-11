@@ -24,6 +24,8 @@ export function createRadioLyricsController({ isCurrent, getTrackKey, parseSynce
     content.replaceChildren();
     if (resetScroll) content.scrollTop = 0;
     content.classList.remove("plain");
+    content.style.removeProperty("padding-top");
+    content.style.removeProperty("padding-bottom");
     progress.hidden = true;
     progress.value = 0;
     status.textContent = message;

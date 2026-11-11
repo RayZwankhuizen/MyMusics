@@ -1,7 +1,9 @@
+import { createHostEqualizer } from "./host-equalizer.mjs";
 export function createRadioEqualizerController({ getAudio, getStation, getStationGenre, getStationIndex, getGeneration, isHostOutput, streamUrl, replaceAudio, onStationUpdated }) {
   const bands = document.querySelector("#equalizer-bands");
   const preset = document.querySelector("#equalizer-preset");
   const panel = document.querySelector("#equalizer-panel");
+  const hostEqualizer = createHostEqualizer(isHostOutput);
   let context = null;
   let ready = false;
   let enabled = false;
@@ -68,12 +70,17 @@ export function createRadioEqualizerController({ getAudio, getStation, getStatio
     canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
   }
 
-  async function enable() {
+  async function enable({ autoplay = true } = {}) {
     if (isHostOutput()) {
-      document.querySelector("#equalizer-status").textContent = "Choose This browser audio output to use the equalizer.";
-      return false;
+      hostEqualizer.refresh();
+      return true;
     }
-    if (ready) { setEnabled(true); draw(); return true; }
+    if (ready) {
+      if (autoplay) setEnabled(true);
+      await context.context.resume();
+      draw();
+      return true;
+    }
     const station = getStation();
     if (!station || station.type === "hls" || /\.m3u8(?:$|[?#])/i.test(station.url)) {
       document.querySelector("#equalizer-status").textContent = "Equalizer needs an MP3 stream.";
@@ -105,8 +112,10 @@ export function createRadioEqualizerController({ getAudio, getStation, getStatio
       document.querySelector("#equalizer-power").disabled = false;
       setEnabled(true);
       document.querySelector("#equalizer-status").textContent = "Adjust the bands from −12 to +12 dB.";
-      getAudio().src = streamUrl(station.url);
-      await getAudio().play();
+      if (autoplay) {
+        getAudio().src = streamUrl(station.url);
+        await getAudio().play();
+      }
       draw();
       return true;
     } catch {
@@ -114,7 +123,7 @@ export function createRadioEqualizerController({ getAudio, getStation, getStatio
       context = null;
       reset();
       if (switchedAudio) replaceAudio();
-      if (switchedAudio && station === getStation() && generation === getGeneration()) {
+      if (autoplay && switchedAudio && station === getStation() && generation === getGeneration()) {
         getAudio().src = station.url;
         getAudio().play().catch(() => {});
       }
@@ -125,7 +134,7 @@ export function createRadioEqualizerController({ getAudio, getStation, getStatio
 
   window.MyMusicsEqualizer.buildControls(bands, () => filters, preset);
   preset.addEventListener("change", (event) => choosePreset(event.currentTarget.value));
-  document.querySelector("#equalizer-power").addEventListener("click", () => setEnabled(!enabled));
+  document.querySelector("#equalizer-power").addEventListener("click", () => isHostOutput() ? hostEqualizer.toggle() : setEnabled(!enabled));
   document.querySelector("#equalizer-toggle").addEventListener("click", async () => {
     const toggle = document.querySelector("#equalizer-toggle");
     if (panel.open) { panel.close(); return; }
@@ -154,9 +163,10 @@ export function createRadioEqualizerController({ getAudio, getStation, getStatio
     get ready() { return ready; },
     closeContext() { context?.context.close().catch(() => {}); context = null; reset(); },
     setHostOutput(host) {
+      if (host) { hostEqualizer.refresh(); return; }
       for (const selector of ["#equalizer-power", "#equalizer-reset", "#equalizer-preset"]) document.querySelector(selector).disabled = host || !ready;
       bands.querySelectorAll("input").forEach((input) => { input.disabled = host || !ready; });
-      if (host) document.querySelector("#equalizer-status").textContent = "Choose This browser audio output to use the equalizer.";
+      if (ready) setEnabled(enabled);
     }
   });
 }

@@ -1,3 +1,4 @@
+import { hostEqualizerSettings } from "./host-equalizer.mjs";
 export function createRadioHostOutput({ getAudio, setStatus }) {
   const controls = document.querySelector("#host-radio-controls");
   const toggle = document.querySelector("#host-radio-toggle");
@@ -9,13 +10,13 @@ export function createRadioHostOutput({ getAudio, setStatus }) {
     audio.removeAttribute("src");
     audio.load();
     controls.hidden = false;
-    document.querySelector("#equalizer-status").textContent = "Equalizer and speech detection require browser output.";
+    document.querySelector("#equalizer-status").textContent = "Host equalizer · MPV audio processing";
     setStatus("CONNECTING TO MYMUSICS HOST");
     try {
       const response = await fetch("/api/host-player/radio", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: station.url })
+        body: JSON.stringify({ url: station.url, equalizer: hostEqualizerSettings() })
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Host playback failed.");

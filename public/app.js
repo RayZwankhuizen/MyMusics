@@ -314,8 +314,6 @@ function appendMetadataBlock(data) { metadataView.append(data); }
 async function start() {
   try {
     const stations = await stationCatalog.load();
-    const stationTotal = Object.values(stations).reduce((total, list) => total + list.length, 0);
-    el("#library-total").textContent = stationTotal;
     renderGenreNav();
     const firstGenre = Object.keys(stations)[0];
     if (firstGenre) chooseGenre(firstGenre);

@@ -16,8 +16,10 @@ export function createRadioBrowserPlayback({ getAudio, setStatus, streamUrl, hls
         await audio.play();
         if (!speechSuppressionDisabled(station.url)) startSpeechDetection(station);
       }
+      return true;
     } catch (error) {
       setStatus(`PLAYBACK FAILED · ${error.name || error.message}`);
+      return false;
     }
   }
 

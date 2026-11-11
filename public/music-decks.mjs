@@ -101,8 +101,9 @@ export function createMusicDeckTransition({ state, deckState, setNaturalFadeStar
     return { deck, previousTrack, previousArm, previousGain, alreadyLoaded };
   }
 
-  function activateIncomingDeck(track, key, outgoingKey, fadeSeconds) {
+  async function activateIncomingDeck(track, key, outgoingKey, fadeSeconds) {
     musicEqualizer.autoPreset(track);
+    await musicEqualizer.prepare();
     // Ask for a conversion before playback when the browser cannot decode this format.
     state.transcoding = needsTranscode(track);
     setStatus(state.transcoding ? "CONVERTING" : "BUFFERING");

@@ -34,6 +34,8 @@ export function createManageCatalog({ el, request, notice, stationImages, stream
   };
 
   function resetForm() {
+    el("#station-dialog").close();
+    el("#station-form-error").hidden = true;
     streamFinder.reset();
     el("#station-form").reset();
     stationImages.reset();
@@ -44,10 +46,11 @@ export function createManageCatalog({ el, request, notice, stationImages, stream
     el("#station-genre").hidden = true;
     el("#station-genre-edit-label").hidden = true;
     el("#station-genre-label").hidden = false;
-    el("#cancel-edit").hidden = true;
+    el("#cancel-edit").hidden = false;
   }
 
   function editStation(index) {
+    resetForm();
     const station = stations[selectedGenre][index];
     el("#station-index").value = index;
     el("#station-name").value = station.name;
@@ -63,7 +66,7 @@ export function createManageCatalog({ el, request, notice, stationImages, stream
     el("#station-genre-edit-label").hidden = false;
     el("#station-genre-label").hidden = true;
     el("#cancel-edit").hidden = false;
-    el("#station-form").scrollIntoView({ behavior: "smooth", block: "center" });
+    el("#station-dialog").showModal();
     el("#station-name").focus({ preventScroll: true });
   }
 
@@ -128,6 +131,7 @@ export function createManageCatalog({ el, request, notice, stationImages, stream
   el("#managed-station-filter").addEventListener("input", render);
   el("#station-form").addEventListener("submit", async (event) => {
     event.preventDefault();
+    el("#station-form-error").hidden = true;
     const index = el("#station-index").value;
     let url = el("#station-url").value.trim();
     if (url && !/^https?:\/\//i.test(url)) url = `https://${url}`;
@@ -155,16 +159,24 @@ export function createManageCatalog({ el, request, notice, stationImages, stream
       notice(index === "" ? "Station added." : "Station updated.");
       resetForm();
       render();
-    } catch (error) { notice(error.message, true); }
+      const row = sourceGenre === destinationGenre && index !== "" ? el(`#station-list [data-station-index="${Number(index)}"]`) : null;
+      (row?.querySelector(".actions button:nth-child(3)") || el("#add-station")).focus({ preventScroll: true });
+    } catch (error) {
+      el("#station-form-error").textContent = error.message;
+      el("#station-form-error").hidden = false;
+    }
     finally { submit.disabled = false; }
   });
 
   el("#add-station").addEventListener("click", () => {
     resetForm();
-    el("#station-name").focus();
-    el("#station-name").scrollIntoView({ behavior: "smooth", block: "center" });
+    el("#station-dialog").showModal();
+    el("#station-name").focus({ preventScroll: true });
   });
   el("#cancel-edit").addEventListener("click", resetForm);
+  el("#close-station-dialog").addEventListener("click", resetForm);
+  el("#station-dialog").addEventListener("cancel", (event) => { event.preventDefault(); resetForm(); });
+  el("#station-dialog").addEventListener("close", () => streamFinder.reset());
 
   async function deleteStation(index, name) {
     if (!confirm(`Delete “${name}”?`)) return;

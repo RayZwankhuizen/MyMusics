@@ -1,3 +1,4 @@
+const { validateEqualizer } = require("../host-equalizer");
 const fs = require("node:fs");
 const { promisify } = require("node:util");
 const execFile = promisify(require("node:child_process").execFile);
@@ -94,11 +95,24 @@ module.exports = function registerHostPlayerRoutes(app, { hostPlayer, getStation
     }
   });
 
+  app.put("/api/host-player/equalizer", async (req, res) => {
+    if (!req.is("application/json")) return res.status(415).json({ error: "Equalizer updates must use JSON." });
+    if (req.get("origin") !== `${req.protocol}://${req.get("host")}`) return res.status(403).json({ error: "Change the equalizer from this MyMusics page." });
+    let equalizer;
+    try { equalizer = validateEqualizer(req.body); }
+    catch (error) { return res.status(400).json({ error: error.message }); }
+    try { res.json(await hostPlayer.setEqualizer(equalizer)); }
+    catch (error) { res.status(503).json({ error: error.message || "Could not update host equalizer." }); }
+  });
+
   app.post("/api/host-player/radio", async (req, res) => {
     const url = String(req.body?.url || "");
     if (!allStations().some((station) => station.url === url)) return res.status(400).json({ error: "Choose a saved radio station." });
+    let equalizer;
+    try { if (req.body?.equalizer !== undefined) equalizer = validateEqualizer(req.body.equalizer); }
+    catch (error) { return res.status(400).json({ error: error.message }); }
     try {
-      await hostPlayer.playRadio(url);
+      await hostPlayer.playRadio(url, 100, equalizer);
       res.json({ ok: true });
     } catch (error) {
       res.status(503).json({ error: error.message || "Could not start host audio." });
@@ -114,9 +128,12 @@ module.exports = function registerHostPlayerRoutes(app, { hostPlayer, getStation
     if (volume !== undefined && (!Number.isInteger(volume) || volume < 0 || volume > 100)) {
       return res.status(400).json({ error: "Music volume must be a whole percentage from 0 to 100." });
     }
+    let equalizer;
+    try { if (req.body?.equalizer !== undefined) equalizer = validateEqualizer(req.body.equalizer); }
+    catch (error) { return res.status(400).json({ error: error.message }); }
     try {
       await hostPlayer.playMusic({
-        id, deck, port,
+        id, deck, port, ...(equalizer === undefined ? {} : { equalizer }),
         crossfade: req.body?.crossfade === true,
         fadeSeconds: req.body?.fadeSeconds,
         naturalFadeIn: req.body?.naturalFadeIn === true,

@@ -2,7 +2,7 @@ const express = require("express");
 const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
-const { fetchPublicUrl, logoCandidates, radioBrowserSearch } = require("./station-discovery");
+const { fetchPublicUrl, logoCandidates, radioBrowserSearch, matchingLogoStations, stationWebsiteCandidates, dynamicLogoCandidates, logoStationSearches, sharedHomepageLogos } = require("./station-discovery");
 
 module.exports = function registerStationRoutes(app, { storage }) {
   let stations = storage.readStations();
@@ -65,20 +65,57 @@ module.exports = function registerStationRoutes(app, { storage }) {
       let image;
       const deadline = Date.now() + 20_000;
       if (typeof req.body?.imageUrl === "string" && req.body.imageUrl.trim()) {
-        image = await fetchPublicUrl(req.body.imageUrl.trim(), 2_000_000, deadline);
-      } else if (typeof req.body?.website === "string" && req.body.website.trim()) {
-        const page = await fetchPublicUrl(req.body.website.trim(), 1_000_000, deadline);
-        if (!page.type.includes("html")) throw new Error("The station website did not return an HTML page.");
-        const html = page.body.toString("utf8");
-        for (const candidate of logoCandidates(html, page.url)) {
-          if (Date.now() >= deadline) break;
+        image = await fetchPublicUrl(req.body.imageUrl.trim(), 10_000_000, deadline);
+      } else {
+        const website = typeof req.body?.website === "string" ? req.body.website.trim().slice(0, 2048) : "";
+        const name = typeof req.body?.name === "string" ? req.body.name.trim().slice(0, 100) : "";
+        const stream = typeof req.body?.url === "string" ? req.body.url.trim().slice(0, 2048) : "";
+        if (!website && !name && !stream) return res.status(400).json({ error: "Enter a station name, stream URL, website or direct logo URL." });
+        const websites = website ? [...stationWebsiteCandidates(website), website] : [];
+        // Directory requests have their own bounded timeout. Start the download budget afterwards.
+        let matches = [];
+        let directory = [];
+        if (req.body?.automatic === true && (name || stream)) {
           try {
-            const found = await fetchPublicUrl(candidate, 2_000_000, deadline);
+            const filters = logoStationSearches(name, stream);
+            directory = await radioBrowserSearch(filters, { limit: 100 });
+            matches = matchingLogoStations(directory, name, stream);
+          } catch { /* Still try the supplied station website. */ }
+        }
+        const downloadDeadline = Date.now() + 20_000;
+        for (const station of matches) {
+          if (station.homepage) websites.push(...stationWebsiteCandidates(station.homepage), station.homepage);
+          if (!station.favicon) continue;
+          try {
+            const found = await fetchPublicUrl(station.favicon, 10_000_000, downloadDeadline);
             if (found.type.startsWith("image/")) { image = found; break; }
           } catch {}
         }
-        if (!image) throw new Error("No logo image was found. Enter a logo image URL instead.");
-      } else return res.status(400).json({ error: "Enter the station website or a direct logo URL." });
+        if (!image) for (const logo of sharedHomepageLogos(matches, directory)) {
+          try {
+            const found = await fetchPublicUrl(logo, 10_000_000, downloadDeadline);
+            if (found.type.startsWith("image/")) { image = found; break; }
+          } catch {}
+        }
+        if (req.body?.automatic === true) websites.push(...stationWebsiteCandidates(stream));
+        for (const websiteUrl of [...new Set(websites)].slice(0, 7)) {
+          if (image || Date.now() >= downloadDeadline) break;
+          try {
+            const page = await fetchPublicUrl(websiteUrl, 1_000_000, downloadDeadline);
+            if (!page.type.includes("html")) continue;
+            const html = page.body.toString("utf8");
+            const candidates = [...await dynamicLogoCandidates(html, page.url, downloadDeadline), ...logoCandidates(html, page.url)];
+            for (const candidate of candidates) {
+              if (Date.now() >= downloadDeadline) break;
+              try {
+                const found = await fetchPublicUrl(candidate, 10_000_000, downloadDeadline);
+                if (found.type.startsWith("image/")) { image = found; break; }
+              } catch {}
+            }
+          } catch {}
+        }
+        if (!image) throw new Error("No logo found. Add the station website and try again, or use a direct image URL.");
+      }
       if (!image.type.startsWith("image/")) throw new Error("The URL did not return an image.");
       res.set({ "Content-Type": image.type, "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" }).send(image.body);
     } catch (error) { res.status(422).json({ error: error.message || "Could not find or download a logo." }); }

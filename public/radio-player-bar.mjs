@@ -9,6 +9,7 @@ export function wireRadioPlayerBar({ getAudio, getStation, getGenre, getStations
 
   function updateButton() {
     const playing = isHostOutput() ? status === "ON AIR" : !getAudio().paused;
+    document.querySelector(".receiver-vu")?.classList.toggle("is-playing", playing && status === "ON AIR");
     button.textContent = playing ? "Ⅱ" : "▶";
     button.setAttribute("aria-label", playing ? "Pause radio" : "Play radio");
     button.setAttribute("aria-pressed", String(playing));

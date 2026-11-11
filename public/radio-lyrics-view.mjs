@@ -12,12 +12,15 @@ export function renderSyncedLyrics({ lines, content, progress, status, elapsedTi
   });
   let previousActive = -2;
   let syncOffset = 0;
+  let previousSize = "";
   const elapsed = () => elapsedTime() + syncOffset;
   const sync = () => {
     const currentTime = elapsed();
     let active = -1;
     lines.forEach((line, index) => { if (line.time + lineDelay() <= currentTime) active = index; });
-    if (active === previousActive) return;
+    const size = `${content.clientWidth}:${content.clientHeight}`;
+    if (active === previousActive && size === previousSize) return;
+    previousSize = size;
     elements.forEach((line, index) => {
       line.classList.toggle("active", index === active);
       if (index === active) line.setAttribute("aria-current", "true");
@@ -27,11 +30,14 @@ export function renderSyncedLyrics({ lines, content, progress, status, elapsedTi
     status.textContent = active < 0
       ? `Waiting for first line · ${lines.length} lines`
       : `Line ${active + 1} of ${lines.length} · sync approximate`;
-    if (active >= 0) {
-      const line = elements[active].getBoundingClientRect();
+    if (elements.length) {
+      // Reserve the same space while waiting for the first timestamp too.
+      // Space at both ends lets even the first and last lines sit in the middle.
+      content.style.paddingTop = `${Math.max(0, (content.clientHeight - elements[0].offsetHeight) / 2)}px`;
+      content.style.paddingBottom = `${Math.max(0, (content.clientHeight - elements.at(-1).offsetHeight) / 2)}px`;
+      const line = elements[Math.max(0, active)].getBoundingClientRect();
       const box = content.getBoundingClientRect();
-      if (line.top < box.top) content.scrollTop -= box.top - line.top;
-      else if (line.bottom > box.bottom) content.scrollTop += line.bottom - box.bottom;
+      content.scrollTop += line.top + line.height / 2 - (box.top + content.clientTop + content.clientHeight / 2);
     }
     previousActive = active;
   };

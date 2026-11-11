@@ -100,9 +100,12 @@
           <form id="rename-form" class="rename-form" hidden><label for="rename-genre">Rename genre</label><div class="inline-form"><input id="rename-genre" name="name" maxlength="40" required><button class="small-button">Save name</button></div></form>
           <div id="managed-station-filter-wrap" class="managed-station-filter"><label for="managed-station-filter">Filter this genre</label><input id="managed-station-filter" type="search" placeholder="Search station name" autocomplete="off" aria-controls="station-list"></div>
           <div id="station-list" class="managed-stations"></div>
-          <section class="station-tools" aria-labelledby="add-station-heading">
-            <div class="panel-heading"><div><p class="eyebrow">New stream</p><h3 id="add-station-heading">Add a station</h3></div><span id="add-station-genre" class="selected-genre-label"></span></div>
+          <section class="station-tools" aria-labelledby="station-tools-heading">
+            <div class="panel-heading"><div><p class="eyebrow">New stream</p><h3 id="station-tools-heading">Add a station</h3></div><span id="add-station-genre" class="selected-genre-label"></span></div>
             <button id="add-station" class="save-button" type="button">New station</button>
+            <dialog id="station-dialog" class="station-dialog" aria-labelledby="add-station-heading">
+              <header class="station-dialog-heading"><h2 id="add-station-heading">Add a station</h2><button id="close-station-dialog" class="text-button" type="button" aria-label="Close station editor">Close</button></header>
+              <p id="station-form-error" class="station-form-error" role="alert" hidden></p>
             <form id="station-form" class="station-form">
               <input id="station-index" type="hidden">
               <label for="station-name">Station name</label><input id="station-name" name="name" maxlength="100" placeholder="e.g. Radio Example" required>
@@ -113,11 +116,12 @@
               <label for="station-type">Stream type</label><select id="station-type" name="type"><option value="mp3">MP3 / audio stream</option><option value="hls">HLS (.m3u8)</option></select>
               <label for="speech-volume-percent">Speech / ad volume (%)</label><input id="speech-volume-percent" name="speechVolumePercent" type="number" min="0" max="100" step="1" value="30" required><p class="form-hint">Volume used while speech or ads are detected.</p>
               <label for="station-image">Station logo</label><div class="station-image-field"><img id="station-image-preview" alt="" hidden><input id="station-image" type="file" accept="image/png,image/jpeg,image/webp"><button id="remove-station-image" class="text-button" type="button" hidden>Remove logo</button></div>
-              <div class="station-logo-lookup"><label for="station-logo-url">Logo image URL</label><input id="station-logo-url" type="url" inputmode="url" autocapitalize="none" placeholder="https://radio.example/logo.png"><div><button id="find-station-logo" class="text-button" type="button">Find logo from website</button><button id="use-station-logo-url" class="text-button" type="button">Use image URL</button></div><p id="station-logo-status" class="form-hint" role="status">Find a logo on the station website or copy one from an image URL.</p></div>
+              <div class="station-logo-lookup"><label for="station-logo-url">Logo image URL</label><input id="station-logo-url" type="url" inputmode="url" autocapitalize="none" placeholder="https://radio.example/logo.png"><div><button id="find-station-logo" class="text-button" type="button">Find logo automatically</button><button id="use-station-logo-url" class="text-button" type="button">Use image URL</button></div><p id="station-logo-status" class="form-hint" role="status">Find a logo automatically using the station name and stream URL.</p></div>
               <p class="form-hint">Logos are optimized and copied to this MyMusics server.</p>
               <div class="station-form-actions"><button id="cancel-edit" class="text-button" type="button" hidden>Cancel edit</button><button class="save-button" type="submit">Add station</button></div>
               <p class="form-hint">HTTPS is assumed when no protocol is entered. HLS URLs must end in .m3u8.</p>
             </form>
+            </dialog>
           </section>
           <details class="danger-zone"><summary>Danger zone</summary><p id="genre-delete-hint">Deleting a genre also removes all stations in it.</p><button id="delete-genre" class="delete-genre-button" type="button" disabled>Delete genre</button></details>
           <section class="discover-tools" aria-labelledby="discover-heading"><div class="panel-heading"><div><p class="eyebrow">Directory</p><h3 id="discover-heading">Find stations by country and music</h3></div></div><form id="station-search-form" class="station-search-form"><label>Country code (optional)<input name="countrycode" maxlength="2" placeholder="NL, US, GB, ES"></label><label>Music style, tag, or station name<input name="tag" maxlength="80" placeholder="rock, golden oldies, or a station name"></label><button class="save-button">Search directory</button></form><div id="station-search-results" class="station-search-results" aria-live="polite"></div></section>

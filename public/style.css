@@ -54,7 +54,7 @@ h1{font:700 clamp(25px,3vw,34px) var(--display);letter-spacing:-1.2px;margin:0}
 .station-row{min-height:66px;background:var(--white);border:1px solid #eeece6;border-radius:9px;padding:12px 14px 12px 17px;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:border-color .2s,background .2s}
 .station-row:hover{border-color:#d5d1c7;background:#fff}
 .station-details{min-width:0;display:grid;gap:4px}
-.station-details:has(.station-logo){grid-template-columns:42px minmax(0,1fr);align-items:center;column-gap:10px}.station-details:has(.station-logo) .station-logo{grid-column:1;grid-row:1/3}.station-details:has(.station-logo)>.station-name-viewport,.station-details:has(.station-logo)>span:not(.station-name-viewport),.station-details:has(.station-logo)>strong{grid-column:2}
+.station-details:has(.station-logo){grid-template-columns:48px minmax(0,1fr);align-items:center;column-gap:10px}.station-details:has(.station-logo) .station-logo{grid-column:1;grid-row:1/3}.station-details:has(.station-logo)>.station-name-viewport,.station-details:has(.station-logo)>span:not(.station-name-viewport),.station-details:has(.station-logo)>strong{grid-column:2}
 .station-details strong{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .station-details span{font-size:11px;color:#999b94;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .play-button{flex:0 0 34px;width:34px;height:34px;border:1px solid var(--line);border-radius:50%;background:transparent;color:var(--accent);font-size:12px;cursor:pointer;transition:background .2s,color .2s,border .2s}
@@ -364,3 +364,35 @@ body.music-page .player-dock{left:var(--music-side)}
 @media(max-width:900px){body.music-page .music-layout{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:1000px){body.music-page .sidebar{position:static;width:auto;height:auto;max-height:none;overflow:visible}body.music-page main{margin-left:0;padding:0 14px 124px}body.music-page .player-dock{left:0}}
 @media(max-width:600px){.mode-switch{grid-template-columns:auto auto;width:max-content;gap:2px;margin-top:10px;padding:2px}.mode-switch .mode{padding:6px 10px}.side-note{display:none}.music-player{grid-template-columns:auto auto minmax(0,1fr) auto}.music-player #player-status{display:none}.music-panel{padding:12px}}
+
+/* Keep station artwork within the same footprint as the player logo. */
+.radio-page .station-logo{display:block;width:48px;height:48px;max-width:48px;max-height:48px;object-fit:contain;border-radius:8px;background:#23252b}
+
+/* Logo tiles in radio search, keeping the existing player palette. */
+.radio-search-results{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:14px;align-content:start;padding:4px}
+.radio-search-results>p{grid-column:1/-1}
+.radio-search-result{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:9px;min-width:0;min-height:0;padding:9px;text-align:center}
+.radio-search-result:focus-visible{outline:3px solid var(--cyan);outline-offset:1px}
+.radio-search-result>.radio-search-artwork{position:relative;display:grid;place-items:center;width:100%;aspect-ratio:3/2;overflow:hidden;border-radius:6px;background:#101826}
+.radio-search-artwork .radio-search-fallback{padding:8px;font:700 clamp(14px,1.4vw,20px) var(--sans);overflow-wrap:anywhere}
+.radio-search-artwork .radio-search-fallback[hidden]{display:none}
+.radio-search-result .radio-search-artwork img{position:absolute;inset:0;width:100%;height:100%;border-radius:0;object-fit:contain;background:#101826}
+.radio-search-result>.radio-search-caption{display:grid;gap:4px}
+.radio-search-result strong{font-size:14px;line-height:1.35}
+.radio-search-result small{font-size:10px;overflow-wrap:anywhere}
+@media(max-width:480px){.radio-search-results{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
+
+/* Main radio browser uses the same logo-first tiles as search. */
+.radio-page #station-list{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;align-content:start;padding:4px}
+.radio-page #station-list .station-row{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:8px;min-width:0;min-height:0;padding:9px}
+.radio-page #station-list .play-button{position:relative;display:grid;place-items:center;flex:none;width:100%;height:auto;aspect-ratio:3/2;overflow:hidden;border-radius:6px;background:#191c23;border:1px solid transparent;color:var(--slate)}
+.radio-page #station-list .play-button:hover,.radio-page #station-list .play-button:focus-visible,.radio-page #station-list .play-button[aria-pressed="true"]{border-color:var(--cyan);outline:2px solid var(--cyan);outline-offset:1px}
+.radio-page #station-list .station-logo{position:absolute;inset:0;width:100%;height:100%;max-width:none;max-height:none;object-fit:contain;border-radius:0;background:#191c23}
+.radio-page #station-list .station-artwork-name{padding:8px;font:700 16px var(--sans);overflow-wrap:anywhere}
+.radio-page #station-list .station-artwork-name[hidden]{display:none}
+.radio-page #station-list .station-details{display:block;text-align:center}
+.radio-page #station-list .station-name-viewport{display:block;overflow:visible;max-width:100%}
+.radio-page #station-list .station-name{display:block;width:auto;white-space:normal;overflow-wrap:anywhere;font-size:13px;line-height:1.35;animation:none;transform:none}
+.radio-page #station-list .station-details>span:not(.station-name-viewport){display:none}
+.radio-page #station-list .station-actions{justify-content:center;flex-wrap:wrap;margin-top:auto}
+@media(max-width:480px){.radio-page #station-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}

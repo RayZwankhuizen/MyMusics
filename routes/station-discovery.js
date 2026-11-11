@@ -24,6 +24,14 @@ function publicAddress(address) {
   return first >= 0x2000 && first <= 0x3fff && !ip.startsWith("2001:db8:");
 }
 
+function pinnedLookup(address, family) {
+  return (_host, options, callback) => {
+    // Node's connection family selection can request an array of addresses.
+    if (options?.all) callback(null, [{ address, family }]);
+    else callback(null, address, family);
+  };
+}
+
 async function fetchPublicUrl(value, maxBytes = 2_000_000, deadline = Date.now() + 20_000) {
   let url;
   try { url = new URL(value); } catch { throw new Error("Enter a valid image or website URL."); }
@@ -34,7 +42,7 @@ async function fetchPublicUrl(value, maxBytes = 2_000_000, deadline = Date.now()
     const addresses = await withTimeout(dns.lookup(url.hostname, { all: true, verbatim: true }), Math.min(5000, remaining));
     if (!addresses.length || addresses.some(({ address }) => !publicAddress(address))) throw new Error("The URL must point to a public website.");
     const { address, family } = addresses[0];
-    const agentOptions = { lookup: (_host, _options, callback) => callback(null, address, family) };
+    const agentOptions = { lookup: pinnedLookup(address, family) };
     const response = await fetch(url.href, {
       agent: url.protocol === "https:" ? new https.Agent(agentOptions) : new http.Agent(agentOptions),
       headers: { "User-Agent": "MyMusics/1.0 (station logo finder)", Accept: "image/*, text/html;q=0.8" },
@@ -59,7 +67,11 @@ function logoCandidates(html, pageUrl) {
     if (!value) return;
     try {
       const url = new URL(value.replace(/&amp;/gi, "&"), pageUrl);
-      if (["http:", "https:"].includes(url.protocol) && !candidates.some((candidate) => candidate.href === url.href)) candidates.push({ href: url.href, priority });
+      if (["http:", "https:"].includes(url.protocol)) {
+        const existing = candidates.find((candidate) => candidate.href === url.href);
+        if (existing) existing.priority = Math.min(existing.priority, priority);
+        else candidates.push({ href: url.href, priority });
+      }
     } catch {}
   };
   for (const match of html.matchAll(/<(meta|link|img)\b[^>]*>/gi)) {
@@ -118,4 +130,67 @@ async function radioBrowserSearch(searches, { countrycode = "", limit = 60, orde
   return matches;
 }
 
-module.exports = { fetchPublicUrl, logoCandidates, radioBrowserSearch };
+async function dynamicLogoCandidates(html, pageUrl, deadline, fetchPage = fetchPublicUrl) {
+  // Some radio sites fill empty logo images from their public site settings.
+  if (!/<img\b(?=[^>]*logo)(?![^>]*\bsrc\s*=)[^>]*>/i.test(html)) return [];
+  try {
+    const settings = await fetchPage(new URL("/api/settings", pageUrl).href, 200_000, deadline);
+    if (!settings.type.includes("json")) return [];
+    const data = JSON.parse(settings.body.toString("utf8"));
+    return [...new Set([data.site_logo, data.site_logo_dark].filter((value) => typeof value === "string" && value.trim()).map((value) => new URL(value, pageUrl).href))]
+      .filter((value) => /^https?:\/\//i.test(value));
+  } catch { return []; }
+}
+
+function stationWebsiteCandidates(stream) {
+  try {
+    const url = new URL(stream);
+    if (!["http:", "https:"].includes(url.protocol) || url.username || url.password || net.isIP(url.hostname)) return [];
+    // Strip only recognizable stream prefixes; never guess by taking the last two labels
+    // (which could turn a station.co.uk address into co.uk or select a hosting provider).
+    const hostname = url.hostname.replace(/^(?:stream(?:ing)?\d*|streams|icecast\d*|shoutcast\d*)\./i, "");
+    if (!hostname.includes(".")) return [];
+    if (hostname === url.hostname) return [`${url.origin}/`];
+    return [`https://${hostname}/`, ...(url.protocol === "http:" ? [`http://${hostname}/`] : [])];
+  } catch { return []; }
+}
+
+function logoStationSearches(name, stream) {
+  const words = name.match(/[\p{L}\p{N}]+/gu) || [];
+  const anchor = words.find((word) => word.length >= 3 && !/^radio$/i.test(word));
+  return [
+    ...(name ? [{ name }] : []),
+    ...(anchor && anchor.toLowerCase() !== name.toLowerCase() ? [{ name: anchor }] : []),
+    ...(stream ? [{ url: stream }] : [])
+  ];
+}
+
+function matchingLogoStations(matches, name, stream) {
+  const normalize = (value) => String(value || "").normalize("NFKD").toLowerCase().replace(/^radio[\s-]+/i, "").replace(/[^\p{L}\p{N}]/gu, "");
+  const streamKey = (value) => {
+    try {
+      const url = new URL(value);
+      for (const parameter of [...url.searchParams.keys()]) {
+        if (/^(?:uuid|ref|start_time|t\d+|utm_.*)$/i.test(parameter)) url.searchParams.delete(parameter);
+      }
+      url.searchParams.sort();
+      return `${url.host}${url.pathname}${url.search}`;
+    } catch { return ""; }
+  };
+  const key = streamKey(stream);
+  const label = normalize(name);
+  const unique = [...new Map(matches.map((station) => [JSON.stringify([station.name, station.url, station.homepage, station.favicon]), station])).values()];
+  return unique.filter((station) => (key && [station.url, station.url_resolved].some((url) => streamKey(url) === key)) || (label && normalize(station.name) === label))
+    .sort((a, b) => Number([b.url, b.url_resolved].some((url) => key && streamKey(url) === key)) - Number([a.url, a.url_resolved].some((url) => key && streamKey(url) === key)) || Number(Boolean(b.favicon)) - Number(Boolean(a.favicon)))
+    .slice(0, 4);
+}
+
+function sharedHomepageLogos(matches, directory) {
+  const homepageKey = (value) => {
+    try { const url = new URL(value); return /^https?:$/.test(url.protocol) ? `${url.host}${url.pathname.replace(/\/$/, "")}` : ""; } catch { return ""; }
+  };
+  const homepages = new Set(matches.map((station) => homepageKey(station.homepage)).filter(Boolean));
+  return [...new Set(directory.filter((station) => homepages.has(homepageKey(station.homepage))).map((station) => station.favicon).filter((value) => typeof value === "string" && /^https?:\/\//i.test(value)))].slice(0, 4);
+}
+
+module.exports = { fetchPublicUrl, logoCandidates, radioBrowserSearch, matchingLogoStations, stationWebsiteCandidates, pinnedLookup, dynamicLogoCandidates, logoStationSearches, sharedHomepageLogos };

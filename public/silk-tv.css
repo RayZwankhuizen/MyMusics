@@ -117,3 +117,6 @@ html.silk-browser.tv-mode .radio-page .player-bar{width:auto}
   html.silk-browser.tv-mode body.music-page .jukebox.jb-vintage .jb-deck .jb-turntable{width:clamp(105px,12vw,150px)}
 }
 @media(prefers-reduced-motion:reduce){html.silk-browser.tv-mode *{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+/* Listening screens omit management links on TVs and Firestick/Silk. */
+html:is(.tv-mode,.silk-browser) :is(.radio-page,.music-page) .sidebar-manage,
+html:is(.tv-mode,.silk-browser) :is(.radio-page,.music-page) a[href^="/manage.html"]{display:none!important}

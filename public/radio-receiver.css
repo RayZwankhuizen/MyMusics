@@ -1,0 +1,125 @@
+/* Compact receiver above the station wall, including Silk/Fire TV. */
+html body.radio-page main{padding-bottom:32px}
+html body.radio-page .content-layout{display:flex;flex-direction:column;gap:22px;padding-top:22px;padding-bottom:0}
+html body.radio-page .now-section{order:0;width:100%;margin:0;padding:0;min-width:0}
+html body.radio-page .listen-column{display:block;order:1;width:100%;min-width:0}
+html body.radio-page .now-card.receiver{display:grid;grid-template-columns:80px minmax(0,1fr);grid-template-rows:auto;gap:12px 18px;width:min(100%,820px);min-height:0;margin:0 auto;padding:18px 22px;border:7px solid #67412a;border-radius:22px;background:linear-gradient(135deg,#f5e8b8,#d9c68d);color:#292619;box-shadow:inset 0 0 0 2px #ad8b51,0 12px 28px #0004}
+html body.radio-page .receiver .radio-toolbar{padding:0 0 10px;gap:12px;border-color:#79633855;grid-column:1/-1}
+html body.radio-page .receiver .radio-toolbar-title{gap:2px}
+html body.radio-page .receiver .radio-eyebrow{color:#6b512e;font-size:10px;letter-spacing:2px}
+html body.radio-page .receiver .radio-toolbar h1{font:700 22px Georgia,serif;letter-spacing:1px;color:#3e3523}
+html body.radio-page .receiver .radio-toolbar-actions{width:auto;gap:8px}
+html body.radio-page .receiver .radio-toolbar button{min-height:44px;background:#252e3e;border:1px solid #626b7c;color:#fff}
+.receiver-dial{position:relative;grid-column:1/-1;height:72px;overflow:hidden;border:2px solid #8c6c38;border-radius:7px;background:linear-gradient(#30333a,#090d13);box-shadow:inset 0 2px 8px #0008}
+.receiver-dial::before{content:"";position:absolute;inset:9px 12px 27px;background:repeating-linear-gradient(90deg,#cfba8e 0 1px,transparent 1px 8px);opacity:.65}
+.receiver-frequencies{position:relative;display:flex;justify-content:space-between;padding:26px 10px 0;color:#efdab3;font:10px var(--mono)}
+.receiver-dial>i{position:absolute;top:6px;bottom:4px;left:43%;width:3px;background:#fa796b;box-shadow:0 0 7px #fa796b77}
+.receiver-band{position:absolute;bottom:5px;right:10px;color:#d5cdbb;font:9px var(--mono);letter-spacing:1.5px}
+html body.radio-page .receiver .cover-frame{grid-column:1;grid-row:3;width:80px;height:80px;min-height:0;aspect-ratio:1;border-radius:6px}
+html body.radio-page .receiver .track-info{grid-column:2;grid-row:3;min-width:0;align-self:center}
+html body.radio-page .receiver .track-info h2{margin:0 0 5px;color:#3d3220;font-size:17px;font-weight:700}
+html body.radio-page .receiver .track-title{margin:0;color:#292619;font-size:15px}
+html body.radio-page .receiver .track-artist,html body.radio-page .receiver .track-album,html body.radio-page .receiver .lookup-status{margin:3px 0 0;color:#625135;font-size:12px}
+html body.radio-page .receiver :is(.track-divider,.track-kicker){display:none}
+html body.radio-page .receiver .player-bar{position:static;inset:auto;grid-column:1/-1;display:flex;flex-direction:column;gap:10px;width:100%;max-height:none;min-height:0;margin:0;padding:12px;border:1px solid #5f5037;border-radius:9px;background:#151c28;color:#f5f7fa;overflow:visible;backdrop-filter:none;box-shadow:none}
+html body.radio-page .receiver .radio-player-current{display:none}
+html body.radio-page .receiver .radio-player-controls{display:flex;flex-wrap:wrap;gap:10px;width:100%}
+html body.radio-page .receiver #radio-player-toggle{min-width:48px;min-height:48px}
+html body.radio-page .receiver #radio-player-volume{width:auto;flex:1;min-width:60px;max-width:260px}
+html body.radio-page .receiver .player-tools-toggle{margin-left:auto;min-height:44px;font-size:13px}
+html body.radio-page .receiver .player-tools{width:100%}
+html body.radio-page .receiver .player-tools[hidden]{display:none!important}
+.receiver-lyrics{width:min(100%,820px);margin:10px auto 0;color:var(--muted)}
+.receiver-lyrics>summary{width:max-content;min-height:44px;padding:12px 4px;cursor:pointer;font-size:13px}
+html body.radio-page .station-section{order:1;max-height:none;width:100%;overflow:visible;margin:0;padding:0;border:0;background:transparent}
+html body.radio-page #station-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:14px;max-height:none;overflow:visible;align-content:start}
+html body.radio-page #station-list .station-row{min-height:0;padding:9px}
+html body.radio-page #station-list .station-name{font-size:13px}
+html body.radio-page :is(button,a,input,summary):focus-visible{outline:3px solid #ffbc67;outline-offset:4px;box-shadow:0 0 0 6px #ffbc6722}
+@media(max-width:760px){html body.radio-page .now-card.receiver{padding:12px;border-width:5px;gap:10px;grid-template-columns:56px minmax(0,1fr)}html body.radio-page .receiver .radio-toolbar h1{font-size:18px}html body.radio-page .receiver .radio-toolbar{flex-wrap:wrap}html body.radio-page .receiver .cover-frame{width:56px;height:56px}html body.radio-page #station-list{grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:10px}html body.radio-page .receiver .player-tools-toggle{font-size:12px}}
+html.tv-mode body.radio-page main{padding-bottom:5vh}
+html.tv-mode body.radio-page .now-card.receiver{width:min(100%,980px);grid-template-columns:80px minmax(0,1fr)}
+html.tv-mode body.radio-page .receiver .radio-toolbar h1{font-size:28px!important}
+html.tv-mode body.radio-page .receiver .radio-eyebrow{font-size:14px!important}
+html.tv-mode body.radio-page .receiver .radio-toolbar button{min-height:60px;font-size:20px!important}
+html.tv-mode body.radio-page .receiver .track-info :is(h2,p){font-size:20px!important}
+html.tv-mode body.radio-page .receiver .receiver-frequencies span{font-size:14px!important}
+html.tv-mode body.radio-page .receiver .receiver-band{font-size:12px!important}
+html.tv-mode body.radio-page .receiver .radio-player-controls button{min-height:60px;font-size:20px!important}
+html.tv-mode body.radio-page #station-list{grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px}
+html.tv-mode body.radio-page #station-list .station-name{font-size:20px!important}
+html.tv-mode body.radio-page #station-list .play-button{min-height:100px}
+html.tv-mode body.radio-page #station-list .favorite-button{min-height:60px;min-width:60px}
+html.tv-mode body.radio-page .receiver-lyrics>summary{font-size:20px;min-height:60px}
+/* Override legacy mobile ordering and Silk dock offsets explicitly. */
+html body.radio-page .content-layout>.now-section{order:0;margin:0;padding:0}
+html body.radio-page .content-layout>.listen-column{order:1;display:block}
+html.silk-browser.tv-mode body.radio-page .content-layout{display:flex;gap:14px;padding:12px 0 0}
+html.silk-browser.tv-mode body.radio-page .content-layout>.now-section{order:0;margin:0;padding:0}
+html.silk-browser.tv-mode body.radio-page .content-layout .station-section{max-height:none;overflow:visible;padding:0;border:0;background:transparent}
+html.silk-browser.tv-mode body.radio-page .sidebar{position:relative;padding:10px 4vw;gap:8px 20px}
+html.silk-browser.tv-mode body.radio-page .sidebar-version{display:none}
+html.silk-browser.tv-mode body.radio-page .playback-target-setting{margin:0;padding:0;border:0}
+html.silk-browser.tv-mode body.radio-page .playback-target-setting>select{display:none}
+html.silk-browser.tv-mode body.radio-page main{margin:0;padding:0 4vw 30px}
+html.silk-browser.tv-mode body.radio-page .now-card.receiver{padding:12px 18px;gap:8px 16px}
+html.silk-browser.tv-mode body.radio-page .receiver .radio-toolbar{padding-bottom:6px}
+html.silk-browser.tv-mode body.radio-page .receiver-dial{height:58px}
+html.silk-browser.tv-mode body.radio-page .receiver .cover-frame{width:64px;height:64px}
+html.silk-browser.tv-mode body.radio-page .receiver .player-bar{min-height:0;padding:8px 12px}
+html body.radio-page .favorite-status:empty{display:none}
+html body.radio-page .radio-station-count{margin:0 0 10px}
+html.silk-browser.tv-mode body.radio-page .sidebar{grid-template-columns:auto auto minmax(180px,1fr) auto;gap:6px 16px}
+html.silk-browser.tv-mode body.radio-page .tv-mode-toggle{grid-column:4;min-height:48px}
+html.silk-browser.tv-mode body.radio-page .playback-target-setting{font-size:0!important;gap:0}
+html.silk-browser.tv-mode body.radio-page .tv-playback-current{min-height:48px;padding:6px 10px;font-size:18px!important}
+html.silk-browser.tv-mode body.radio-page .genre-nav{max-height:64px}
+html.silk-browser.tv-mode body.radio-page .genre-nav button{min-height:48px;padding:6px 14px}
+html.silk-browser.tv-mode body.radio-page .receiver-dial{height:64px}
+html.silk-browser.tv-mode body.radio-page .receiver-band{bottom:3px;font-size:10px!important}
+
+/* Decorative stereo meter: transform-only animation keeps Silk rendering light. */
+.receiver-vu{width:100%;padding:0 2px 3px;color:#c0c9d6}
+html body.radio-page .receiver-vu-label{display:block;margin-bottom:5px;font:9px var(--mono);letter-spacing:2px;color:#b8c5d4}
+.receiver-vu-channel{display:flex;align-items:center;gap:8px;margin-top:4px}
+html body.radio-page .receiver-vu-channel>span{width:9px;flex:none;font:9px var(--mono);color:#a7b3c4}
+.receiver-vu-track{position:relative;flex:1;height:7px;overflow:hidden;border-radius:2px;background:linear-gradient(90deg,#68d6a1 0% 65%,#efb65f 65% 85%,#f47b6b 85% 100%)}
+.receiver-vu-track>i{display:block;width:100%;height:100%;transform:scaleX(1);transform-origin:right;background:#29313d}
+.receiver-vu-track::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 7px,#151c28 7px 10px)}
+.receiver-vu.is-playing .receiver-vu-track>i{animation:receiver-vu-bounce 1.7s linear infinite}
+.receiver-vu.is-playing .receiver-vu-channel:last-child .receiver-vu-track>i{animation-duration:2.1s;animation-delay:-.6s}
+@keyframes receiver-vu-bounce{0%,100%{transform:scaleX(.63)}12%{transform:scaleX(.28)}24%{transform:scaleX(.51)}35%{transform:scaleX(.09)}47%{transform:scaleX(.4)}58%{transform:scaleX(.22)}72%{transform:scaleX(.57)}85%{transform:scaleX(.15)}}
+html.tv-mode body.radio-page .receiver-vu-label,html.tv-mode body.radio-page .receiver-vu-channel>span{font-size:11px!important}
+@media(prefers-reduced-motion:reduce){.receiver-vu.is-playing .receiver-vu-track>i{animation:none;transform:scaleX(.35)}}
+
+/* One page scroll: station browsing never creates a nested scroll region. */
+html body.radio-page .content-layout .station-section,
+html.tv-mode body.radio-page .content-layout .station-section,
+html.silk-browser.tv-mode body.radio-page .content-layout .station-section{height:auto;max-height:none;overflow:visible;overscroll-behavior:auto}
+html body.radio-page .content-layout>.now-section,
+html.silk-browser.tv-mode body.radio-page .content-layout>.now-section{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch;gap:20px}
+html body.radio-page .now-section .now-card.receiver{width:100%;margin:0;align-self:start}
+html body.radio-page .now-section>.receiver-lyrics{width:100%;min-width:0;margin:0;display:flex}
+html body.radio-page .receiver-lyrics>.lyrics-panel{display:flex;flex-direction:column;width:100%;min-width:0;margin:0;padding:20px;border:1px solid var(--line);border-radius:14px}
+html body.radio-page .receiver-lyrics .lyrics-heading{flex-wrap:wrap;align-items:center;gap:10px}
+html body.radio-page .receiver-lyrics .lyrics-heading>span{text-align:left}
+html body.radio-page .receiver-lyrics .lyrics-heading h3{font-size:20px}
+html body.radio-page .receiver-lyrics .lyrics-content{display:block;height:240px;max-height:240px;flex:none;overflow:hidden;margin-top:14px}
+html body.radio-page .receiver-lyrics .lyrics-content.plain{height:240px;max-height:240px;overflow:auto}
+html body.radio-page .receiver-lyrics .lyric-line{font-size:17px;line-height:1.6;min-height:44px}
+html body.radio-page .receiver .radio-toolbar{flex-wrap:wrap}
+html body.radio-page .receiver .radio-player-controls{flex-wrap:wrap}
+html body.radio-page .receiver #radio-player-volume{flex-basis:70px}
+@media(max-width:1000px){html body.radio-page .content-layout>.now-section{grid-template-columns:minmax(0,1fr)}}
+html.tv-mode body.radio-page .receiver-lyrics .lyric-line{font-size:24px!important;min-height:54px}
+html.silk-browser.tv-mode body.radio-page .content-layout>.now-section{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+html.silk-browser.tv-mode body.radio-page .receiver .radio-toolbar h1{font-size:22px!important}
+html.silk-browser.tv-mode body.radio-page .receiver .radio-toolbar button{min-height:48px;font-size:18px!important}
+html.silk-browser.tv-mode body.radio-page .receiver .radio-player-controls button{min-height:48px;font-size:18px!important}
+@media(max-width:760px){html.silk-browser.tv-mode body.radio-page .content-layout>.now-section{grid-template-columns:minmax(0,1fr)}}
+html.tv-mode body.radio-page .receiver-lyrics .lyrics-speed button{min-width:48px;min-height:48px;font-size:24px!important}
+html body.radio-page .receiver-lyrics .lyrics-title{flex-wrap:wrap}
+
+html body.radio-page .receiver-lyrics .lyrics-content:not(.plain):not(:empty){height:240px;flex:none}
+
+html.silk-browser.tv-mode body.radio-page #genres{grid-column:1/-1}

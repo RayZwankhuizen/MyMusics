@@ -4,6 +4,7 @@ jellyfin.js
 jellyfin-autodj.js
 jellyfin-catalog.js
 host-player.js
+host-equalizer.js
 playlists.js
 music-genres.js
 music-genre-mappings.json
