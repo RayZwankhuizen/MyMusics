@@ -118,5 +118,5 @@ html.silk-browser.tv-mode .radio-page .player-bar{width:auto}
 }
 @media(prefers-reduced-motion:reduce){html.silk-browser.tv-mode *{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
 /* Listening screens omit management links on TVs and Firestick/Silk. */
-html:is(.tv-mode,.silk-browser) :is(.radio-page,.music-page) .sidebar-manage,
-html:is(.tv-mode,.silk-browser) :is(.radio-page,.music-page) a[href^="/manage.html"]{display:none!important}
+html:is(.tv-mode,.silk-browser):not(.silk-emulated) :is(.radio-page,.music-page) .sidebar-manage,
+html:is(.tv-mode,.silk-browser):not(.silk-emulated) :is(.radio-page,.music-page) a[href^="/manage.html"]{display:none!important}

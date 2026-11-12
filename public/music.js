@@ -1,7 +1,7 @@
 import { wireMusicRefreshEvents } from "./music-refresh-events.mjs";
 import { createMusicSearch, wireMusicSearchEvents } from "./music-search.mjs";
-import { wirePlaybackLifecycleEvents, wireMusicPlaybackTargetChange, wireJukeboxPlayerEvents, wireDeckSeekEvents, wireDeckPlaybackControls, createDeckEndedHandler } from "./music-playback-events.mjs";
-import { createMusicEqualizer } from "./music-equalizer.mjs";
+import { wirePlaybackLifecycleEvents, wireMusicPlaybackTargetChange, wireJukeboxPlayerEvents, wireDeckSeekEvents, wireDeckPlaybackControls, createDeckEndedHandler } from "./music-playback-events.mjs?v=music-controls-1";
+import { createMusicEqualizer } from "./music-equalizer.mjs?v=stereo-meter-1";
 import { createMusicInfoView, createMusicResultView } from "./music-library-views.mjs";
 import { createJukeboxRack, createJukeboxSearch } from "./jukebox-browser.mjs?v=tv-remote-1";
 import { createMusicDeckState, createMusicDeckPreload, createMusicDeckTransition } from "./music-decks.mjs";
@@ -10,17 +10,19 @@ import { createMusicQueueView } from "./music-queue-view.mjs";
 import { createMusicQueueOperations } from "./music-queue-operations.mjs";
 import { createMusicInfoController } from "./music-info-controller.mjs";
 import { createMusicPlaybackNavigation } from "./music-playback-navigation.mjs";
-import { createMusicJukeboxDecks } from "./music-jukebox-decks.mjs?v=tv-remote-1";
+import { createMusicJukeboxDecks } from "./music-jukebox-decks.mjs?v=music-controls-2";
 import { createMusicDeckTransport } from "./music-deck-transport.mjs";
 import { createMusicHostPlayback } from "./music-host-playback.mjs";
 import { wireMusicGenrePulldown } from "./music-genre-pulldown.mjs";
 import { wireMusicDialogEvents } from "./music-dialog-events.mjs";
 import { createMusicAudioSource } from "./music-audio-source.mjs";
-import { emptyRow, textButton, markAdded, formatMusicDuration, createMusicTrackRow, scrollMusicText, jukeboxEmpty as jbEmpty, genreCountSummary, createJukeboxStrip } from "./music-ui-elements.mjs";
-import { wireMusicAutoDj } from "./music-autodj.mjs";
+import { emptyRow, textButton, markAdded, formatMusicDuration, createMusicTrackRow, scrollMusicText, jukeboxEmpty as jbEmpty, genreCountSummary, createJukeboxStrip } from "./music-ui-elements.mjs?v=rock-ola-scroll-2";
+import { wireMusicAutoDj } from "./music-autodj.mjs?v=source-picker-2";
 import { createMusicSessionStorage } from "./music-session-storage.mjs";
 import { createMusicPlaylistActions } from "./music-playlist-actions.mjs";
 import { wireMusicVolume } from "./music-volume.mjs";
+import { createRadioLyricsController } from "./radio-lyrics-controller.mjs?v=shared-lyrics-2";
+import { wireMusicVuMeter } from "./music-vu-meter.mjs?v=stereo-vu-1";
 
 // Music mode: plays the Jellyfin library through this server and builds the
 // queue with the AutoDJ endpoint. Radio page logic stays in app.js.
@@ -85,6 +87,16 @@ const hostPlayback = createMusicHostPlayback({
   syncJukeboxPlaying,
   next: (...args) => next(...args)
 });
+wireMusicVuMeter({
+  getBrowserLevels: () => musicEqualizer.getMeterLevels(),
+  isHostOutput: () => window.MyMusicsPlayback?.isHost,
+  isPlaying: () => {
+    const key = deckState.activeDeck || "a";
+    return window.MyMusicsPlayback?.isHost
+      ? Boolean(hostPlayback.getDeckStatus()?.[key]?.playing)
+      : !deckState.decks[key].paused && !deckState.decks[key].ended && deckState.decks[key].readyState >= 2;
+  }
+});
 
 const jukeboxDeckView = createMusicJukeboxDecks({
   state,
@@ -99,6 +111,28 @@ const jukeboxDeckView = createMusicJukeboxDecks({
   scrollQueueText,
   next: (...args) => next(...args)
 });
+let musicLyricsTrackKey = "";
+const musicLyrics = createRadioLyricsController({
+  root: el("#music-lyrics-panel"),
+  isCurrent: (key) => key === musicLyricsTrackKey,
+  getTrackKey: (artist, title) => `${artist}\n${title}`,
+  parseSynced: (value) => window.MyMusicsLyrics.parseSynced(value),
+  elapsedTime: () => window.MyMusicsPlayback?.isHost
+    ? hostPlayback.getDeckStatus()?.[deckState.activeDeck]?.time || 0
+    : deckState.decks[deckState.activeDeck].currentTime || 0,
+  onConfirmedTrack: () => {}
+});
+function renderMusicLyrics(track) {
+  const key = track?.id || "";
+  if (key === musicLyricsTrackKey) return;
+  musicLyricsTrackKey = key;
+  if (!track?.artist || !track?.title) {
+    musicLyrics.reset(track ? "Track details are needed to find lyrics." : "Choose a track to find lyrics.", true);
+    return;
+  }
+  musicLyrics.reset("Searching lyrics…", true);
+  musicLyrics.load(track.artist, track.title, key);
+}
 function syncJukeboxPlaying() { return jukeboxDeckView.syncPlaying(); }
 function renderJukeboxNow() { return jukeboxDeckView.renderNow(); }
 function renderDeckTime(key) { return jukeboxDeckView.renderTime(key); }
@@ -107,6 +141,7 @@ function renderDeckTime(key) { return jukeboxDeckView.renderTime(key); }
 // separate now-playing card used to show is rendered there.
 function renderNow() {
   const result = jukeboxDeckView.renderCurrent();
+  renderMusicLyrics(state.current);
   updateMusicMediaSession();
   return result;
 }
@@ -368,7 +403,7 @@ function wireEvents() {
     syncJukeboxPlaying, state, audioUrl, setStatus, renderNow
   });
   wireMusicPlaybackTargetChange({ state, deckState, playTrack });
-  wireMusicAutoDj({ el, state, fillQueue, setStatus });
+  wireMusicAutoDj({ el, state, fillQueue, renderQueue, setStatus });
 
   wireMusicSearchEvents({ el, search: musicSearch });
   wireMusicDialogEvents({ el, closeOnBackdropClick: window.MyMusicsUI.closeOnBackdropClick });

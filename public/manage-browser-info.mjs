@@ -33,6 +33,7 @@ export function wireManageBrowserInfo() {
       return;
     }
     document.documentElement.classList.toggle("silk-browser", actualSilk || on);
+    document.documentElement.classList.toggle("silk-emulated", !actualSilk && on);
     syncEmulationStatus();
   });
 

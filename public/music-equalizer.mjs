@@ -80,10 +80,11 @@ export function createMusicEqualizer({ deckState, getCurrentTrack, isHostOutput 
       const graph = window.MyMusicsEqualizer.createGraph(
         audioContext,
         decks,
-        (index) => Number(document.querySelectorAll(".equalizer-band input")[index].value)
+        (index) => Number(document.querySelectorAll(".equalizer-band input")[index].value),
+        true
       );
       filters = graph.filters;
-      context = { context: audioContext, analyser: graph.analyser, dryGain: graph.dryGain, wetGain: graph.wetGain };
+      context = { context: audioContext, analyser: graph.analyser, dryGain: graph.dryGain, wetGain: graph.wetGain, meterAnalyserSets: graph.meterAnalyserSets };
       ready = true;
       document.querySelectorAll(".equalizer-band input").forEach((input) => { input.disabled = false; });
       el("#equalizer-reset").disabled = false;
@@ -144,5 +145,16 @@ export function createMusicEqualizer({ deckState, getCurrentTrack, isHostOutput 
     document.addEventListener("visibilitychange", () => document.hidden ? cancelAnimationFrame(frame) : draw());
   }
 
-  return Object.freeze({ buildControls, wireEvents: wireControls, autoPreset, prepare });
+  function getMeterLevels() {
+    const analysers = context?.meterAnalyserSets?.[deckState.activeDeck === "b" ? 1 : 0];
+    if (!ready || !analysers?.length) return null;
+    return analysers.map((analyser) => {
+      const samples = new Float32Array(analyser.fftSize);
+      analyser.getFloatTimeDomainData(samples);
+      const rms = Math.sqrt(samples.reduce((sum, sample) => sum + sample * sample, 0) / samples.length);
+      return Math.max(0, Math.min(1, (20 * Math.log10(Math.max(rms, 0.000001)) + 54) / 54));
+    });
+  }
+
+  return Object.freeze({ buildControls, wireEvents: wireControls, autoPreset, prepare, getMeterLevels });
 }

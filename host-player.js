@@ -211,9 +211,9 @@ class MpvDeck {
     };
   }
 
-  async radioLevel() {
+  async meterLevels(filterName) {
     const [metadata, volume] = await Promise.all([
-      this.property("af-metadata/radio-vu"), this.property("volume")
+      this.property(`af-metadata/${filterName}`), this.property("volume")
     ]);
     if (!metadata || typeof metadata !== "object") return null;
     const gain = Number(volume) > 0 ? 20 * Math.log10(Number(volume) / 100) : -120;
@@ -222,6 +222,9 @@ class MpvDeck {
       return Number.isFinite(db) ? Math.max(0, Math.min(1, (db + gain + 54) / 54)) : 0;
     });
   }
+
+  async radioLevel() { return this.meterLevels("radio-vu"); }
+  async musicLevel() { return this.meterLevels("music-vu"); }
 
   async close() {
     this.rejectPending(new Error("MPV is shutting down."));
@@ -246,20 +249,23 @@ class HostPlayer {
   }
 
   async applyEqualizer(deck, equalizer) {
-    if (equalizer) await this.decks[deck].set("af", equalizerFilter(equalizer));
+    if (equalizer) await this.decks[deck].set("af", this.musicFilter(equalizer));
   }
 
-  radioFilter(equalizer) {
+  meterFilter(equalizer, name) {
     const filter = equalizerFilter(equalizer);
     const chain = filter ? filter.slice("lavfi=[".length, -1) : "";
-    return `@radio-vu:lavfi=[${[chain, "astats=metadata=1:reset=1:measure_perchannel=RMS_level:measure_overall=none"].filter(Boolean).join(",")}]`;
+    return `@${name}:lavfi=[${[chain, "astats=metadata=1:reset=1:measure_perchannel=RMS_level:measure_overall=none"].filter(Boolean).join(",")}]`;
   }
+
+  radioFilter(equalizer) { return this.meterFilter(equalizer, "radio-vu"); }
+  musicFilter(equalizer) { return this.meterFilter(equalizer, "music-vu"); }
 
   async setEqualizer(value) {
     const equalizer = validateEqualizer(value);
     const keys = this.activeType === "music" ? ["a", "b"] : this.activeDeck ? [this.activeDeck] : [];
     await Promise.all(keys.filter((key) => this.decks[key].socket?.writable).map((key) =>
-      this.decks[key].set("af", this.activeType === "radio" ? this.radioFilter(equalizer) : equalizerFilter(equalizer))));
+      this.decks[key].set("af", this.activeType === "radio" ? this.radioFilter(equalizer) : this.musicFilter(equalizer))));
     return equalizer;
   }
 
@@ -382,6 +388,11 @@ class HostPlayer {
   async radioLevel() {
     if (this.activeType !== "radio" || !this.activeDeck) return null;
     return this.decks[this.activeDeck].radioLevel();
+  }
+
+  async musicLevel() {
+    if (this.activeType !== "music" || !this.activeDeck) return null;
+    return this.decks[this.activeDeck].musicLevel();
   }
 
   async mpvStatus() {

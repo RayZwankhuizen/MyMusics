@@ -4,18 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0A0F1F">
-  <script>{const ua=navigator.userAgent||'';const actualSilk=/\bSilk(?:\/|\b)/i.test(ua);let emulateSilk=false,saved=null;try{emulateSilk=localStorage.getItem('mymusics:silk-emulation')==='true';saved=localStorage.getItem('mymusics:tv-mode')}catch{}const detectedTv=actualSilk||emulateSilk||/\bAFT[A-Z0-9]*\b|\bKF[A-Z0-9]*\b|Fire TV|SmartTV/i.test(ua);const forceTv=new URLSearchParams(location.search).get('tv')==='1';document.documentElement.classList.toggle('silk-browser',actualSilk||emulateSilk);document.documentElement.classList.toggle('tv-mode',forceTv||emulateSilk||(saved===null?detectedTv:saved==='true'));if(forceTv)try{localStorage.setItem('mymusics:tv-mode','true')}catch{}}</script>
+  <script>{const ua=navigator.userAgent||'';const actualSilk=/\bSilk(?:\/|\b)/i.test(ua);let emulateSilk=false,saved=null;try{emulateSilk=localStorage.getItem('mymusics:silk-emulation')==='true';saved=localStorage.getItem('mymusics:tv-mode')}catch{}const detectedTv=actualSilk||emulateSilk||/\bAFT[A-Z0-9]*\b|\bKF[A-Z0-9]*\b|Fire TV|SmartTV/i.test(ua);const forceTv=new URLSearchParams(location.search).get('tv')==='1';document.documentElement.classList.toggle('silk-browser',actualSilk||emulateSilk);document.documentElement.classList.toggle('silk-emulated',emulateSilk&&!actualSilk);document.documentElement.classList.toggle('tv-mode',forceTv||emulateSilk||(saved===null?detectedTv:saved==='true'));if(forceTv)try{localStorage.setItem('mymusics:tv-mode','true')}catch{}}</script>
   <title>Music — MyMusics</title>
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/style.css?v=tv-layout-1">
   <link rel="stylesheet" href="/jukebox.css?v=search-art-5">
   <script defer src="/playback-target.js?v=mpv-host-gate-1"></script>
   <script defer src="/ui-dialogs.js?v=2"></script>
-  <script defer src="/equalizer.js?v=5"></script>
-  <script type="module" src="/music.js?v=tv-remote-1"></script>
+  <script defer src="/equalizer.js?v=stereo-meter-1"></script>
+  <script defer src="/synced-lyrics.js?v=1"></script>
+  <script type="module" src="/music.js?v=music-controls-3"></script>
   <link rel="stylesheet" href="/app-theme.css?v=tv-layout-1">
-  <link rel="stylesheet" href="/music-theme.css?v=tv-layout-1">
-  <link rel="stylesheet" href="/silk-tv.css?v=silk-tv-6">
+  <link rel="stylesheet" href="/music-theme.css?v=music-controls-8">
+  <link rel="stylesheet" href="/silk-tv.css?v=silk-tv-7">
 </head>
 <body class="music-page">
   <div class="app-shell">
@@ -29,8 +30,6 @@
         <a class="mode" href="/music.html" aria-current="page">Music</a>
       </nav>
       <label class="playback-target-setting" for="playback-target">Audio output<select id="playback-target"><option value="browser">This browser</option><option value="host">MyMusics host</option></select></label>
-      <label class="music-volume-setting" for="music-volume"><span>Volume <output id="music-volume-value">100%</output></span><input id="music-volume" type="range" min="0" max="100" step="1" value="100" aria-label="Music player volume"></label>
-
       <section class="music-controls-sidebar" aria-labelledby="music-controls-title">
         <h2 id="music-controls-title"></h2>
         <div class="jb-transport">
@@ -52,21 +51,13 @@
     <main>
       <div class="music-layout">
         <div class="music-column music-stage">
-            <section id="jukebox" class="jukebox jb-vintage" aria-label="Wurlitzer jukebox">
-            <div class="jb-toolbar">
-              <div><p class="music-eyebrow">Local music</p><h2>Now playing</h2></div>
-              <div id="music-toolbar-actions" class="music-toolbar-actions">
-                <button id="jb-search-open" data-open-search class="jb-key jb-key-main" type="button">Browse music</button>
-                <button id="music-refresh" class="jb-key" type="button">Refresh library</button>
-                <div class="music-refresh-feedback">
-                  <progress id="music-refresh-progress" max="100" hidden aria-label="Jellyfin library refresh progress"></progress>
-                  <p id="music-toolbar-status" role="status" aria-live="polite"></p>
-                </div>
-              </div>
-            </div>
+            <section id="jukebox" class="jukebox jb-vintage" aria-label="Jukebox">
             <div class="jb-decks">
-              <div class="jb-deck jb-deck-a">
-                <div class="jb-deck-header"><span>Deck A</span></div>
+                <div class="jb-deck jb-deck-a" role="group" aria-label="Deck A">
+                <h2 id="jb-title" class="jb-title"></h2>
+                <p id="jb-deck-artist-a" class="jb-deck-artist"></p>
+                <input id="jb-progress" class="jb-progress" type="range" min="0" max="1" step="0.001" value="0" aria-label="Seek current track" disabled>
+                <p id="jb-time" class="jb-time" aria-live="off"></p>
                 <div class="jb-turntable">
                   <div id="jb-vinyl" class="jb-vinyl">
                     <div class="jb-label"><img id="jb-art" alt="Album cover" hidden></div>
@@ -75,35 +66,36 @@
                   <div id="jb-arm" class="jb-arm" aria-hidden="true"><span></span></div>
                 </div>
               </div>
-              <section class="jb-center-card" aria-label="Now playing and next on deck">
+              <section class="jb-center-card" aria-label="Next track">
                 <div class="jb-info jb-info-a">
-                  <p id="jb-info-label-a" class="jb-info-label">Now playing · Deck A</p>
-                  <p id="jb-status" class="jb-status" role="status"></p>
-                  <h1 id="jb-title" class="jb-title"></h1>
+                  <h3 id="jb-next-title-a" class="jb-next-title"></h3>
                   <p id="jb-artist" class="jb-artist"></p>
-                  <p id="jb-album" class="jb-album"></p>
-                  <p id="jb-meta" class="jb-meta"></p>
-                  <input id="jb-progress" class="jb-progress" type="range" min="0" max="1" step="0.001" value="0" aria-label="Seek Deck A" disabled>
-                  <p id="jb-time" class="jb-time" aria-live="off"></p>
+                  <p id="jb-info-label-a" class="jb-info-label" hidden></p>
+                  <p id="jb-status" class="jb-status" role="status" hidden></p>
+                  <p id="jb-album" class="jb-album" hidden></p>
+                  <p id="jb-meta" class="jb-meta" hidden></p>
+                  <p id="jb-empty-a" class="jb-info-empty" hidden></p>
                   <button id="jb-add-playlist-a" class="station-edit-button jb-add-playlist" type="button" hidden>Add to playlist</button>
                   <label class="jb-natural-fade">Natural outro <input type="number" min="2" max="60" step="1" data-natural-fadeout="a" aria-label="Natural outro length for Deck A, in seconds" placeholder="Off"><span>sec</span></label>
                 </div>
                 <div class="jb-center-divider" aria-hidden="true"></div>
                 <div class="jb-info jb-info-b">
-                  <p id="jb-info-label-b" class="jb-info-label">Next on · Deck B</p>
-                  <p id="jb-status-b" class="jb-status"></p>
-                  <h2 id="jb-title-b" class="jb-title"></h2>
+                  <h3 id="jb-next-title-b" class="jb-next-title"></h3>
                   <p id="jb-artist-b" class="jb-artist"></p>
-                  <p id="jb-album-b" class="jb-album"></p>
-                  <p id="jb-meta-b" class="jb-meta"></p>
-                  <input id="jb-progress-b" class="jb-progress" type="range" min="0" max="1" step="0.001" value="0" aria-label="Seek Deck B" disabled>
-                  <p id="jb-time-b" class="jb-time" aria-live="off"></p>
+                  <p id="jb-info-label-b" class="jb-info-label" hidden></p>
+                  <p id="jb-status-b" class="jb-status" hidden></p>
+                  <p id="jb-album-b" class="jb-album" hidden></p>
+                  <p id="jb-meta-b" class="jb-meta" hidden></p>
+                  <p id="jb-empty-b" class="jb-info-empty" hidden></p>
                   <button id="jb-add-playlist-b" class="station-edit-button jb-add-playlist" type="button" hidden>Add to playlist</button>
                   <label class="jb-natural-fade">Natural outro <input type="number" min="2" max="60" step="1" data-natural-fadeout="b" aria-label="Natural outro length for Deck B, in seconds" placeholder="Off"><span>sec</span></label>
                 </div>
               </section>
-              <div class="jb-deck jb-deck-b">
-                <div class="jb-deck-header"><span>Deck B</span></div>
+                <div class="jb-deck jb-deck-b" role="group" aria-label="Deck B">
+                <h2 id="jb-title-b" class="jb-title"></h2>
+                <p id="jb-deck-artist-b" class="jb-deck-artist"></p>
+                <input id="jb-progress-b" class="jb-progress" type="range" min="0" max="1" step="0.001" value="0" aria-label="Seek current track" disabled>
+                <p id="jb-time-b" class="jb-time" aria-live="off"></p>
                 <div class="jb-turntable">
                   <div id="jb-vinyl-b" class="jb-vinyl">
                     <div class="jb-label"><img id="jb-art-b" alt="Album cover" hidden></div>
@@ -113,6 +105,11 @@
                 </div>
               </div>
             </div>
+            </section>
+            <section id="music-lyrics-panel" class="lyrics-panel music-lyrics" aria-labelledby="music-lyrics-heading">
+              <div class="lyrics-heading"><div class="lyrics-title"><h3 id="music-lyrics-heading">Lyrics</h3><div class="lyrics-speed" aria-label="Lyrics timing adjustment"><button id="lyrics-slower" type="button" aria-label="Show each lyrics line 50 milliseconds later" title="Show lines 50 ms later">−</button><output id="lyrics-delay" aria-live="polite">300 ms</output><button id="lyrics-faster" type="button" aria-label="Show each lyrics line 50 milliseconds earlier" title="Show lines 50 ms earlier">+</button></div></div><span id="lyrics-status" role="status">Choose a track to find lyrics.</span></div>
+              <progress id="lyrics-progress" class="lyrics-progress" max="1" value="0" aria-label="Position in lyrics" hidden></progress>
+              <div id="lyrics-content" class="lyrics-content" aria-live="off"></div>
             </section>
             <details id="queue-panel" class="jb-session-queue" open>
               <summary><span>Queue</span><span id="queue-count" class="station-count"></span></summary>
@@ -164,9 +161,16 @@
           <dialog id="autodj-dialog" class="music-autodj-dialog" aria-labelledby="autodj-heading">
             <form>
               <div class="info-heading"><h2 id="autodj-heading">AutoDJ</h2><button id="autodj-close" type="button">Cancel</button></div>
-              <p class="autodj-description">Add tracks to Up next based on the track playing now.</p>
-              <fieldset class="autodj-options">
-                <legend>Build the queue from</legend>
+              <p id="autodj-description" class="autodj-description">Choose a genre, artist, album, or playlist as the starting point.</p>
+              <div id="autodj-source-picker" class="autodj-source-picker" hidden>
+                <label for="autodj-source-kind">Source type</label>
+                <select id="autodj-source-kind"><option value="genre">Genre</option><option value="artist">Artist</option><option value="album">Album</option><option value="playlist">Playlist</option></select>
+                <div class="autodj-source-search"><input id="autodj-source-query" type="search" placeholder="Search or choose from the list" autocomplete="off"><button id="autodj-source-search-button" class="jb-key" type="button">Search</button></div>
+                <p id="autodj-source-status" role="status" aria-live="polite"></p>
+                <div id="autodj-source-results" class="autodj-source-results"></div>
+              </div>
+              <fieldset id="autodj-current-options" class="autodj-options" hidden>
+                <legend>Use the current track's</legend>
                 <label><input type="radio" name="autodj-mode" value="artist"><span>Artist</span><strong data-autodj-label="artist"></strong></label>
                 <label><input type="radio" name="autodj-mode" value="album"><span>Album</span><strong data-autodj-label="album"></strong></label>
                 <label><input type="radio" name="autodj-mode" value="genre"><span>Genre</span><strong data-autodj-label="genre"></strong></label>
@@ -199,13 +203,16 @@ JELLYFIN_USER_ID=your-user-id</pre>
   </dialog>
 
   <div id="music-dock" class="music-dock" aria-label="Jukebox transport">
-    <span class="music-dock-label">Deck control</span>
-    <div id="jb-deck-select" class="jb-deck-select" role="group" aria-label="Choose playback deck">
-      <button id="jb-pause-a" class="jb-key" type="button" disabled>Pause A</button>
-      <button id="jb-play-a" class="jb-key jb-key-main" type="button">Play A</button>
-      <button id="jb-play-b" class="jb-key jb-key-main" type="button">Play B</button>
-      <button id="jb-pause-b" class="jb-key" type="button" disabled>Pause B</button>
+    <div class="music-vu" role="img" aria-label="Stereo audio level meter"><span class="music-vu-label">STEREO · VU</span><div class="music-vu-channel"><span>L</span><div class="music-vu-track"><i></i></div></div><div class="music-vu-channel"><span>R</span><div class="music-vu-track"><i></i></div></div></div>
+    <label class="music-volume-setting" for="music-volume"><span>Volume <output id="music-volume-value">100%</output></span><input id="music-volume" type="range" min="0" max="100" step="1" value="100" aria-label="Music player volume"></label>
+    <div id="jb-deck-select" class="jb-deck-select" role="group" aria-label="Current track playback">
+      <button id="jb-pause-current" class="jb-key" type="button" disabled>Pause</button>
+      <button id="jb-play-current" class="jb-key jb-key-main" type="button">Play</button>
+      <button id="jb-play-next" class="jb-key jb-key-main" type="button" hidden>Play next</button>
     </div>
+    <button id="jb-search-open" data-open-search class="jb-key jb-key-main" type="button">Browse music</button>
+    <button id="music-refresh" class="jb-key" type="button">Refresh library</button>
+    <div class="music-refresh-feedback"><progress id="music-refresh-progress" max="100" hidden aria-label="Jellyfin library refresh progress"></progress><p id="music-toolbar-status" role="status" aria-live="polite"></p></div>
   </div>
 
   <div class="audio-engine" hidden>

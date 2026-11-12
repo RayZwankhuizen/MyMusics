@@ -1,22 +1,24 @@
 import { fetchTrackLyrics } from "./radio-track-metadata-api.mjs";
 import { renderPlainLyrics, renderSyncedLyrics } from "./radio-lyrics-view.mjs";
 
-export function createRadioLyricsController({ isCurrent, getTrackKey, parseSynced, elapsedTime, onConfirmedTrack }) {
-  const content = document.querySelector("#lyrics-content");
-  const progress = document.querySelector("#lyrics-progress");
-  const status = document.querySelector("#lyrics-status");
+export function createRadioLyricsController({ isCurrent, getTrackKey, parseSynced, elapsedTime, onConfirmedTrack, root = document }) {
+  const content = root.querySelector("#lyrics-content");
+  const progress = root.querySelector("#lyrics-progress");
+  const status = root.querySelector("#lyrics-status");
+  const slower = root.querySelector("#lyrics-slower");
+  const faster = root.querySelector("#lyrics-faster");
   let timer = null;
   let delay = 0.3;
 
   function adjustDelay(amount) {
     delay = Math.max(0, Math.min(3, Math.round((delay + amount) * 100) / 100));
-    document.querySelector("#lyrics-delay").value = `${Math.round(delay * 1000)} ms`;
-    document.querySelector("#lyrics-slower").disabled = delay === 0;
-    document.querySelector("#lyrics-faster").disabled = delay === 3;
+    root.querySelector("#lyrics-delay").value = `${Math.round(delay * 1000)} ms`;
+    slower.disabled = delay === 0;
+    faster.disabled = delay === 3;
   }
 
-  document.querySelector("#lyrics-slower").addEventListener("click", () => adjustDelay(0.05));
-  document.querySelector("#lyrics-faster").addEventListener("click", () => adjustDelay(-0.05));
+  slower?.addEventListener("click", () => adjustDelay(0.05));
+  faster?.addEventListener("click", () => adjustDelay(-0.05));
 
   function reset(message, resetScroll = false) {
     clearInterval(timer);

@@ -27,9 +27,7 @@ export function renderSyncedLyrics({ lines, content, progress, status, elapsedTi
       else line.removeAttribute("aria-current");
     });
     progress.value = Math.max(0, active + 1);
-    status.textContent = active < 0
-      ? `Waiting for first line · ${lines.length} lines`
-      : `Line ${active + 1} of ${lines.length} · sync approximate`;
+    status.textContent = active < 0 ? "Waiting for first line" : "Lyrics synced";
     if (elements.length) {
       // Reserve the same space while waiting for the first timestamp too.
       // Space at both ends lets even the first and last lines sit in the middle.

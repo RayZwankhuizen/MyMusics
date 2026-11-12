@@ -4,18 +4,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0B0D14">
-  <script>{const ua=navigator.userAgent||'';const actualSilk=/\bSilk(?:\/|\b)/i.test(ua);let emulateSilk=false,saved=null;try{emulateSilk=localStorage.getItem('mymusics:silk-emulation')==='true';saved=localStorage.getItem('mymusics:tv-mode')}catch{}const detectedTv=actualSilk||emulateSilk||/\bAFT[A-Z0-9]*\b|\bKF[A-Z0-9]*\b|Fire TV|SmartTV/i.test(ua);const forceTv=new URLSearchParams(location.search).get('tv')==='1';document.documentElement.classList.toggle('silk-browser',actualSilk||emulateSilk);document.documentElement.classList.toggle('tv-mode',forceTv||emulateSilk||(saved===null?detectedTv:saved==='true'));if(forceTv)try{localStorage.setItem('mymusics:tv-mode','true')}catch{}}</script>
+  <script>{const ua=navigator.userAgent||'';const actualSilk=/\bSilk(?:\/|\b)/i.test(ua);let emulateSilk=false,saved=null;try{emulateSilk=localStorage.getItem('mymusics:silk-emulation')==='true';saved=localStorage.getItem('mymusics:tv-mode')}catch{}const detectedTv=actualSilk||emulateSilk||/\bAFT[A-Z0-9]*\b|\bKF[A-Z0-9]*\b|Fire TV|SmartTV/i.test(ua);const forceTv=new URLSearchParams(location.search).get('tv')==='1';document.documentElement.classList.toggle('silk-browser',actualSilk||emulateSilk);document.documentElement.classList.toggle('silk-emulated',emulateSilk&&!actualSilk);document.documentElement.classList.toggle('tv-mode',forceTv||emulateSilk||(saved===null?detectedTv:saved==='true'));if(forceTv)try{localStorage.setItem('mymusics:tv-mode','true')}catch{}}</script>
   <title>MyMusics — Radio</title>
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="preconnect" href="https://coverartarchive.org">
   <link rel="stylesheet" href="/style.css?v=radio-logo-2">
   <script defer src="/playback-target.js?v=mpv-host-gate-1"></script>
   <script defer src="/ui-dialogs.js?v=2"></script>
-  <script defer src="/equalizer.js?v=6"></script>
+  <script defer src="/equalizer.js?v=stereo-meter-1"></script>
   <script defer src="/synced-lyrics.js?v=1"></script>
   <script type="module" src="/app.js?v=radio-vu-2"></script>
   <link rel="stylesheet" href="/app-theme.css?v=tv-layout-1">
-  <link rel="stylesheet" href="/silk-tv.css?v=silk-tv-6">
+  <link rel="stylesheet" href="/silk-tv.css?v=silk-tv-7">
   <link rel="stylesheet" href="/radio-receiver.css?v=8">
 </head>
 <body class="radio-page">

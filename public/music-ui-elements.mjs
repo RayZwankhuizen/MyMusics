@@ -123,6 +123,11 @@ export function scrollMusicText(root = document) {
   const lines = [...(root.matches?.(selector) ? [root] : []), ...root.querySelectorAll(selector)];
   for (const line of lines) {
     if (line.closest("#queue-list")) continue;
+    const deckInfo = line.closest(".jb-deck, .jb-info");
+    if (deckInfo && !deckInfo.classList.contains("is-active")) {
+      line.classList.remove("is-scrolling");
+      continue;
+    }
     line.classList.add("scroll-line");
     line.classList.remove("is-scrolling");
     let content = line.querySelector(":scope > .scroll-content");

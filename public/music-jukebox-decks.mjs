@@ -7,7 +7,7 @@ export function createMusicJukeboxDecks({ state, deckState, el, getHostDeckStatu
     node.hidden = !value;
   };
   function syncPlaying() {
-    const activeDeck = deckState.activeDeck;
+    const activeDeck = deckState.activeDeck || "a";
     const hostStatus = getHostDeckStatus();
     const currentAudio = activeDeck === "b" ? decks.b : decks.a;
     const playing = isHostOutput()
@@ -20,9 +20,20 @@ export function createMusicJukeboxDecks({ state, deckState, el, getHostDeckStatu
     el("#jb-vinyl-b")?.classList.toggle("is-playing", playingB);
     el("#jb-arm")?.classList.toggle("is-playing", playingA || armDropped.a);
     el("#jb-arm-b")?.classList.toggle("is-playing", playingB || armDropped.b);
-    document.querySelectorAll(".jb-deck").forEach((deck, index) => deck.classList.toggle("is-active", (index === 0 ? "a" : "b") === activeDeck));
-    el("#jb-pause-a").disabled = isHostOutput() ? !hostStatus?.a?.path : decks.a.paused || decks.a.ended;
-    el("#jb-pause-b").disabled = isHostOutput() ? !hostStatus?.b?.path : decks.b.paused || decks.b.ended;
+    const jukebox = el("#jukebox");
+    if (jukebox) jukebox.dataset.activeDeck = activeDeck;
+    for (const key of ["a", "b"]) {
+      const isActive = key === activeDeck;
+      const deckPlaying = key === "a" ? playingA : playingB;
+      const track = deckTracks[key] || (isActive ? state.current : null);
+      const deck = el(`.jb-deck-${key}`);
+      deck?.classList.toggle("is-active", isActive);
+      deck?.classList.toggle("is-playing", deckPlaying);
+      el(`#jb-info-label-${key}`).textContent = isActive
+        ? deckPlaying ? "Now playing" : track ? "Loaded" : "Select a record"
+        : track ? "Ready" : "";
+    }
+    el("#jb-pause-current").disabled = isHostOutput() ? !hostStatus?.[activeDeck]?.path : currentAudio.paused || currentAudio.ended;
     const activeStatus = currentAudio?.error ? "THIS RECORD WILL NOT PLAY"
       : (deckTracks[activeDeck] || state.current) ? (playing ? "PLAYING" : "PAUSED") : "";
     const inactiveKey = activeDeck === "a" ? "b" : "a";
@@ -86,9 +97,12 @@ export function createMusicJukeboxDecks({ state, deckState, el, getHostDeckStatu
     const updateDeck = (key, track) => {
       const suffix = key === "a" ? "" : "-b";
       setText(`#jb-title${suffix}`, track?.title || "");
+      setText(`#jb-next-title-${key}`, track?.title || "");
       setText(`#jb-artist${suffix}`, track ? track.artist || "Unknown artist" : "");
+      setText(`#jb-deck-artist-${key}`, track ? track.artist || "Unknown artist" : "");
       setText(`#jb-album${suffix}`, track ? [track.album, track.year].filter(Boolean).join(" · ") : "");
       setText(`#jb-meta${suffix}`, track ? formatDuration(track.durationMs) : "");
+      el(`#jb-empty-${key}`).hidden = key !== activeDeck || Boolean(track);
       const fadeInput = el(`[data-natural-fadeout="${key}"]`);
       fadeInput.disabled = !track?.id;
       fadeInput.value = naturalFadeSeconds(track) || "";
@@ -109,9 +123,10 @@ export function createMusicJukeboxDecks({ state, deckState, el, getHostDeckStatu
     if (!deckTracks[otherKey] && state.queue[0]?.id !== (deckTracks[activeDeck]?.id || state.current?.id)) deckTracks[otherKey] = state.queue[0] || null;
     updateDeck("a", deckTracks.a);
     updateDeck("b", deckTracks.b);
+    el(".jb-center-card").hidden = !deckTracks[otherKey];
+    el("#jb-play-next").hidden = !deckTracks[otherKey]?.id;
     for (const key of ["a", "b"]) {
       const isActive = key === activeDeck;
-      el(`#jb-info-label-${key}`).textContent = `${isActive ? "Now playing" : "Next on"} · Deck ${key.toUpperCase()}`;
       el(`.jb-info-${key}`).classList.toggle("is-active", isActive);
       el(`#jb-add-playlist-${key}`).hidden = !isActive || !(deckTracks[key] || state.current)?.id;
     }

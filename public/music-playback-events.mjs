@@ -68,7 +68,7 @@ export function wirePlaybackLifecycleEvents({ deckState, handleDeckEnded, render
   window.addEventListener("mymusics:host-status-needed", requestHostStatus);
   window.addEventListener("mymusics:playback-target-change", requestHostStatus);
   document.addEventListener("click", (event) => {
-    if (event.target.closest("#jb-play-a,#jb-play-b,#jb-pause-a,#jb-pause-b,#jb-progress,#jb-progress-b")) requestHostStatus();
+    if (event.target.closest("#jb-play-current,#jb-pause-current,#jb-play-next,#jb-progress,#jb-progress-b")) requestHostStatus();
   }, true);
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) return;
@@ -200,8 +200,7 @@ export function wireDeckPlaybackControls({ el, state, deckState, saveNaturalFade
     input.value = naturalFadeSeconds(track) || "";
     if (track) setStatus(input.value ? `NATURAL OUTRO SAVED · ${input.value}s` : "NATURAL OUTRO CLEARED");
   }));
-  el("#jb-play-a")?.addEventListener("click", () => playDeck("a"));
-  el("#jb-play-b")?.addEventListener("click", () => playDeck("b"));
-  el("#jb-pause-a")?.addEventListener("click", () => pauseDeck("a"));
-  el("#jb-pause-b")?.addEventListener("click", () => pauseDeck("b"));
+  el("#jb-play-current")?.addEventListener("click", () => playDeck(deckState.activeDeck || "a"));
+  el("#jb-pause-current")?.addEventListener("click", () => pauseDeck(deckState.activeDeck || "a"));
+  el("#jb-play-next")?.addEventListener("click", () => playDeck(deckState.activeDeck === "a" ? "b" : "a"));
 }

@@ -155,7 +155,6 @@ export function createManageCatalog({ el, request, notice, stationImages, stream
         body.image = await stationImages.uploadFile(file);
       }
       stations = await request(route(index === "" ? destinationGenre : sourceGenre, suffix), index === "" ? "POST" : "PUT", body);
-      selectedGenre = destinationGenre;
       notice(index === "" ? "Station added." : "Station updated.");
       resetForm();
       render();

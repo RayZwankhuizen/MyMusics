@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0B0D14">
-  <script>{const ua=navigator.userAgent||'';const actualSilk=/\bSilk(?:\/|\b)/i.test(ua);let emulateSilk=false,saved=null;try{emulateSilk=localStorage.getItem('mymusics:silk-emulation')==='true';saved=localStorage.getItem('mymusics:tv-mode')}catch{}const detectedTv=actualSilk||/\bAFT[A-Z0-9]*\b|\bKF[A-Z0-9]*\b|Fire TV|SmartTV/i.test(ua);const forceTv=new URLSearchParams(location.search).get('tv')==='1';document.documentElement.classList.toggle('silk-browser',actualSilk||emulateSilk);document.documentElement.classList.toggle('tv-mode',forceTv||(saved===null?detectedTv:saved==='true'));if(forceTv)try{localStorage.setItem('mymusics:tv-mode','true')}catch{}}</script>
+  <script>{const ua=navigator.userAgent||'';const actualSilk=/\bSilk(?:\/|\b)/i.test(ua);let emulateSilk=false,saved=null;try{emulateSilk=localStorage.getItem('mymusics:silk-emulation')==='true';saved=localStorage.getItem('mymusics:tv-mode')}catch{}const detectedTv=actualSilk||/\bAFT[A-Z0-9]*\b|\bKF[A-Z0-9]*\b|Fire TV|SmartTV/i.test(ua);const forceTv=new URLSearchParams(location.search).get('tv')==='1';document.documentElement.classList.toggle('silk-browser',actualSilk||emulateSilk);document.documentElement.classList.toggle('silk-emulated',emulateSilk&&!actualSilk);document.documentElement.classList.toggle('tv-mode',forceTv||(saved===null?detectedTv:saved==='true'));if(forceTv)try{localStorage.setItem('mymusics:tv-mode','true')}catch{}}</script>
   <title>Manage — MyMusics</title>
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/style.css?v=tv-layout-1">
   <link rel="stylesheet" href="/manage.css">
-  <script type="module" src="/manage.js?v=browser-info-1"></script>
+  <script type="module" src="/manage.js?v=temporary-all-stations-1"></script>
   <link rel="stylesheet" href="/app-theme.css?v=tv-layout-1">
-  <link rel="stylesheet" href="/management-theme.css?v=music-genre-management-1">
+  <link rel="stylesheet" href="/management-theme.css?v=temporary-all-stations-2">
   <link rel="stylesheet" href="/manage-settings.css?v=browser-info-1">
 </head>
 <body class="management-page">
@@ -97,12 +97,27 @@
         </aside>
         <section id="genre-detail" class="genre-detail panel" aria-live="polite">
           <header class="genre-detail-heading"><div><p class="eyebrow">Selected genre</p><h2 id="stations-heading">Choose a genre</h2></div><span id="station-count" class="count" role="status" aria-live="polite"></span></header>
+          <details id="all-stations-cleanup" class="all-stations-cleanup">
+            <summary>Temporary tool: show and remove stations across all genres</summary>
+            <p>Search every genre and remove duplicate or unwanted stations.</p>
+            <label for="all-stations-filter">Filter stations</label><input id="all-stations-filter" type="search" placeholder="Station name, genre, or stream URL">
+            <p id="all-stations-status" role="status" aria-live="polite"></p>
+            <div id="all-stations-list" class="all-stations-list"></div>
+          </details>
           <form id="rename-form" class="rename-form" hidden><label for="rename-genre">Rename genre</label><div class="inline-form"><input id="rename-genre" name="name" maxlength="40" required><button class="small-button">Save name</button></div></form>
           <div id="managed-station-filter-wrap" class="managed-station-filter"><label for="managed-station-filter">Filter this genre</label><input id="managed-station-filter" type="search" placeholder="Search station name" autocomplete="off" aria-controls="station-list"></div>
           <div id="station-list" class="managed-stations"></div>
           <section class="station-tools" aria-labelledby="station-tools-heading">
             <div class="panel-heading"><div><p class="eyebrow">New stream</p><h3 id="station-tools-heading">Add a station</h3></div><span id="add-station-genre" class="selected-genre-label"></span></div>
             <button id="add-station" class="save-button" type="button">New station</button>
+            <div class="station-logo-batch" aria-label="Temporary station logo import">
+              <p>Temporary tool: search for station logos and copy them into MyMusics.</p>
+              <label><input id="replace-station-logos" type="checkbox"> Include stations that already have a logo</label>
+              <div><button id="fetch-station-logos" class="text-button" type="button">Fetch missing logos</button><button id="cancel-station-logo-batch" class="text-button" type="button" hidden>Stop</button></div>
+              <progress id="station-logo-batch-progress" max="1" value="0" hidden aria-label="Station logo import progress"></progress>
+              <p id="station-logo-batch-status" role="status" aria-live="polite"></p>
+              <ul id="station-logo-batch-failures" aria-label="Stations without an imported logo"></ul>
+            </div>
             <dialog id="station-dialog" class="station-dialog" aria-labelledby="add-station-heading">
               <header class="station-dialog-heading"><h2 id="add-station-heading">Add a station</h2><button id="close-station-dialog" class="text-button" type="button" aria-label="Close station editor">Close</button></header>
               <p id="station-form-error" class="station-form-error" role="alert" hidden></p>

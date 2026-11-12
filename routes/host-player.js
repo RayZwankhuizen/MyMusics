@@ -57,6 +57,11 @@ module.exports = function registerHostPlayerRoutes(app, { hostPlayer, getStation
     catch { res.json({ levels: [] }); }
   });
 
+  app.get("/api/host-player/music-level", async (_req, res) => {
+    try { res.json({ levels: await hostPlayer.musicLevel() || [] }); }
+    catch { res.json({ levels: [] }); }
+  });
+
   app.get("/api/host-player/audio-devices", async (_req, res) => {
     try { res.json({ devices: await hostPlayer.audioDevices() }); }
     catch (error) { res.status(503).json({ error: error.message || "Could not read MPV audio devices." }); }

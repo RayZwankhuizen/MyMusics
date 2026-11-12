@@ -56,6 +56,17 @@ export function wireStationImages({ el }) {
     return result.image;
   }
 
+  async function findAndUpload(source, signal) {
+    const response = await fetch("/api/station-images/find", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ automatic: true, ...source }),
+      signal
+    });
+    if (!response.ok) throw await stationImageApiError(response, "Could not find the logo.");
+    return upload(await optimizeStationLogo(await response.blob()));
+  }
+
   function revokePreview() {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     previewUrl = "";
@@ -134,6 +145,7 @@ export function wireStationImages({ el }) {
       if (stationImage) showPreview(stationImage);
     },
     image() { return removeImage ? "" : stationImage; },
+    findAndUpload,
     async uploadFile(file) { return upload(await optimizeStationLogo(file)); }
   };
 }
