@@ -551,7 +551,10 @@
     {
       "name": "Non Stop AlexFM",
       "url": "https://radioalexfmhits.stream.laut.fm/radioalexfmhits?ref=web-app&start_time=1709718823255",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/1abde6a4-fbe4-4f76-b26b-0b65d9e48881.webp"
     },
     {
       "name": "NORA FM",
@@ -5753,7 +5756,10 @@
     {
       "name": "_Funky Corner Radio (USA)",
       "url": "https://ais-sa2.cdnstream1.com/2447_192.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/8ea535b2-7228-4c41-9913-c546f1a5fd54.webp"
     },
     {
       "name": ".100 Hip hop and RNB FM",
@@ -5773,37 +5779,58 @@
     {
       "name": "101 SMOOTH JAZZ",
       "url": "http://jking.cdnstream1.com/b22139_128mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/f737734f-85ac-40c7-ac50-c6510c793e1e.webp"
     },
     {
       "name": "101 SMOOTH JAZZ MELLOW MIX",
       "url": "http://streaming.live365.com/b48071_128mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/ddcbf535-8f89-4c73-be59-ef596e08b784.webp"
     },
     {
       "name": "102.5 Hardford's R&B",
       "url": "https://stream.surfernetwork.com/2d25a155409tv",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/b84fb95c-18d8-4f15-aaa9-ce97fc467452.webp"
     },
     {
       "name": "103.1 The Beat Birmingham, AL",
       "url": "https://stream.revma.ihrhls.com/zc4956",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/ae68c32a-e1f4-4027-8e9b-1c320dbe91fc.webp"
     },
     {
       "name": "103.3 KDSE-FM",
       "url": "https://thenorth1033.streamguys1.com/live?uuid=utqho945o",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/a8db9f4a-a9a1-46fa-9e02-3f82cf454dcf.webp"
     },
     {
       "name": "103.7 The Oasis",
       "url": "https://ice42.securenetsystems.net/KOAZAM?playSessionID=EE67F132-DB59-0E2B-D5F260EC5335C908",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/5e825ddc-e2e4-4518-8ace-24f604d604b9.webp"
     },
     {
       "name": "103.9 WDKX",
       "url": "https://live.amperwave.net/manifest/monroecounty-wdkxfmaac-ibc1",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/bb3654cf-6407-4ba3-9868-e98424c3dd19.webp"
     },
     {
       "name": "420SMOKERADIO",
@@ -5813,47 +5840,74 @@
     {
       "name": "4U Motown",
       "url": "https://str4uice.streamakaci.com/4umotown.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/aff4e539-efe8-4e80-972e-4b2a2d169bda.webp"
     },
     {
       "name": "88.5 WHHC HD1",
       "url": "https://stream.zeno.fm/6bmg275cmf9uv",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/0c875316-b36e-43ff-8fde-35d4a07d7191.webp"
     },
     {
       "name": "90.7 FM KWMU-2",
       "url": "https://kwmu.streamguys1.com/jazz-128",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/aaf5a22e-4c81-41a6-9c95-475e61d0b11d.webp"
     },
     {
       "name": "96.9 The Oasis",
       "url": "http://192.211.51.158:5014/stream",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/9ee12489-4c4a-47ab-801e-67f0181d6478.webp"
     },
     {
       "name": "99.1 The Beat of Eugene",
       "url": "https://us9.maindigitalstream.com/ssl/KODZ",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/dc9aea2b-35f9-4e62-b7d3-91e7028dad0e.webp"
     },
     {
       "name": "Aardvark Blues FM",
       "url": "https://ais-sa5.cdnstream1.com/b77280_128mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/7f8bbc24-fea1-4ab1-b5ca-721b7e10fc53.webp"
     },
     {
       "name": "Abusia Radio",
       "url": "https://ice66.securenetsystems.net/ABUSIA",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/f63a6aea-fc6d-4555-8736-f2e1cdeb9f8e.webp"
     },
     {
       "name": "Adroit Jazz Underground",
       "url": "https://icecast.walmradio.com:8443/jazz",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/cfa9f826-a81f-4572-ad38-5bede5c01241.webp"
     },
     {
       "name": "Afrobeats Jazz Radio",
       "url": "https://radio.nitro-server.uk/listen/frobeatsazzadio/radio.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/eb3e216a-8158-42b3-82d7-a857bba24bff.webp"
     },
     {
       "name": "All Blues Radio",
@@ -5863,27 +5917,42 @@
     {
       "name": "Atl Paper Chasers Radio",
       "url": "https://servidor27.brlogic.com:7004/live",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/f464e32f-785e-46f3-a020-34695f64f403.webp"
     },
     {
       "name": "AZPM Jazz 89.1 HD2",
       "url": "https://tektite.streamguys1.com:5145/wwnojazz?uuid=e64c7c3ks",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/58217cdc-e9fa-4477-b039-43eca886e8d6.webp"
     },
     {
       "name": "Balearic FM",
       "url": "https://radio.balearic-fm.com:8000/radio.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/4ef2cef3-7916-44be-ba39-e8e5191c6e3c.webp"
     },
     {
       "name": "BEATS RADIO",
       "url": "https://servidor37.brlogic.com:7100/live",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/07575dc2-1db8-40ad-a74d-46f0699ca15b.webp"
     },
     {
       "name": "Best Smooth Jazz",
       "url": "http://64.95.243.43:8002/stream",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/c9f4c534-8232-41ea-a190-7dcfd6fc4853.webp"
     },
     {
       "name": "BGMVibes",
@@ -5893,12 +5962,18 @@
     {
       "name": "Big Blue Swing 64k",
       "url": "http://radio.bigblueswing.com:8002/;64bit.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/3965e223-257a-478a-b2f4-6f93b07b7046.webp"
     },
     {
       "name": "BMFR - Blues Music Fan Radio",
       "url": "https://orbit.citrus3.com:8052/stream",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/f2827447-f73f-4d89-b929-f3af84c925ff.webp"
     },
     {
       "name": "boogaloostereo",
@@ -5908,67 +5983,106 @@
     {
       "name": "BROKEN BEATS",
       "url": "https://stream.zeno.fm/27tv6ay24d0uv",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/6c28fa2d-e210-4c76-ab16-c8bfdd612b04.webp"
     },
     {
       "name": "Choice FM",
       "url": "http://nap.casthost.net:8336/wrsv",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/c1b53667-2df2-4f0d-ad5e-170d9316a495.webp"
     },
     {
       "name": "Classic Soul 1075",
       "url": "https://hello.citrus3.com:2020/8134/stream",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/3daab570-7338-45a1-b364-190c27ad49ce.webp"
     },
     {
       "name": "Classic Vinyl HD",
       "url": "https://icecast.walmradio.com:8443/classic",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/dbcc9661-af49-49d2-8457-56375274c906.webp"
     },
     {
       "name": "Classical Jazz Radio",
       "url": "https://ec1.yesstreaming.net:2905/stream",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/df69f9be-2979-4245-8a51-21e50c3f2af4.webp"
     },
     {
       "name": "CleansingMusic - Beyond Words (MP3)",
       "url": "http://hemnos.cdnstream.com/1469_128",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/41e46edd-7a59-4431-b4d1-96e24ba4e75f.webp"
     },
     {
       "name": "Cool Jazz Florida",
       "url": "http://162.244.80.20:6948/",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/d966af33-e669-45ce-a788-89066f0f0d0a.webp"
     },
     {
       "name": "Deus Entertainment Radio",
       "url": "https://streaming.live365.com/a46210",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/1685d1c0-fefc-4eec-aaa6-feb50d05561f.webp"
     },
     {
       "name": "DOO WOP FOREVER - CALM RADIO",
       "url": "http://streams.calmradio.com:19028/stream",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/6c1d28ab-a8a0-4869-88ef-f5ed22b757fd.webp"
     },
     {
       "name": "Dps Soul",
       "url": "https://streaming.live365.com/a50157",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/c724f6b2-dd9b-4b53-a66d-bacff0cf76ed.webp"
     },
     {
       "name": "DS4U",
       "url": "http://radio.ds4u.com:8000/ds4u",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/3d8bdf59-9030-4332-8874-9ec2a8eefd71.webp"
     },
     {
       "name": "EMurph Radio",
       "url": "https://radio.emurph.com/stream",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/8d227cfb-13ae-4dee-a1a4-cd928cb15dc0.webp"
     },
     {
       "name": "EROTICA LOUNGE",
       "url": "https://stream.zeno.fm/89asra0sfa0uv",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/b5a56f9e-4d88-4a1a-9202-d5b28ca7aa3c.webp"
     },
     {
       "name": "Ethic Radio",
@@ -5978,122 +6092,194 @@
     {
       "name": "ETN.fm (House)",
       "url": "https://www.etn.fm/stream/house",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/8f879249-a21d-4dd7-9ebb-c7f51514bfe2.webp"
     },
     {
       "name": "Exclusively Lana Del Rey",
       "url": "https://streaming.exclusive.radio/er/lanadelrey/icecast.audio",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/90bd8773-ad67-4a45-8250-f8874c4638f4.webp"
     },
     {
       "name": "Fresh Radio",
       "url": "https://s2.radio.co/see52d8809/listen",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/750e1b9b-a3e1-4afd-9193-b3298d9a6105.webp"
     },
     {
       "name": "Funk the Planet",
       "url": "https://streaming.live365.com/a01484",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/949d6836-0d51-4066-8749-d7f946902009.webp"
     },
     {
       "name": "FUNK2DISCO",
       "url": "https://stream.zeno.fm/ck78w00p97zuv",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/d2b46604-2534-42f0-8623-3cd220be18b9.webp"
     },
     {
       "name": "Funkology Radio",
       "url": "http://ais-edge37-live365-dal02.cdnstream.com/a98761",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/f662de98-c8a6-45a9-828e-f83144449903.webp"
     },
     {
       "name": "FUNKY RADIO - Only Funk Music (60's 70's)",
       "url": "https://funkyradio.streamingmedia.it/play.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/ac002c2b-cf8f-4dcf-b8c5-92806146e959.webp"
     },
     {
       "name": "Galattica FM NeXT",
       "url": "http://stream.zeno.fm/m7v09t41198uv",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/60512189-c2cc-422b-aabd-f7624bcc9243.webp"
     },
     {
       "name": "Gangstaville Radio",
       "url": "http://stream.radio.co/s1cffd7347/listen",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/cc1189c2-bddd-4e03-80e3-3bb6024cfbfc.webp"
     },
     {
       "name": "Good For The Soul",
       "url": "https://goodosoulchannel.out.airtime.pro/goodosoulchannel_a",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/e234eff1-3804-424a-ad4d-f7954a545016.webp"
     },
     {
       "name": "GotRadio - Bit O Blues",
       "url": "http://pureplay.cdnstream1.com/6019_128.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/fa2c051b-82be-4804-8d94-d3f3be2e8c00.webp"
     },
     {
       "name": "HED KANDI CLUB",
       "url": "https://stream.zeno.fm/tfvcrmds7k8uv",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/105751dd-74b6-4cc5-9b1e-6ed333ca9378.webp"
     },
     {
       "name": "Hot 102 Milwaukee, WI",
       "url": "https://das-edge11-live365-dal03.cdnstream.com/a88336",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/8fa5e6e1-3914-4288-83dd-a2840c0b1e22.webp"
     },
     {
       "name": "HOT 107.1",
       "url": "https://stream1.flinn.com:8443/1071FM.aac",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/e0b906c8-ec75-45ff-8a1e-5a17a7f05f29.webp"
     },
     {
       "name": "IAAH Radio - It's All About House",
       "url": "https://usa10.fastcast4u.com:1190/;",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/a697d838-dac6-43d7-9316-07e164d08973.webp"
     },
     {
       "name": "Impact Media One",
       "url": "https://streaming.live365.com/a13120",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/6db7ff10-c4e0-4324-9799-fe180c309708.webp"
     },
     {
       "name": "Jake Radio Live",
       "url": "http://yerbabue-geckohost.radioca.st/stream",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/3c50165b-dbee-4866-af7a-8a92d6c97006.webp"
     },
     {
       "name": "Jazz 88 Minneapolis KBEM",
       "url": "https://kbem-live.streamguys1.com/kbem_aac",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/92888fd9-8431-4c37-a762-3f379199181e.webp"
     },
     {
       "name": "Jazz FM",
       "url": "https://jazzfm91.streamb.live/SB00009",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/0b7ce9bf-e98c-4a90-8812-3bb0fd88c074.webp"
     },
     {
       "name": "Jazz24 [AAC/64 kbit]",
       "url": "https://knkx-live-a.edge.audiocdn.com/6285_64k",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/c36b425e-7511-405d-8eed-b59ee3f90139.webp"
     },
     {
       "name": "JazzRadio (MRG.fm)",
       "url": "http://listen.mrg.fm:8040/stream",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/4f48ea31-c44b-4336-91f8-d26f13328fbb.webp"
     },
     {
       "name": "JazzWorks 90.5 WESA-HD2",
       "url": "https://ais-sa3.cdnstream1.com/2558_128.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/5e679700-06f9-42de-89fe-df2f703bdb11.webp"
     },
     {
       "name": "KAWC Arizona Community Radio/Music",
       "url": "http://19253.live.streamtheworld.com:3690/KAWCAM_SC",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/0915ca9a-bdd8-45e1-925c-065e2ed9c0e2.webp"
     },
     {
       "name": "KBCU-FM 88.1 Bethel College - North Newton, KS",
       "url": "http://kbcu-live.bethelks.edu:8000/kbcu",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/fbf35470-aad0-4663-96c1-6bd1fe8c14ea.webp"
     },
     {
       "name": "KBGA 89.9 University of Montana, Missoula, MT",
@@ -6103,47 +6289,74 @@
     {
       "name": "KBRH AM 1260",
       "url": "https://wbrh.streamguys1.com/kbrh-mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/92428b53-dbfd-4117-9646-59aec12b16ae.webp"
     },
     {
       "name": "KCCK Jazz 88.3",
       "url": "http://stream.kcck.org/jazz883kcck",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/6514fa38-6af7-4372-99d6-bc228624ff4b.webp"
     },
     {
       "name": "KCEP 88.1 \"Power 88\" Las Vegas, NV",
       "url": "http://ice7.securenetsystems.net/KCEP",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/97538001-3ca4-47cf-9673-eebe7292258e.webp"
     },
     {
       "name": "KCSM Jazz 91.1 FM",
       "url": "http://ice7.securenetsystems.net/KCSM2",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/6e51a887-4752-44c7-8f95-260e36925648.webp"
     },
     {
       "name": "KJAZZ 88.1",
       "url": "https://streaming.live365.com/a49833",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/9d31a73b-c446-4b21-9cf2-7e4221302f7a.webp"
     },
     {
       "name": "KJazz 88.1 HD2",
       "url": "https://streaming.live365.com/a45189/playlist.m3u8",
-      "type": "hls"
+      "type": "hls",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/229d3869-e5da-44ef-a0c3-b78c7508895d.webp"
     },
     {
       "name": "KJazz 88.1 HD2 The Bebop Channel",
       "url": "https://streaming.live365.com/a45189_2",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/0b4656cb-bbeb-4ed1-8daf-793f68e9db8b.webp"
     },
     {
       "name": "KJazz 88.1 KKJZ",
       "url": "https://streaming.live365.com/a49833/playlist.m3u8",
-      "type": "hls"
+      "type": "hls",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/5117074a-b35d-4111-89da-76c219227280.webp"
     },
     {
       "name": "KJGR Jazz Grooves",
       "url": "http://stream.zeno.fm/wrwfdegzvk8uv",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/42c48319-0bb4-42a9-9243-2775d358d430.webp"
     },
     {
       "name": "KJLU \"Smooth Jazz 88.9\" Jefferson City, MO",
@@ -6153,102 +6366,162 @@
     {
       "name": "KJMM 105 K-Jamz",
       "url": "https://crystalout.surfernetwork.com:8001/KJMM_MP3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/73e03daf-5138-419d-9315-276b621a697b.webp"
     },
     {
       "name": "KJZZ 91.5 Phoenix, AZ",
       "url": "http://stream.kjzz.org/kjzz_mp3_128",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/ed891878-08cd-47a5-abba-c7750b951e2b.webp"
     },
     {
       "name": "KMHD 192k mp3",
       "url": "https://api.spreaker.com/v2/episodes/57033473/play.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/9afd0265-9688-4418-b9c7-443b4965c3d8.webp"
     },
     {
       "name": "KMHD Adaptive AAC",
       "url": "https://ais-sa3.cdnstream1.com/2442_128.aac/playlist.m3u8",
-      "type": "hls"
+      "type": "hls",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/686591f6-8502-412b-a9a6-76fa433a6ef0.webp"
     },
     {
       "name": "KNHS 93.1 Lafayette, Louisiana - The Viking - Northside High School Radio",
       "url": "https://ice42.securenetsystems.net:80/VIKINGS",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/633dfc3d-3b44-45c9-9a9e-0a44aabd70bb.webp"
     },
     {
       "name": "KOJH FM (Kansas City, Missouri)",
       "url": "https://streams.radio.co/scce2ddfe5/listen",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/046595fa-b54e-41f0-8897-39c2c55c09df.webp"
     },
     {
       "name": "KSZN-LP 101.5 FM - Radio Sunnyside – Flagstaff, Arizona",
       "url": "http://208.113.128.99:8000/stream",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/b513271e-4bf8-40cf-8d12-5d88c87eabec.webp"
     },
     {
       "name": "KUVO HD2: The DROP",
       "url": "http://kuvo-ice.streamguys.org/kuvohd2-aac-128",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/1ed33687-5a4f-4cb3-86a6-f04a1d331bf2.webp"
     },
     {
       "name": "LoungeRadio (MRG.fm)",
       "url": "http://listen.mrg.fm:8060/stream",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/eb50c952-3c28-4cc3-8cbd-9fbd9dfc7f92.webp"
     },
     {
       "name": "luis Armstrong",
       "url": "https://streaming.exclusive.radio/er/louisarmstrong/icecast.audio",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/9b656099-c048-43e3-8f18-44dbec286148.webp"
     },
     {
       "name": "Mega 100 FM",
       "url": "https://n18b-e2.revma.ihrhls.com/zc2926/24_m9zpqtnw5ph402/playlist.m3u8",
-      "type": "hls"
+      "type": "hls",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/52c6a7ae-bcba-45a2-a743-62efa9a95ca1.webp"
     },
     {
       "name": "MEGATON CAFE RADIO",
       "url": "http://us2.internet-radio.com:8443/stream",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/72c08cd5-a317-47ad-abaa-d435f630879d.webp"
     },
     {
       "name": "Meiji Grooves Radio",
       "url": "https://radio.meiji.industries/grooves",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/39502c81-8b8f-4a39-aed9-c8612d40832c.webp"
     },
     {
       "name": "Monkey Radio Archive",
       "url": "https://streaming.live365.com/a52904",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/32d77d60-80fe-497e-921c-c65382faacdc.webp"
     },
     {
       "name": "Motown Radio",
       "url": "http://94.23.159.187:9990/;",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/fa34609c-16fc-472b-81e2-8497f178f4c9.webp"
     },
     {
       "name": "Music Radio",
       "url": "https://radio.musicradio.ai/listen/musicradio.ai/radio.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/0143f28b-bb25-4a21-ac9e-09e496790e27.webp"
     },
     {
       "name": "Mustbe5 Radio",
       "url": "https://stream.radio.co/sf2ed5928f/listen",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/bc632083-acbf-49aa-b783-e55219b34fa4.webp"
     },
     {
       "name": "NY hot108",
       "url": "http://live.powerhitz.com/hot108",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/a863986f-aaf5-4a47-b051-b3b6dca0965e.webp"
     },
     {
       "name": "Osage Orange Radio",
       "url": "https://das-edge62-live365-dal03.cdnstream.com/a08442",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/0c63c636-d43f-4a98-b035-250fca88f079.webp"
     },
     {
       "name": "Radio Art Acoustic Blues",
       "url": "https://live.radioart.com/fAcoustic_blues.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/55d317bb-5382-490e-8b29-54e8d61d8780.webp"
     },
     {
       "name": "Radio Art Vocal Jazz",
@@ -6258,52 +6531,82 @@
     {
       "name": "Radio Atlantic",
       "url": "https://broadcast.miami/proxy/atlantic?mp=/stream/;",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/32ce8af9-004d-453b-9516-f0ab7aaeae5a.webp"
     },
     {
       "name": "Radio BMG",
       "url": "https://broadcast.miami/proxy/bmg?mp=/stream/;",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/5b56d931-23b4-48a5-9f73-64dfd942896f.webp"
     },
     {
       "name": "Radio Columbia",
       "url": "https://broadcast.miami/proxy/columbia?mp=/stream/;",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/96f44573-a7e5-4da5-b1f4-fea411c30b5a.webp"
     },
     {
       "name": "Radio Concord",
       "url": "https://broadcast.miami/proxy/concord?mp=/stream/;",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/c9e9e6d1-8217-4cc5-8640-2c005069c1d8.webp"
     },
     {
       "name": "Radio Dismuke",
       "url": "http://74.208.71.58:8078/",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/38583de7-7c09-40fa-b551-b458c51c6d56.webp"
     },
     {
       "name": "Radio Epic",
       "url": "https://broadcast.miami/proxy/epic?mp=/stream/;",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/9ffc6493-f2a5-48d3-bf80-38297dc0d0aa.webp"
     },
     {
       "name": "Radio Indie Disco",
       "url": "https://broadcast.miami/proxy/indiedisco?mp=/stream/;",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/3f51ede2-4605-4a75-9031-a5fa4ffb197f.webp"
     },
     {
       "name": "Radio Polydor",
       "url": "https://broadcast.miami/proxy/polydor?mp=/stream/;",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/a15fae97-b7d4-4249-8fe7-7a3861b05292.webp"
     },
     {
       "name": "Radio RCA",
       "url": "https://broadcast.miami/proxy/rca?mp=/stream/;",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/0c570a66-9d3d-40d8-bddb-92e7e2b9a409.webp"
     },
     {
       "name": "Radio Sausalito 1610 - Sausalito, CA",
       "url": "http://radiosausalito.org/128k",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/d7edd658-d42c-4347-8b70-0b2c3ef2fcc4.webp"
     },
     {
       "name": "Radio TSOP - The Sound Of Philadelphia",
@@ -6313,27 +6616,42 @@
     {
       "name": "Radio Warner Bros.",
       "url": "https://broadcast.miami/proxy/warnerbros?mp=/stream/;",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/26b4d75d-bfb9-41d6-b3da-7de824119fcc.webp"
     },
     {
       "name": "RadioAura",
       "url": "https://stream.radiaura.net/station-12a6e82e-a8f1-4cc6-8c37-80d73b0582e2",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/0d4a9d7a-7a16-437f-a025-1419d45520e6.webp"
     },
     {
       "name": "RetroStrange Radio2",
       "url": "https://icecast.retrostrange.com:8443/retrostrange-radio2-mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/6c70c494-81d1-41da-adc7-2a3436a98b33.webp"
     },
     {
       "name": "RhythmRadio.USA",
       "url": "http://stream.zenolive.com/w7qyh1bctxquv",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/de0cbedb-9cdf-4211-b36a-cfb7c0c23e02.webp"
     },
     {
       "name": "Rise Radio 365",
       "url": "https://streaming.live365.com/a87815",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/970d7b0b-3ef4-4939-8f0f-0844c46e0f02.webp"
     },
     {
       "name": "RNB and Hip Hop Radio",
@@ -6343,72 +6661,114 @@
     {
       "name": "SalsaViva",
       "url": "https://streaming.live365.com/a37497?_=1778197802894",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/7e2ca9af-6abb-4dd0-9ff9-7d97f9875d50.webp"
     },
     {
       "name": "Simply Disco",
       "url": "https://s6.autopo.st/proxy/simply7?mp=/stream",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/14720177-ad6f-408a-b64d-80dd17fadae0.webp"
     },
     {
       "name": "Slow Jams Radio",
       "url": "http://stream.radiojar.com/ypargqan2qzuv",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/6673ffeb-ab53-4f44-8f91-51ef031534f8.webp"
     },
     {
       "name": "SLS Digital Music",
       "url": "https://slsdigitalradio.com:8000/radio.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/12640427-1c91-4396-8dc9-ecb3e02ef568.webp"
     },
     {
       "name": "Smooth Groove Radio - The Vibe",
       "url": "https://usa17.fastcast4u.com/proxy/smoothgr?mp=/1",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/fc581492-177a-45e6-8205-1a28102abeb0.webp"
     },
     {
       "name": "Smooth Gulf Coast Radio",
       "url": "https://serv2657.doscast.com/listen/smooth_gulfcoast_radio/radio.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/a1debd3c-1b1e-4173-9c94-bce7c014b78a.webp"
     },
     {
       "name": "Smooth Jazz 101.1",
       "url": "https://crystalout.surfernetwork.com:8001/WJZA-AM_MP3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/9954bb17-4f77-463c-b74a-3354cadc977d.webp"
     },
     {
       "name": "SMOOTH JAZZ 24/7",
       "url": "http://jking.cdnstream1.com/b75154_128mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/a4757a7e-214f-44db-8efb-b127239d947c.webp"
     },
     {
       "name": "Smooth Jazz 247 (new)",
       "url": "http://streaming.live365.com/b75154_128mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/5587a628-d117-4353-ad1d-b65baee0ea78.webp"
     },
     {
       "name": "Smooth Jazz CD 101.9 [128kbps MP3](Non-restricted)",
       "url": "http://vip2.fastcast4u.com/proxy/sjcd109?mp=/1",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/f88cd9b5-8c17-4013-8547-5eaaea0040d3.webp"
     },
     {
       "name": "Smooth Jazz Florida",
       "url": "https://streaming.live365.com/a57422",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/b72f293c-c266-49fa-bf15-ce89dee08cc1.webp"
     },
     {
       "name": "Smooth Jazz iHeart",
       "url": "https://stream.revma.ihrhls.com/zc4242/hls.m3u8",
-      "type": "hls"
+      "type": "hls",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/567d8781-5695-4449-920f-8dd33ac09bc8.webp"
     },
     {
       "name": "Smooth Jazz JJZ",
       "url": "https://stream.revma.ihrhls.com/zc7390",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/8ef22ab9-7aab-4d0b-af45-318407455dcd.webp"
     },
     {
       "name": "Smooth Jazz Tampa",
       "url": "https://vip2.fastcast4u.com/proxy/sjtampaplus?mp=/1",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/2baab2f2-6528-4f30-b74d-da1f05d17972.webp"
     },
     {
       "name": "Smooth Lounge Global Radio",
@@ -6418,12 +6778,18 @@
     {
       "name": "Smooth Wave",
       "url": "https://vip2.fastcast4u.com/proxy/smoothwavehd?mp=%2F1",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/db9f6392-cfd5-4939-b263-aedca37b753c.webp"
     },
     {
       "name": "SmoothJazz.com 128k mp3",
       "url": "https://smoothjazz.cdnstream1.com/2585_128.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/4aa967a0-a2e0-47b7-900f-c44db320f6ed.webp"
     },
     {
       "name": "SmoothRadio 100.3 FM",
@@ -6433,62 +6799,98 @@
     {
       "name": "SMR247Jams",
       "url": "https://servidor39.brlogic.com:7148/live",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/fb72cc3d-0b8c-4f81-980e-7bd1ad80bc01.webp"
     },
     {
       "name": "SNDSRADIO",
       "url": "https://icy.cloudrad.io/006909cb",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/2b82ff2f-9dc2-4b00-81ee-e5a618a7b3ca.webp"
     },
     {
       "name": "SomaFM Fluid (128k MP3)",
       "url": "https://ice6.somafm.com/fluid-128-mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/e899ab1f-8376-4a15-af64-45b23988ccf8.webp"
     },
     {
       "name": "SomaFM Secret Agent (128k MP3)",
       "url": "https://ice5.somafm.com/secretagent-128-mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/c5852976-4b2b-4624-aee4-06416ddb5923.webp"
     },
     {
       "name": "SomaFM Seven Inch Soul (128k MP3)",
       "url": "https://ice2.somafm.com/7soul-128-mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/1fe8f1fe-952d-4b01-99b3-01661fad39ab.webp"
     },
     {
       "name": "SomaFM Sonic Universe (128k MP3)",
       "url": "https://ice6.somafm.com/sonicuniverse-128-mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/b8af4a89-5e5a-418c-8c4f-471b9085429e.webp"
     },
     {
       "name": "SOUL RADIO Classics",
       "url": "https://listen.soulradio.us/us",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/56cf5fe9-80ce-4eb4-8863-75f2e1736007.webp"
     },
     {
       "name": "Soulful Link NYC",
       "url": "http://deeperlink.com:8070/stream",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/021cb7bd-f34e-4299-92db-f3e9404e8b67.webp"
     },
     {
       "name": "SPINS106.3",
       "url": "https://streaming.live365.com/a27054",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/2833fc89-bb01-44ea-b9ae-7d3cf56655a2.webp"
     },
     {
       "name": "Station509",
       "url": "https://streaming.live365.com/a37517",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/33f6c037-3207-40b4-96c2-c81a592a8790.webp"
     },
     {
       "name": "Stix Fm Radio",
       "url": "https://listen.nobexradio.com/station_stixfmradio?ref=radiobrowser",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/90ce03de-ea8b-46da-afce-44728368ed4b.webp"
     },
     {
       "name": "STL Smooth Jazz",
       "url": "https://18093.live.streamtheworld.com/SP_R4054326.aac",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/c3e7e478-40aa-431a-aaa2-f1a52c56d4d0.webp"
     },
     {
       "name": "The 1920s Radio Network (MP3)",
@@ -6498,72 +6900,114 @@
     {
       "name": "The BocX",
       "url": "https://radio.streemlion.com:4820/stream",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/eb9c366d-fa8d-44c2-82ff-00a588d38f02.webp"
     },
     {
       "name": "The Indie Beat Radio - Bonkwave Channel",
       "url": "https://azura.theindiebeat.fm/listen/not_what_i_call_radio_bonk_wave/radio.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/9c84e4c7-9d35-4bf0-8b1d-49de32e01353.webp"
     },
     {
       "name": "The Indie Beat Radio - Jazz Channel",
       "url": "https://azura.theindiebeat.fm/listen/the_indie_beat_radio_-_jazz/radio.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/13d166d7-8e32-4362-9bce-41351fd85dba.webp"
     },
     {
       "name": "The Jazz Groove",
       "url": "http://mp3-128.streamthejazzgroove.com/;stream.mp3?_ga=2.244100037.1386788109.1513293582-596706204.1513293582",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/ade85ae0-5e74-4bd3-a4f2-f3f1e620885e.webp"
     },
     {
       "name": "The Jazz Groove (East)",
       "url": "http://east-mp3-128.streamthejazzgroove.com/stream",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/28965107-a19a-4692-96e2-87e0f939b145.webp"
     },
     {
       "name": "The Jazz Groove (West)",
       "url": "http://west-aac-64.streamthejazzgroove.com/stream",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/c93711a7-c364-4d9c-b544-202865cae232.webp"
     },
     {
       "name": "The Oasis 103.7 FM New Mexico",
       "url": "https://ice42.securenetsystems.net/KOAZAM",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/88114d7c-f48c-431d-a436-9a6b51a7b823.webp"
     },
     {
       "name": "The Penthouse",
       "url": "http://sc1.mystreamserver.com:8052/;?1400276246062.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/9a41f129-30f2-4eec-a873-ba2aeed390d5.webp"
     },
     {
       "name": "The Strobe Radio",
       "url": "http://646.cloudrad.io:8234/",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/b6c1e831-8a28-404b-9338-3cb60039a4b0.webp"
     },
     {
       "name": "The Wave 105.9 FM",
       "url": "https://pacificmedia.cdnstream1.com/2781_64.aac",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/91a19570-d6a6-46b2-a33c-0b366dd93231.webp"
     },
     {
       "name": "thejazzgroove.org WEST",
       "url": "http://west-mp3-128.streamthejazzgroove.com/;stream.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/89b6c829-d183-4af8-b92c-568f6a12c986.webp"
     },
     {
       "name": "TopBlues",
       "url": "http://us3.internet-radio.com:8342/",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/fd31e8ea-ae18-4160-ad97-e0169cdff359.webp"
     },
     {
       "name": "TruBlues975 WDIF-LP",
       "url": "http://s30.myradiostream.com:31752/",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/58af9d60-5cf6-4e40-8e1c-ab7eaaebe142.webp"
     },
     {
       "name": "Uptown Philly 100 Radio",
       "url": "https://stream.radio.co/sc5a080f37/listen",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/23de922f-f9ab-4079-8605-3aa83baf91f3.webp"
     },
     {
       "name": "Urban Radio - Hip Hop / R&B",
@@ -6593,57 +7037,90 @@
     {
       "name": "Vermont Public Radio Jazz Stream",
       "url": "https://vpr.streamguys1.com/vprjazz64.aac",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/811ae9d6-309c-4b09-8925-d6c69fec2ea7.webp"
     },
     {
       "name": "Vip-Radios.FM - Soulful House",
       "url": "http://radio4.vip-radios.fm:8057/stream-128kmp3-SoulfulHouse_autodj",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/98b4f693-ac30-490b-82ed-8c26c6ec764d.webp"
     },
     {
       "name": "W.O.D.S Punnch Radio",
       "url": "https://play.radioking.io/wodspunnchradio",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/8c40e3bd-dcbf-4cda-b0bd-01434fa64c64.webp"
     },
     {
       "name": "WAJH 91.1 Jazz Hall Radio Birmingham, AL",
       "url": "https://ice7.securenetsystems.net/WVSU",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/59dcb734-edf0-4df2-864f-b29dd7fe035d.webp"
     },
     {
       "name": "WBGO Jazz 88.3 FM",
       "url": "https://ais-sa8.cdnstream1.com/3629_128.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/030d34f1-6f8f-4915-9f1c-f326232de31f.webp"
     },
     {
       "name": "WCLK 91.9 Atlanta, GA",
       "url": "http://20603.live.streamtheworld.com:3690/WCLKFM_SC",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/506b6f19-45fe-47b3-bdb9-ae2d5e057c00.webp"
     },
     {
       "name": "WDCB 90.9 \"Jazz & Blues\" Chicago, IL",
       "url": "http://wdcb-ice.streamguys.org/wdcb128",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/0922c3ce-3501-46f7-867e-c4e9be0fa9a6.webp"
     },
     {
       "name": "WDNA m",
       "url": "http://us9.streamingpulse.com:7033/stream",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/b32548be-2777-43f9-bf50-b5d35ffa7eff.webp"
     },
     {
       "name": "WeRave Music Radio 02 - Study and Chillout",
       "url": "https://stream.zeno.fm/cpnv07rjvp0vv",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/98b2ffac-f597-4489-af94-43502d66bc8a.webp"
     },
     {
       "name": "WERC-HD3 B106.5 Birmingham, AL",
       "url": "https://stream.revma.ihrhls.com/zc6737",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/a9f1c4e7-1380-48d0-be5f-c72bf5d36eb6.webp"
     },
     {
       "name": "WFOI 100.5 Fayette, Mississippi",
       "url": "https://stream-175.surfernetwork.com/dgg084m3imstv",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/37f0ed60-e311-4b31-9f5a-969ecfeab747.webp"
     },
     {
       "name": "WGFT 94.7",
@@ -6658,12 +7135,18 @@
     {
       "name": "WGMC \"Swing & Blues\" Stream - Rochester, NY",
       "url": "http://greece-media.monroe.edu/wgmc3.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/1b10aaf1-7f60-47da-83f7-7622ecc81195.webp"
     },
     {
       "name": "WGVU FM 88.5",
       "url": "http://26273.live.streamtheworld.com:3690/WGVUFM_SC",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/5ca1df06-d368-4bd9-925d-24ed813045f3.webp"
     },
     {
       "name": "WHFF.Radio Neo Soul Sounds",
@@ -6683,42 +7166,66 @@
     {
       "name": "WHOV 88.1 - Hampton's Jazz",
       "url": "http://stream.revma.ihrhls.com/zc5599",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/218b0d24-9060-4fea-bfd2-1d8db6f12735.webp"
     },
     {
       "name": "WJAM Radio",
       "url": "https://das-edge12-live365-dal02.cdnstream.com/a22172",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/7c117bb8-e1de-446e-bcaa-ccece622adee.webp"
     },
     {
       "name": "WJKR-DB Jo Khool Radio",
       "url": "http://node-29.zeno.fm/ft80agnb5qzuv.aac",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/958e12b1-6e1a-4fa4-ad12-432fc85d53a0.webp"
     },
     {
       "name": "WJON Weatherscan 24/7",
       "url": "https://radio.wjonip.org/WJON-WSCN",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/071f1cf3-084f-4bfe-8e1f-2d8a5b14434f.webp"
     },
     {
       "name": "WKAR Jazz",
       "url": "http://mozart.wkar.msu.edu/wkar-jazz",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/a7b430d8-c86b-40b2-b651-43dc988b4a89.webp"
     },
     {
       "name": "WKEM \"Kiss 98.5\" Montgomery, Alabama",
       "url": "https://ice64.securenetsystems.net:80/WKEMLP",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/42db0ac2-5416-4e08-b406-1933f2f907a7.webp"
     },
     {
       "name": "WKHR",
       "url": "http://ice64.securenetsystems.net/WKHR",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/4d327caa-d3d3-456a-a960-025e46cb39ac.webp"
     },
     {
       "name": "WLML-FM - Legends Radio 100.3 FM Lake Park, FL",
       "url": "http://ice3.securenetsystems.net/WLML",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/8ac6b18d-adba-4383-b4d5-8d89230b305a.webp"
     },
     {
       "name": "WMSE Jazz",
@@ -6728,42 +7235,66 @@
     {
       "name": "WNCU 90.7 Jazz",
       "url": "http://wncu.streamguys1.com/live",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/30a8bccf-82bc-4e2a-a164-20cd9a2210bf.webp"
     },
     {
       "name": "WNOZ 95.3",
       "url": "https://ice3.securenetsystems.net/WNOZ",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/8b1d7301-ace3-473d-86ce-31c654f61d78.webp"
     },
     {
       "name": "WONR the LUV EZY",
       "url": "https://app.aloncast.com/api/stream/wonr-the-luv-ezy-d027f4",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/d18abee5-031b-4667-9361-d43b204e5921.webp"
     },
     {
       "name": "WOUB-FM Jazz Stream",
       "url": "https://playerservices.streamtheworld.com/api/livestream-redirect/ALLTHISJAZZ.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/0f6da9c9-8c2b-4be4-96ea-9afccc8ea8cd.webp"
     },
     {
       "name": "WPGF-LD Right On Radio 87.7 - Memphis, TN",
       "url": "http://securenetg.com:8300/tower877.aac?&_ic2=1",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/69c26853-99c1-4f63-9539-e23b796fc791.webp"
     },
     {
       "name": "WRBG 106.5 Millsboro, Delaware",
       "url": "https://s2.myradiostream.com:5364/;;",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/9e61a663-4b5e-4c91-b425-e5d3d4ae1893.webp"
     },
     {
       "name": "WREK 91.1 Atlanta, GA",
       "url": "http://streaming.wrek.org:8000/main/128kb.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/587c32a8-8226-478f-9d59-596607671264.webp"
     },
     {
       "name": "WRTE 90.7 FM",
       "url": "https://wdcb-ice.streamguys1.com/wdcb128",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/f4ab8776-aff7-49d8-9636-e7b7f33d8e59.webp"
     },
     {
       "name": "WRVS HD2 Jazzy 89.9",
@@ -6773,92 +7304,146 @@
     {
       "name": "WSDL 90.7 Rhythm & News",
       "url": "https://26153.live.streamtheworld.com/WSDLFM.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/74ec5290-9462-4314-8eb5-d38b4af2aa0e.webp"
     },
     {
       "name": "WSIE 88.7 FM Edwardsville,IL",
       "url": "http://streaming.siue.edu:8000/wsie",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/5e131e8d-330b-488f-aae8-24adaf6f361a.webp"
     },
     {
       "name": "WSRB 106.3 FM Chicago's R&B - Lansing, IL",
       "url": "https://ais-sa8.cdnstream1.com/phvh2qaosfo/c2ebyqqdqjx",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/f8baac46-8d04-40e0-881b-e50d3e3fb824.webp"
     },
     {
       "name": "WSSR Sector Seven Radio",
       "url": "https://broadcast.wssr.stream/radio/8000/radio.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/cff9790c-2552-43bd-825f-84f3820b2c44.webp"
     },
     {
       "name": "WTRIP",
       "url": "https://radio.wtrip.org/radio/8000/radio.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/05d9768d-4b46-4198-b23b-a457fb18edc3.webp"
     },
     {
       "name": "WUBT 101.1 The Beat",
       "url": "http://stream.revma.ihrhls.com/zc2153/hls.m3u8",
-      "type": "hls"
+      "type": "hls",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/2cc1ec23-ddaa-4adf-967d-3685264031bf.webp"
     },
     {
       "name": "WUBZ 100.1 Tuskegee, Alabama",
       "url": "http://www.streamcontrol.net:12130/;",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/3554cb5b-cf98-4d1d-85b0-b1c39e61cf0f.webp"
     },
     {
       "name": "WUMB Blues 24/7 Music Stream",
       "url": "http://wumb.streamguys1.com/wumb919st",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/70a7c137-c68a-47fc-b980-c89296fa4e9b.webp"
     },
     {
       "name": "WUMB Blues Boston 91.9",
       "url": "http://wumb.streamguys1.com/wumb919fast",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/6d60195f-e556-4e8b-a77f-029864e57237.webp"
     },
     {
       "name": "WURK 96.3 Tampa, Florida",
       "url": "https://wurk-radiolptampa.wurkfm.org/listen/wurk.radio96.3lp/radio.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/8e4e5988-085c-4712-9340-67d3bd5c6c51.webp"
     },
     {
       "name": "WUTU 88.3 \"Old School Classics\" - Sasser, Georgia",
       "url": "https://ice23.securenetsystems.net:80/WUTU",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/ffe78361-163b-4aac-a637-217685d06289.webp"
     },
     {
       "name": "WVBC-LP 96.9 The Voice of Bessemer City Schools",
       "url": "https://streaming.live365.com/a03195",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/982fc8ef-aded-4ef6-89a0-957e9d49cae4.webp"
     },
     {
       "name": "WWOZ - New Orleans Public Radio",
       "url": "https://www.wwoz.org/listen/hi",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/fa4c05b0-3150-43d8-afa8-48d8083be218.webp"
     },
     {
       "name": "WWOZ 90.7 New Orleans, LA",
       "url": "http://wwoz-sc.streamguys.com/wwoz-hi.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/be23c2df-b760-48d7-881e-7246708addae.webp"
     },
     {
       "name": "WXTS 88.3 - Real Jazz Radio Toledo, OH",
       "url": "http://ice23.securenetsystems.net/WXTS",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/824c656c-474c-41ef-80ac-527e61a235a9.webp"
     },
     {
       "name": "WZBT 91.1 Gettysburg College, PA",
       "url": "http://war.str3am.com:8310/live",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/9db585e8-ecf8-436d-be3d-ab448da56807.webp"
     },
     {
       "name": "WZUM Pittsburgh Jazz Channel",
       "url": "https://pubmusic.streamguys1.com/wzum-mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/693da6b0-4108-4f51-a5d2-11defbccdb63.webp"
     },
     {
       "name": "XBOM Radio",
       "url": "https://s6.autopo.st/proxy/mpnqfijh?mp=/stream",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/b404687e-1617-4226-9e15-a6818e96ae80.webp"
     },
     {
       "name": "XRDS.fm",
@@ -6868,7 +7453,10 @@
     {
       "name": "YRB RADIO",
       "url": "https://a4.asurahosting.com:7130/radio.mp3",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/cb76f233-beca-4bb1-80bd-37717162a972.webp"
     }
   ],
   "US - News": [
@@ -6880,7 +7468,10 @@
     {
       "name": "1010 KSIR",
       "url": "http://alpha.newerastreaming.com:8016/;",
-      "type": "mp3"
+      "type": "mp3",
+      "favorite": false,
+      "speechVolumePercent": 30,
+      "image": "/station-images/64d14848-e687-42a4-815d-9883adb42d47.webp"
     },
     {
       "name": "1010 XL",
