@@ -353,17 +353,13 @@ $("#video-load-playlist").addEventListener("submit", async (event) => {
     const id = url.hostname === "youtu.be" ? url.pathname.slice(1) : url.searchParams.get("v");
     if (!list && !id) throw new Error("This link has no video or playlist ID.");
     if (list) { await loadYoutubePlaylist(list); return; }
-    current = -1;
     iframeQueueKey = "";
-    queue = list ? [] : [{ id, title: "Loading title…", artist: "Loading artist…" }];
-    $("#queue-heading").textContent = list ? "YouTube playlist" : "Queue";
+    queue = [{ id, title: "Loading title…", artist: "Loading artist…" }];
+    $("#queue-heading").textContent = "Queue";
     resultsEl.replaceChildren();
     $("#results-heading").hidden = true;
     renderQueue();
-    const embed = await ensureIframePlayer();
-    if (list) embed.loadPlaylist({ listType: "playlist", list, index: 0 });
-    else { current = 0; embed.loadVideoById(id); }
-    say(list ? "Loading the playlist in YouTube’s player…" : "Loading the video in YouTube’s player…");
+    await playAt(0);
   } catch (error) { say(error.message); }
   finally { event.submitter.disabled = false; event.submitter.textContent = "Load"; }
 });
