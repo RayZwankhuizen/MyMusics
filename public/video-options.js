@@ -212,7 +212,10 @@ function ensureIframePlayer() {
             if (event.data === YT.PlayerState.PLAYING || event.data === YT.PlayerState.CUED) syncIframeQueue();
             if (event.data === YT.PlayerState.PLAYING) {
               const id = queue[current]?.id;
-              if (window.MyMusicsPlayback?.isHost && id) void startHostVideo(id);
+              if (window.MyMusicsPlayback?.isHost && id) {
+                iframePlayer.mute();
+                void startHostVideo(id);
+              }
               else say("Playing in YouTube’s player.");
             }
             if (event.data === YT.PlayerState.PAUSED && window.MyMusicsPlayback?.isHost && hostVideoId) void hostControl("pause");
