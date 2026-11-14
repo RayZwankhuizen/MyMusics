@@ -1,6 +1,4 @@
 const express = require("express");
-const fs = require("node:fs");
-const path = require("node:path");
 const crypto = require("node:crypto");
 const { fetchPublicUrl, logoCandidates, radioBrowserSearch, matchingLogoStations, stationWebsiteCandidates, dynamicLogoCandidates, logoStationSearches, sharedHomepageLogos } = require("./station-discovery");
 
@@ -125,7 +123,7 @@ module.exports = function registerStationRoutes(app, { storage }) {
     const mime = req.headers["content-type"];
     const signatures = { "image/png": [0x89, 0x50, 0x4e, 0x47], "image/jpeg": [0xff, 0xd8, 0xff], "image/webp": [0x52, 0x49, 0x46, 0x46] };
     const signature = signatures[mime];
-    if (!Buffer.isBuffer(req.body) || !signature || !signature.every((byte, index) => req.body[index] === byte) || (mime === "image/webp" && req.body.toString("ascii", 8, 12) !== "WEBP")) return res.status(400).json({ error: "Upload a valid PNG, JPEG, or WebP image." });
+    if (!Buffer.isBuffer(req.body) || !signature?.every((byte, index) => req.body[index] === byte) || (mime === "image/webp" && req.body.toString("ascii", 8, 12) !== "WEBP")) return res.status(400).json({ error: "Upload a valid PNG, JPEG, or WebP image." });
     const filename = `${crypto.randomUUID()}.${{ "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp" }[mime]}`;
     storage.writeStationImage(filename, req.body);
     res.json({ image: `/station-images/${filename}` });

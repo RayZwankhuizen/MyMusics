@@ -34,7 +34,7 @@ export async function optimizeStationLogo(blob) {
     canvas.height = Math.max(1, Math.round(height * scale));
     canvas.getContext("2d").drawImage(source, 0, 0, canvas.width, canvas.height);
     const optimized = await new Promise((resolve) => canvas.toBlob(resolve, "image/webp", 0.82));
-    if (!optimized || optimized.type !== "image/webp") throw new Error("This browser could not optimize the logo as WebP.");
+    if (optimized?.type !== "image/webp") throw new Error("This browser could not optimize the logo as WebP.");
     return optimized;
   } finally {
     source?.close?.();

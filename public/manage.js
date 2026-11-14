@@ -76,7 +76,7 @@ function selectManageLink(section) {
     else link.removeAttribute("aria-current");
   });
 }
-manageTiles.forEach((tile, id) => tile.addEventListener("toggle", () => {
+manageTiles.forEach((tile, id) => { tile.addEventListener("toggle", () => {
   updateTileSummary(id, tile);
   if (!tile.open) return;
   manageTiles.forEach((other, otherId) => {
@@ -86,7 +86,7 @@ manageTiles.forEach((tile, id) => tile.addEventListener("toggle", () => {
   selectManageLink(id);
   const hash = `#${id}`;
   if (location.hash !== hash) history.replaceState(null, "", `${location.pathname}${location.search}${hash}`);
-}));
+}); });
 function syncManageSection() {
   const requested = location.hash.slice(1);
   const section = manageSectionIds.includes(requested) ? requested : "stations";
@@ -97,8 +97,8 @@ function syncManageSection() {
   selectManageLink(section);
   if (location.hash) requestAnimationFrame(() => document.getElementById(section)?.scrollIntoView({ block: "start" }));
 }
-document.querySelectorAll("[data-manage-section]").forEach((link) => link.addEventListener("click", () => {
+document.querySelectorAll("[data-manage-section]").forEach((link) => { link.addEventListener("click", () => {
   if (link.dataset.manageSection === location.hash.slice(1)) requestAnimationFrame(syncManageSection);
-}));
+}); });
 syncManageSection();
 window.addEventListener("hashchange", syncManageSection);

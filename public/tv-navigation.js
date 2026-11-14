@@ -1,6 +1,7 @@
 /* TV interaction layer. Playback and page state remain in their feature modules. */
 (() => {
   const key = "mymusics:tv-mode";
+  const tvIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="m8 2 4 4 4-4M9 22h6m-3-3v3"/></svg>';
   const focusKey = `mymusics:focus:${location.pathname}`;
   const focusable = 'a[href],button:not([disabled]),input:not([type="hidden"]):not([disabled]),select:not([disabled]),textarea:not([disabled]),summary,[tabindex]:not([tabindex="-1"])';
   const directions = { ArrowRight: "right", ArrowLeft: "left", ArrowUp: "up", ArrowDown: "down" };
@@ -15,7 +16,6 @@
     document.documentElement.classList.toggle("tv-mode", enabled);
     const toggle = document.querySelector("#tv-mode-toggle");
     toggle?.setAttribute("aria-pressed", String(enabled));
-    if (toggle) toggle.textContent = `TV mode ${enabled ? "On" : "Off"}`;
     if (persist) try { localStorage.setItem(key, String(enabled)); } catch {}
     window.dispatchEvent(new Event("mymusics:tv-mode-change"));
   }
@@ -26,8 +26,9 @@
     button.id = "tv-mode-toggle";
     button.className = "tv-mode-toggle";
     button.type = "button";
+    button.setAttribute("aria-label", "TV mode");
     button.setAttribute("aria-pressed", String(document.documentElement.classList.contains("tv-mode")));
-    button.textContent = `TV mode ${document.documentElement.classList.contains("tv-mode") ? "On" : "Off"}`;
+    button.innerHTML = tvIcon;
     button.addEventListener("click", () => setTvMode(!document.documentElement.classList.contains("tv-mode")));
     sidebar.append(button);
   }
@@ -38,7 +39,7 @@
     header.className = "design-topbar";
     header.innerHTML = `<div class="design-page-status"><span class="design-live-dot" aria-hidden="true"></span><div><p>${pages.detail}</p><span class="design-page-title">${pages.title}</span></div></div><nav aria-label="Screen shortcuts">${pages.links.map(([label, href]) => `<a href="${href}">${label}</a>`).join("")}</nav>`;
     main.prepend(header);
-    header.querySelectorAll('a[href^="#"]').forEach((link) => link.addEventListener("click", (event) => {
+    header.querySelectorAll('a[href^="#"]').forEach((link) => { link.addEventListener("click", (event) => {
       const target = document.querySelector(link.getAttribute("href"));
       if (!target) return;
       if (target.matches("button")) { event.preventDefault(); target.click(); }
@@ -48,7 +49,7 @@
         else target.setAttribute("open", "");
         requestAnimationFrame(() => target.querySelector("input,button")?.focus());
       } else if (target.matches("input,select,textarea")) { event.preventDefault(); target.focus(); }
-    }));
+    }); });
     const status = document.querySelector("#player-status");
     if (status) {
       const label = header.querySelector(".design-page-status p");

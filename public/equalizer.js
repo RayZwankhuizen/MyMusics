@@ -55,7 +55,10 @@ window.MyMusicsEqualizer = Object.freeze({
       ctx.fillStyle = fills[layer];
       ctx.fill();
       ctx.beginPath();
-      points.forEach(({ x, y }, index) => index === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y));
+      points.forEach(({ x, y }, index) => {
+        if (index === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
       ctx.strokeStyle = colors[layer];
       ctx.lineWidth = (layer === 1 ? 2.4 : 1.7) * ratio;
       ctx.shadowColor = colors[layer];
@@ -88,7 +91,7 @@ window.MyMusicsEqualizer = Object.freeze({
     const meterAnalysers = meterAnalyserSets[0] || [];
     dryGain.gain.value = 0;
     wetGain.gain.value = 1;
-    sources.forEach((source) => source.connect(dryGain));
+    sources.forEach((source) => { source.connect(dryGain); });
     dryGain.connect(analyser);
     const filters = bands.map(([, type, frequency], index) => {
       const filter = context.createBiquadFilter();
@@ -123,7 +126,7 @@ window.MyMusicsEqualizer = Object.freeze({
       return Math.sqrt(energy / Math.max(1, last - first + 1));
     };
     const drive = (energy) => playing
-      ? Math.min(1, Math.pow(Math.max(0, (energy - 0.15) / 0.7), 0.95) * sensitivity / 1.8)
+      ? Math.min(1, Math.max(0, (energy - 0.15) / 0.7) ** 0.95 * sensitivity / 1.8)
       : 0;
     return [drive(bandEnergy(45, 220)), drive(bandEnergy(220, 2200)), drive(bandEnergy(2200, 10000))];
   },

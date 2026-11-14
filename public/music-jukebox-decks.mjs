@@ -45,7 +45,6 @@ export function createMusicJukeboxDecks({ state, deckState, el, getHostDeckStatu
   function renderTime(key) {
     const player = decks[key];
     const suffix = key === "a" ? "" : "-b";
-    const output = el(`#jb-time${suffix}`);
     const hostStatus = getHostDeckStatus();
     const duration = isHostOutput() ? hostStatus?.[key]?.duration : player.duration;
     const progress = el(key === "a" ? "#jb-progress" : "#jb-progress-b");

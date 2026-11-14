@@ -46,7 +46,7 @@ export function createManageCatalogView({ el }) {
     list.replaceChildren();
     if (!hasGenre) { list.textContent = "Select a genre to view its stations."; return; }
     if (!entries.length) { list.textContent = query ? "No stations match your search." : "This genre has no stations yet."; return; }
-    entries.forEach(({ station, index }) => list.append(createStationRow(station, index, { onFavorite, onEdit, onTest, onDelete })));
+    entries.forEach(({ station, index }) => { list.append(createStationRow(station, index, { onFavorite, onEdit, onTest, onDelete })); });
   }
 
   function createStationRow(station, index, { onFavorite, onEdit, onTest, onDelete }) {

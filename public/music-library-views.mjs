@@ -207,7 +207,7 @@ export function createMusicInfoView({ kindLabels, formatDuration, scrollQueueTex
     }
     for (const [label, items] of available) {
       lists.append(groupTitle(`${label} · ${items.length}`));
-      items.forEach((entry) => lists.append(resultRow(entry, { showAlbum: artist })));
+      items.forEach((entry) => { lists.append(resultRow(entry, { showAlbum: artist })); });
     }
   }
 
@@ -215,7 +215,7 @@ export function createMusicInfoView({ kindLabels, formatDuration, scrollQueueTex
     rackList.replaceChildren();
     if (info.albums?.length) {
       rackList.append(jbEmpty(`Albums · ${info.albums.length}`));
-      info.albums.forEach((album) => rackList.append(jbStrip(album.title, "", () => openInfo(album), album.art)));
+      info.albums.forEach((album) => { rackList.append(jbStrip(album.title, "", () => openInfo(album), album.art)); });
     }
     if (info.tracks?.length) {
       rackList.append(jbEmpty(`Tracks · ${info.tracks.length}`));

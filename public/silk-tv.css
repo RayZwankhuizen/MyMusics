@@ -14,7 +14,7 @@ html.silk-browser.tv-mode .genre-nav{grid-column:2/6;grid-row:2;display:flex;gap
 html.silk-browser.tv-mode .genre-nav button{width:auto;min-width:max-content;min-height:56px;padding:10px 18px;border:1px solid #eef0f522;border-radius:10px;background:#11141c;color:#eef0f5;font-size:18px!important}
 html.silk-browser.tv-mode .genre-nav button.selected{border-color:#e58b73;background:#25221e;box-shadow:inset 0 0 0 1px #e58b73;color:#fff}
 html.silk-browser.tv-mode .sidebar-manage,html.silk-browser.tv-mode .sidebar-page[href*="manage"],html.silk-browser.tv-mode .sidebar-foot,html.silk-browser.tv-mode .music-controls-sidebar{display:none!important}
-html.silk-browser.tv-mode .tv-mode-toggle{grid-column:5;grid-row:1;width:auto;min-width:104px;min-height:50px;margin:0;font-size:16px}
+html.silk-browser.tv-mode .tv-mode-toggle{grid-column:5;grid-row:1;width:64px;min-width:64px;min-height:64px;margin:0}
 html.silk-browser.tv-mode .sidebar-version{grid-column:1/-1;justify-self:end;display:flex;gap:16px;margin:0;padding:8px 0 0;border:0;font:14px/1.4 var(--mono)}
 html.silk-browser.tv-mode .sidebar-version :is(span,time){font-size:14px!important}
 html.silk-browser.tv-mode main,html.silk-browser.tv-mode body.music-page main{width:auto;max-width:none;margin:0;padding:24px clamp(24px,4vw,64px) 150px}
@@ -64,7 +64,7 @@ html.silk-browser.tv-mode body.music-page #jb-search-dialog .jb-rack-list{max-he
   html.silk-browser.tv-mode .sidebar{grid-template-columns:auto auto minmax(0,1fr) auto;gap:8px 12px;padding:10px clamp(18px,4vw,40px)}
   html.silk-browser.tv-mode .brand{grid-column:1;grid-row:1}
   html.silk-browser.tv-mode .mode-switch{grid-column:2;grid-row:1;justify-self:start}
-  html.silk-browser.tv-mode .tv-mode-toggle{grid-column:4;grid-row:1;min-height:48px}
+  html.silk-browser.tv-mode .tv-mode-toggle{grid-column:4;grid-row:1;width:64px;min-width:64px;min-height:64px}
   html.silk-browser.tv-mode .playback-target-setting{display:flex;align-items:center;grid-column:3;grid-row:1;justify-self:stretch;gap:0;width:auto;max-width:none;min-width:0;margin:0;padding:0;border:0;font-size:0!important}
   html.silk-browser.tv-mode .playback-target-setting .tv-playback-picker{position:relative;width:100%}
   html.silk-browser.tv-mode .playback-target-setting .tv-playback-current{width:100%;min-height:48px;padding:8px 12px;font-size:16px!important;white-space:nowrap}

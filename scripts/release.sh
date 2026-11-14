@@ -12,8 +12,13 @@ read -rp "Commit message: " message
 [[ -n "$message" ]] || { echo "Commit message is required." >&2; exit 1; }
 read -rp "Version [$suggested]: " version
 version=${version:-$suggested}
-[[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Expected a numeric x.y.z version." >&2; exit 1; }
-git rev-parse -q --verify "refs/tags/v$version" >/dev/null && { echo "Tag v$version already exists." >&2; exit 1; }
+version=${version#v}
+[[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Expected x.y.z or vx.y.z (for example, 1.2.3 or v1.2.3)." >&2; exit 1; }
+if git show-ref --verify --quiet "refs/tags/v$version"; then
+  echo "Tag v$version already exists; choose an unused version." >&2
+  exit 1
+fi
+[[ "$version" != "$current" ]] || { echo "Version is unchanged; choose a new version." >&2; exit 1; }
 
 npm version "$version" --no-git-tag-version
 build_date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')

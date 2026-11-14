@@ -19,13 +19,13 @@
         picker.querySelector(".tv-playback-current").setAttribute("aria-expanded", String(!options.hidden));
         if (!options.hidden) options.querySelector(`[data-output="${target}"]`).focus();
       });
-      picker.querySelectorAll("[data-output]").forEach((button) => button.addEventListener("click", () => {
+      picker.querySelectorAll("[data-output]").forEach((button) => { button.addEventListener("click", () => {
         select.value = button.dataset.output;
         select.dispatchEvent(new Event("change", { bubbles: true }));
         picker.querySelector(".tv-playback-options").hidden = true;
         picker.querySelector(".tv-playback-current").setAttribute("aria-expanded", "false");
         picker.querySelector(".tv-playback-current").focus();
-      }));
+      }); });
     }
     select.hidden = tvMode();
     picker.hidden = !tvMode();
@@ -33,7 +33,7 @@
     hostOption.disabled = !hostAvailable;
     hostOption.textContent = hostAvailable ? "MyMusics host" : "MyMusics host (MPV required)";
     picker.querySelector(".tv-playback-current").textContent = `Audio output: ${target === "host" ? "MyMusics host" : "This browser"}`;
-    picker.querySelectorAll("[data-output]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.output === target)));
+    picker.querySelectorAll("[data-output]").forEach((button) => { button.setAttribute("aria-pressed", String(button.dataset.output === target)); });
     const hostButton = picker.querySelector('[data-output="host"]');
     hostButton.disabled = !hostAvailable;
     hostButton.textContent = hostAvailable ? "MyMusics host" : "MyMusics host (MPV required)";

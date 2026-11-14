@@ -219,7 +219,7 @@ test("queue avoids duplicate tracks and Empty queue keeps the active track playi
       this.dataset.playing = "false";
       this.dataset.pauseCount = String(Number(this.dataset.pauseCount || 0) + 1);
     };
-    HTMLMediaElement.prototype.load = function () {};
+    HTMLMediaElement.prototype.load = () => {};
   });
   await page.route("**/api/**", async (route) => {
     const url = new URL(route.request().url());
@@ -386,7 +386,7 @@ test("manual deck switching is direct and automatic next starts a crossfade", as
       this.dataset.playing = "false";
       Object.defineProperty(this, "paused", { configurable: true, value: true });
     };
-    HTMLMediaElement.prototype.load = function () {};
+    HTMLMediaElement.prototype.load = () => {};
   });
   await page.route("**/api/**", async (route) => {
     const url = new URL(route.request().url());
@@ -466,7 +466,7 @@ test("failed deck playback restores the previous active track", async () => {
     HTMLMediaElement.prototype.pause = function () {
       this.dataset.playing = "false";
     };
-    HTMLMediaElement.prototype.load = function () {};
+    HTMLMediaElement.prototype.load = () => {};
   });
   await page.route("**/api/**", async (route) => {
     const url = new URL(route.request().url());
@@ -561,7 +561,7 @@ test("natural outro fades in the next deck while the current deck keeps playing"
     HTMLMediaElement.prototype.pause = function () {
       this.dataset.playing = "false";
     };
-    HTMLMediaElement.prototype.load = function () {};
+    HTMLMediaElement.prototype.load = () => {};
   });
   await page.route("**/api/**", async (route) => {
     const url = new URL(route.request().url());
@@ -624,7 +624,7 @@ test("radio playback renders metadata from the active station event stream", asy
       this.dataset.playing = "false";
       Object.defineProperty(this, "paused", { configurable: true, value: true });
     };
-    HTMLMediaElement.prototype.load = function () {};
+    HTMLMediaElement.prototype.load = () => {};
     window.EventSource = class extends EventTarget {
       constructor(sourceUrl) {
         super();
@@ -737,7 +737,7 @@ test("HLS playback starts on manifest and renders fragment metadata", async () =
       this.dataset.playing = "false";
       Object.defineProperty(this, "paused", { configurable: true, value: true });
     };
-    HTMLMediaElement.prototype.load = function () {};
+    HTMLMediaElement.prototype.load = () => {};
   });
   await page.route("**/stations", (route) => route.fulfill({
     status: 200,

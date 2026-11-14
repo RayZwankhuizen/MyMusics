@@ -44,6 +44,7 @@ export async function getBrowserInfo() {
     ["Available screen area", `${screenInfo.availWidth} × ${screenInfo.availHeight}`],
     ["Browser viewport", `${window.innerWidth} × ${window.innerHeight} CSS pixels`],
     ["Device pixel ratio", String(window.devicePixelRatio || 1)],
+    ["Screen size × DPR estimate", `${Math.round(screenInfo.width * (window.devicePixelRatio || 1))} × ${Math.round(screenInfo.height * (window.devicePixelRatio || 1))} pixels (screen size × DPR; not HDMI output)`],
     ["Screen color depth", `${screenInfo.colorDepth} bits`],
     ["Screen orientation", screenInfo.orientation?.type || "Not exposed"],
     ["Touch points", String(navigator.maxTouchPoints ?? "Not exposed")],

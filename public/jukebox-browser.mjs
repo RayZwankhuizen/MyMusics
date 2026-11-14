@@ -30,7 +30,7 @@ export function createJukeboxRack({ state, searchTypes, el, empty, strip, genreC
       list.append(empty(state.tab === "playlists" ? "No playlists yet. Create one on the music page." : "Nothing to choose from here."));
       return;
     }
-    items.forEach((item) => list.append(renderItem(item)));
+    items.forEach((item) => { list.append(renderItem(item)); });
   }
 
   async function fetchItems(tab) {
@@ -173,7 +173,7 @@ export function createJukeboxSearch({ state, searchTypes, el, empty, strip, text
       return;
     }
     feedback.textContent = `${Math.min(results.length, 40)} results. Choose one with Select.`;
-    results.slice(0, 40).forEach((item) => appendResult(item, list, feedback));
+    results.slice(0, 40).forEach((item) => { appendResult(item, list, feedback); });
     if (focusResult) list.querySelector(".jb-strip")?.focus();
   }
 

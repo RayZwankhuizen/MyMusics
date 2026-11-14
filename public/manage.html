@@ -84,7 +84,7 @@
         <header class="general-settings-heading"><div><p class="eyebrow">This device</p><h2 id="browser-info-heading">Browser information</h2><p>Details reported by this browser. Private browsing, device policies, and browser privacy settings can hide some values.</p></div></header>
         <div class="browser-emulation-row">
           <div><h3>Silk layout preview</h3><p>Simulate the MyMusics TV layout on this laptop. This does not change the browser or its reported capabilities.</p></div>
-          <label class="browser-silk-switch"><input id="silk-emulation" type="checkbox" role="switch"><span aria-hidden="true"></span><strong>Emulate Silk</strong></label>
+          <label class="browser-silk-switch"><input id="silk-emulation" type="checkbox"><span aria-hidden="true"></span><strong>Emulate Silk</strong></label>
         </div>
         <p id="browser-info-status" class="form-hint" role="status" aria-live="polite">Reading browser information…</p>
         <nav id="browser-preview-links" class="browser-preview-links" aria-label="Silk layout previews" hidden><a class="text-button" href="/">Preview Radio</a><a class="text-button" href="/music.html">Preview Music</a></nav>
@@ -95,7 +95,7 @@
         <aside class="genre-master panel" aria-labelledby="genre-heading">
           <div class="panel-heading"><div><p class="eyebrow">Catalog</p><h2 id="genre-heading">Genres</h2></div><span id="genre-count" class="count"></span></div>
           <nav id="manage-genres" class="manage-genres" aria-label="Genres"></nav>
-          <form id="new-genre-form" class="new-genre-form"><label for="new-genre">Add genre</label><div class="inline-form"><input id="new-genre" name="name" placeholder="Genre name" maxlength="40" required><button class="icon-button" aria-label="Add genre">+</button></div></form>
+          <form id="new-genre-form" class="new-genre-form"><label for="new-genre">Add genre</label><div class="inline-form"><input id="new-genre" name="name" placeholder="Genre name" maxlength="40" required><button type="submit" class="icon-button" aria-label="Add genre">+</button></div></form>
         </aside>
         <section id="genre-detail" class="genre-detail panel" aria-live="polite">
           <header class="genre-detail-heading"><div><p class="eyebrow">Selected genre</p><h2 id="stations-heading">Choose a genre</h2></div><span id="station-count" class="count" role="status" aria-live="polite"></span></header>
@@ -106,20 +106,20 @@
             <p id="all-stations-status" role="status" aria-live="polite"></p>
             <div id="all-stations-list" class="all-stations-list"></div>
           </details>
-          <form id="rename-form" class="rename-form" hidden><label for="rename-genre">Rename genre</label><div class="inline-form"><input id="rename-genre" name="name" maxlength="40" required><button class="small-button">Save name</button></div></form>
+          <form id="rename-form" class="rename-form" hidden><label for="rename-genre">Rename genre</label><div class="inline-form"><input id="rename-genre" name="name" maxlength="40" required><button type="submit" class="small-button">Save name</button></div></form>
           <div id="managed-station-filter-wrap" class="managed-station-filter"><label for="managed-station-filter">Filter this genre</label><input id="managed-station-filter" type="search" placeholder="Search station name" autocomplete="off" aria-controls="station-list"></div>
           <div id="station-list" class="managed-stations"></div>
           <section class="station-tools" aria-labelledby="station-tools-heading">
             <div class="panel-heading"><div><p class="eyebrow">New stream</p><h3 id="station-tools-heading">Add a station</h3></div><span id="add-station-genre" class="selected-genre-label"></span></div>
             <button id="add-station" class="save-button" type="button">New station</button>
-            <div class="station-logo-batch" aria-label="Temporary station logo import">
+            <section class="station-logo-batch" aria-label="Temporary station logo import">
               <p>Temporary tool: search for station logos and copy them into MyMusics.</p>
               <label><input id="replace-station-logos" type="checkbox"> Include stations that already have a logo</label>
               <div><button id="fetch-station-logos" class="text-button" type="button">Fetch missing logos</button><button id="cancel-station-logo-batch" class="text-button" type="button" hidden>Stop</button></div>
               <progress id="station-logo-batch-progress" max="1" value="0" hidden aria-label="Station logo import progress"></progress>
               <p id="station-logo-batch-status" role="status" aria-live="polite"></p>
               <ul id="station-logo-batch-failures" aria-label="Stations without an imported logo"></ul>
-            </div>
+            </section>
             <dialog id="station-dialog" class="station-dialog" aria-labelledby="add-station-heading">
               <header class="station-dialog-heading"><h2 id="add-station-heading">Add a station</h2><button id="close-station-dialog" class="text-button" type="button" aria-label="Close station editor">Close</button></header>
               <p id="station-form-error" class="station-form-error" role="alert" hidden></p>
@@ -141,7 +141,7 @@
             </dialog>
           </section>
           <details class="danger-zone"><summary>Danger zone</summary><p id="genre-delete-hint">Deleting a genre also removes all stations in it.</p><button id="delete-genre" class="delete-genre-button" type="button" disabled>Delete genre</button></details>
-          <section class="discover-tools" aria-labelledby="discover-heading"><div class="panel-heading"><div><p class="eyebrow">Directory</p><h3 id="discover-heading">Find stations by country and music</h3></div></div><form id="station-search-form" class="station-search-form"><label>Country code (optional)<input name="countrycode" maxlength="2" placeholder="NL, US, GB, ES"></label><label>Music style, tag, or station name<input name="tag" maxlength="80" placeholder="rock, golden oldies, or a station name"></label><button class="save-button">Search directory</button></form><div id="station-search-results" class="station-search-results" aria-live="polite"></div></section>
+          <section class="discover-tools" aria-labelledby="discover-heading"><div class="panel-heading"><div><p class="eyebrow">Directory</p><h3 id="discover-heading">Find stations by country and music</h3></div></div><form id="station-search-form" class="station-search-form"><label>Country code (optional)<input name="countrycode" maxlength="2" placeholder="NL, US, GB, ES"></label><label>Music style, tag, or station name<input name="tag" maxlength="80" placeholder="rock, golden oldies, or a station name"></label><button type="submit" class="save-button">Search directory</button></form><div id="station-search-results" class="station-search-results" aria-live="polite"></div></section>
         </section>
       </section>
       <section id="playlists" class="playlist-management panel" aria-labelledby="playlist-heading">

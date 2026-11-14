@@ -12,8 +12,8 @@ module.exports = function registerMetadataRoutes(app, { getStations }) {
     const artist = String(req.query.artist || "").trim().slice(0, 160);
     const title = String(req.query.title || "").trim().slice(0, 160);
     if (!artist || !title) return res.status(400).json({ error: "Artist and title are required." });
-    const escape = (value) => value.replaceAll("\\", "\\\\").replaceAll('"', '\\"');
-    const query = `artist:"${escape(artist)}" AND recording:"${escape(title)}"`;
+    const escapeForQuery = (value) => value.replaceAll("\\", "\\\\").replaceAll('"', '\\"');
+    const query = `artist:"${escapeForQuery(artist)}" AND recording:"${escapeForQuery(title)}"`;
     const url = new URL("https://musicbrainz.org/ws/2/recording/");
     url.search = new URLSearchParams({ query, fmt: "json", limit: "5", inc: "releases+tags" });
     const key = `${artist.toLocaleLowerCase()}\0${title.toLocaleLowerCase()}`;

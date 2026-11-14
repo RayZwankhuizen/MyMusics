@@ -210,7 +210,7 @@ const { render: renderQueue } = createMusicQueueView({
   preloadNextToDeck
 });
 
-const { enqueueTracks, addAlbumToQueue, loadCollectionToQueue, shuffleTracks, fillQueue, queuePlaylist, wireControls: wireQueueControls } = createMusicQueueOperations({
+const { enqueueTracks, addAlbumToQueue, loadCollectionToQueue, fillQueue, queuePlaylist, wireControls: wireQueueControls } = createMusicQueueOperations({
   state, deckState, el, renderQueue, renderJukeboxNow, recentArtists, setStatus, emptyRow,
   startFreshSequence: (...args) => startFreshSequence(...args),
   saveSeed
@@ -355,7 +355,7 @@ async function queueJukeboxPlaylist(item, title) {
 }
 
 const musicInfoController = createMusicInfoController({ state: jbState, el, view: musicInfoView, empty: jbEmpty });
-const { render: renderJukeboxRack, load: loadJukeboxTab, selectTab: jbSelectTab } = createJukeboxRack({
+const { load: loadJukeboxTab, selectTab: jbSelectTab } = createJukeboxRack({
   state: jbState,
   searchTypes: jbSearchTypes,
   el,

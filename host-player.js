@@ -42,13 +42,15 @@ class MpvDeck {
     const binary = process.env.MPV_BIN || "mpv";
     this.child = spawn(binary, [
       "--no-config", "--no-video", "--audio-display=no", "--force-window=no",
-      "--idle=yes", "--no-terminal", "--msg-level=all=info", `--input-ipc-server=${this.socketPath}`
+      "--audio-channels=stereo", "--idle=yes", "--no-terminal", "--msg-level=all=info", `--input-ipc-server=${this.socketPath}`
     ], { stdio: ["ignore", "ignore", "pipe"], windowsHide: true });
     this.child.stderr.setEncoding("utf8");
     this.child.stderr.on("data", (chunk) => {
       this.stderrBuffer = (this.stderrBuffer || "") + chunk;
       let end;
-      while ((end = this.stderrBuffer.indexOf("\n")) >= 0) {
+      while (true) {
+        end = this.stderrBuffer.indexOf("\n");
+        if (end < 0) break;
         const message = this.stderrBuffer.slice(0, end).trimEnd();
         this.stderrBuffer = this.stderrBuffer.slice(end + 1);
         if (!message) continue;
@@ -101,7 +103,9 @@ class MpvDeck {
   onData(chunk) {
     this.buffer += chunk;
     let end;
-    while ((end = this.buffer.indexOf("\n")) >= 0) {
+    while (true) {
+      end = this.buffer.indexOf("\n");
+      if (end < 0) break;
       const line = this.buffer.slice(0, end);
       this.buffer = this.buffer.slice(end + 1);
       let message;

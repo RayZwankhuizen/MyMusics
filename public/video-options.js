@@ -181,7 +181,7 @@ async function loadQueueMetadata(ids, generation) {
       const chunk = ids.slice(offset, offset + 50).filter((id) => !videoMetadata.has(id));
       if (!chunk.length) continue;
       const data = await request(`/api/videos/details?ids=${encodeURIComponent(chunk.join(","))}`);
-      data.videos.forEach((video) => videoMetadata.set(video.id, video));
+      data.videos.forEach((video) => { videoMetadata.set(video.id, video); });
     }
     if (generation !== queueSync || ids.join(",") !== iframeQueueKey) return;
     queue = ids.map((id) => videoMetadata.get(id) || ({ id, title: "Video title unavailable", artist: "Artist unavailable" }));

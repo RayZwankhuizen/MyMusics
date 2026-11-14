@@ -31,9 +31,9 @@
           <p id="video-status" class="video-status" role="status">Playback follows the selected audio output.</p>
         </div>
         <aside class="video-side">
-          <form id="video-search" class="video-search"><label for="video-query">Search songs or artists</label><div><input id="video-query" type="search" minlength="2" maxlength="120" placeholder="Artist, track or video" required><button>Search</button></div></form>
-          <form id="video-playlist-search" class="video-search"><label for="video-playlist-query">Search YouTube playlists</label><div><input id="video-playlist-query" type="search" minlength="2" maxlength="120" placeholder="Playlist name or artist" required><button>Search playlists</button></div></form>
-          <form id="video-load-playlist" class="video-search"><label for="video-playlist-url">Load a YouTube video or playlist link</label><div><input id="video-playlist-url" type="url" placeholder="Paste a YouTube link" required><button>Load</button></div></form>
+          <form id="video-search" class="video-search"><label for="video-query">Search songs or artists</label><div><input id="video-query" type="search" minlength="2" maxlength="120" placeholder="Artist, track or video" required><button type="submit">Search</button></div></form>
+          <form id="video-playlist-search" class="video-search"><label for="video-playlist-query">Search YouTube playlists</label><div><input id="video-playlist-query" type="search" minlength="2" maxlength="120" placeholder="Playlist name or artist" required><button type="submit">Search playlists</button></div></form>
+          <form id="video-load-playlist" class="video-search"><label for="video-playlist-url">Load a YouTube video or playlist link</label><div><input id="video-playlist-url" type="url" placeholder="Paste a YouTube link" required><button type="submit">Load</button></div></form>
           <div class="saved-playlists"><label for="saved-video-playlists">Add tracks to</label><div><select id="saved-video-playlists"><option value="">Select playlist</option></select><button id="play-video-playlist" type="button" disabled>Play</button></div></div>
           <div class="queue-heading"><h2 id="queue-heading">Queue</h2><span id="queue-count">0 videos</span><button id="clear-video-queue" type="button" disabled>Clear queue</button></div>
           <ol id="video-queue" class="video-queue"></ol>

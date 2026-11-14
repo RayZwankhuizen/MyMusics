@@ -32,9 +32,9 @@
       </nav>
       <label class="playback-target-setting" for="playback-target">Audio output<select id="playback-target"><option value="browser">This browser</option><option value="host">MyMusics host</option></select></label>
       <section class="music-controls-sidebar" aria-labelledby="music-controls-title">
-        <h2 id="music-controls-title"></h2>
+        <h2 id="music-controls-title" class="sr-only">Music controls</h2>
         <div class="jb-transport">
-          <div class="jb-options" aria-label="Playback options">
+          <section class="jb-options" aria-label="Playback options">
             <div class="jb-options-content">
               <button id="eq-toggle" class="jb-key" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="equalizer-panel">Equalizer</button>
               <button id="autodj-toggle" class="jb-key" type="button" aria-pressed="false" aria-haspopup="dialog" aria-controls="autodj-dialog">AutoDJ: OFF</button>
@@ -42,7 +42,7 @@
               <button id="jb-crossfade" class="jb-key" type="button">Crossfade: ON</button>
               <label class="jb-fade-control" for="fade-seconds">Fade <input id="fade-seconds" type="range" min="0" max="8" step="1" value="3"><output id="fade-seconds-value">3s</output></label>
             </div>
-          </div>
+          </section>
         </div>
       </section>
       <a class="sidebar-manage sidebar-page" href="/manage.html#playlists">Manage</a>
@@ -54,8 +54,8 @@
         <div class="music-column music-stage">
             <section id="jukebox" class="jukebox jb-vintage" aria-label="Jukebox">
             <div class="jb-decks">
-                <div class="jb-deck jb-deck-a" role="group" aria-label="Deck A">
-                <h2 id="jb-title" class="jb-title"></h2>
+                <section class="jb-deck jb-deck-a" aria-label="Deck A">
+                <h2 id="jb-title" class="jb-title" aria-label="Current track title"></h2>
                 <p id="jb-deck-artist-a" class="jb-deck-artist"></p>
                 <input id="jb-progress" class="jb-progress" type="range" min="0" max="1" step="0.001" value="0" aria-label="Seek current track" disabled>
                 <p id="jb-time" class="jb-time" aria-live="off"></p>
@@ -66,10 +66,10 @@
                   </div>
                   <div id="jb-arm" class="jb-arm" aria-hidden="true"><span></span></div>
                 </div>
-              </div>
+              </section>
               <section class="jb-center-card" aria-label="Next track">
                 <div class="jb-info jb-info-a">
-                  <h3 id="jb-next-title-a" class="jb-next-title"></h3>
+                  <h3 id="jb-next-title-a" class="jb-next-title" aria-label="Next track title"></h3>
                   <p id="jb-artist" class="jb-artist"></p>
                   <p id="jb-info-label-a" class="jb-info-label" hidden></p>
                   <p id="jb-status" class="jb-status" role="status" hidden></p>
@@ -81,7 +81,7 @@
                 </div>
                 <div class="jb-center-divider" aria-hidden="true"></div>
                 <div class="jb-info jb-info-b">
-                  <h3 id="jb-next-title-b" class="jb-next-title"></h3>
+                  <h3 id="jb-next-title-b" class="jb-next-title" aria-label="Next track title"></h3>
                   <p id="jb-artist-b" class="jb-artist"></p>
                   <p id="jb-info-label-b" class="jb-info-label" hidden></p>
                   <p id="jb-status-b" class="jb-status" hidden></p>
@@ -92,8 +92,8 @@
                   <label class="jb-natural-fade">Natural outro <input type="number" min="2" max="60" step="1" data-natural-fadeout="b" aria-label="Natural outro length for Deck B, in seconds" placeholder="Off"><span>sec</span></label>
                 </div>
               </section>
-                <div class="jb-deck jb-deck-b" role="group" aria-label="Deck B">
-                <h2 id="jb-title-b" class="jb-title"></h2>
+                <section class="jb-deck jb-deck-b" aria-label="Deck B">
+                <h2 id="jb-title-b" class="jb-title" aria-label="Current track title"></h2>
                 <p id="jb-deck-artist-b" class="jb-deck-artist"></p>
                 <input id="jb-progress-b" class="jb-progress" type="range" min="0" max="1" step="0.001" value="0" aria-label="Seek current track" disabled>
                 <p id="jb-time-b" class="jb-time" aria-live="off"></p>
@@ -104,11 +104,11 @@
                   </div>
                   <div id="jb-arm-b" class="jb-arm" aria-hidden="true"><span></span></div>
                 </div>
-              </div>
+              </section>
             </div>
             </section>
             <section id="music-lyrics-panel" class="lyrics-panel music-lyrics" aria-labelledby="music-lyrics-heading">
-              <div class="lyrics-heading"><div class="lyrics-title"><h3 id="music-lyrics-heading">Lyrics</h3><div class="lyrics-speed" aria-label="Lyrics timing adjustment"><button id="lyrics-slower" type="button" aria-label="Show each lyrics line 50 milliseconds later" title="Show lines 50 ms later">−</button><output id="lyrics-delay" aria-live="polite">300 ms</output><button id="lyrics-faster" type="button" aria-label="Show each lyrics line 50 milliseconds earlier" title="Show lines 50 ms earlier">+</button></div></div><span id="lyrics-status" role="status">Choose a track to find lyrics.</span></div>
+              <div class="lyrics-heading"><div class="lyrics-title"><h3 id="music-lyrics-heading">Lyrics</h3><nav class="lyrics-speed" aria-label="Lyrics timing adjustment"><button id="lyrics-slower" type="button" aria-label="Show each lyrics line 50 milliseconds later" title="Show lines 50 ms later">−</button><output id="lyrics-delay" aria-live="polite">300 ms</output><button id="lyrics-faster" type="button" aria-label="Show each lyrics line 50 milliseconds earlier" title="Show lines 50 ms earlier">+</button></nav></div><span id="lyrics-status" role="status">Choose a track to find lyrics.</span></div>
               <progress id="lyrics-progress" class="lyrics-progress" max="1" value="0" aria-label="Position in lyrics" hidden></progress>
               <div id="lyrics-content" class="lyrics-content" aria-live="off"></div>
             </section>
@@ -128,19 +128,19 @@
               <input id="jb-search" type="search" placeholder="Artist, album, track or playlist" autocomplete="off" aria-label="Search music">
               <button id="jb-search-clear" class="jb-key" type="button" aria-label="Clear music search">Clear</button>
             </div>
-            <div class="jb-tabs" role="group" aria-label="Choose a rack">
+            <nav class="jb-tabs" aria-label="Choose a rack">
               <button class="jb-tab" type="button" data-rack="all" aria-pressed="true">All</button>
               <button class="jb-tab" type="button" data-rack="artists" aria-pressed="false">Artists</button>
               <button class="jb-tab" type="button" data-rack="albums" aria-pressed="false">Albums</button>
               <button class="jb-tab" type="button" data-rack="genres" aria-pressed="false">Genres</button>
               <button class="jb-tab" type="button" data-rack="playlists" aria-pressed="false">Playlists</button>
               <button class="jb-tab" type="button" data-rack="tracks" aria-pressed="false">Tracks</button>
-            </div>
+            </nav>
             <div class="jb-search-workspace">
               <div class="jb-tv-search-column">
-                <div id="jb-tv-keyboard" class="jb-tv-keyboard" role="group" aria-label="On-screen keyboard">
+                <section id="jb-tv-keyboard" class="jb-tv-keyboard" aria-label="On-screen keyboard">
                   <button id="jb-search-btn" class="jb-tv-key jb-tv-key-go" type="button" data-search-key="go">Search</button>
-                </div>
+                </section>
                 <p class="jb-tv-search-hint">Arrow keys navigate · OK selects · Back closes</p>
               </div>
               <div class="jb-tv-results-column">
@@ -198,23 +198,23 @@ JELLYFIN_USER_ID=your-user-id</pre>
   <dialog id="equalizer-panel" class="equalizer-panel" aria-labelledby="equalizer-title">
     <div class="equalizer-heading"><div><h3 id="equalizer-title">Equalizer</h3><p id="equalizer-status" role="status">Starts with the first track.</p></div><label class="equalizer-preset">Preset<select id="equalizer-preset" disabled><option value="flat">Flat</option><option value="pop">Pop</option><option value="rock">Rock</option><option value="classical">Classical</option><option value="jazz">Jazz</option><option value="electronic">Electronic</option><option value="spoken">Spoken</option><option value="country">Country</option><option value="custom">Custom</option></select></label><button id="equalizer-power" type="button" aria-pressed="false" disabled>EQ Off</button><button id="equalizer-reset" type="button" disabled>Reset</button><button id="equalizer-close" type="button">Close</button></div>
     <canvas id="equalizer-visual" aria-label="Live audio waves for bass, mids and treble"></canvas>
-    <div class="equalizer-legend" aria-label="Visualizer color legend"><span><i class="bass" aria-hidden="true"></i>Bass · 45–220 Hz</span><span><i class="mids" aria-hidden="true"></i>Mids · 220 Hz–2.2 kHz</span><span><i class="treble" aria-hidden="true"></i>Treble · 2.2–10 kHz</span></div>
+    <section class="equalizer-legend" aria-label="Visualizer color legend"><span><i class="bass" aria-hidden="true"></i>Bass · 45–220 Hz</span><span><i class="mids" aria-hidden="true"></i>Mids · 220 Hz–2.2 kHz</span><span><i class="treble" aria-hidden="true"></i>Treble · 2.2–10 kHz</span></section>
     <label class="equalizer-sensitivity" for="equalizer-sensitivity">Visual sensitivity <input id="equalizer-sensitivity" type="range" min="0.8" max="3" step="0.1" value="1.8"><output id="equalizer-sensitivity-value" for="equalizer-sensitivity">1.8×</output></label>
     <div id="equalizer-bands" class="equalizer-bands"></div>
   </dialog>
 
-  <div id="music-dock" class="music-dock" aria-label="Jukebox transport">
+  <section id="music-dock" class="music-dock" aria-label="Jukebox transport">
     <div class="music-vu" role="img" aria-label="Stereo audio level meter"><span class="music-vu-label">STEREO · VU</span><div class="music-vu-channel"><span>L</span><div class="music-vu-track"><i></i></div></div><div class="music-vu-channel"><span>R</span><div class="music-vu-track"><i></i></div></div></div>
     <label class="music-volume-setting" for="music-volume"><span>Volume <output id="music-volume-value">100%</output></span><input id="music-volume" type="range" min="0" max="100" step="1" value="100" aria-label="Music player volume"></label>
-    <div id="jb-deck-select" class="jb-deck-select" role="group" aria-label="Current track playback">
+    <nav id="jb-deck-select" class="jb-deck-select" aria-label="Current track playback">
       <button id="jb-pause-current" class="jb-key" type="button" disabled>Pause</button>
       <button id="jb-play-current" class="jb-key jb-key-main" type="button">Play</button>
       <button id="jb-play-next" class="jb-key jb-key-main" type="button" hidden>Play next</button>
-    </div>
+    </nav>
     <button id="jb-search-open" data-open-search class="jb-key jb-key-main" type="button">Browse music</button>
     <button id="music-refresh" class="jb-key" type="button">Refresh library</button>
     <div class="music-refresh-feedback"><progress id="music-refresh-progress" max="100" hidden aria-label="Jellyfin library refresh progress"></progress><p id="music-toolbar-status" role="status" aria-live="polite"></p></div>
-  </div>
+  </section>
 
   <div class="audio-engine" hidden>
     <audio id="audio" preload="auto" aria-label="Music playback Deck A"></audio>

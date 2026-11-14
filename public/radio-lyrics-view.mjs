@@ -39,11 +39,11 @@ export function renderSyncedLyrics({ lines, content, progress, status, elapsedTi
     }
     previousActive = active;
   };
-  elements.forEach((element, index) => element.addEventListener("click", () => {
+  elements.forEach((element, index) => { element.addEventListener("click", () => {
     syncOffset += lines[index].time + lineDelay() - elapsed() + 0.01;
     previousActive = -2;
     sync();
-  }));
+  }); });
   sync();
   return setInterval(sync, 100);
 }

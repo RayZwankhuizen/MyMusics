@@ -73,17 +73,16 @@ if (process.env.MYMUSICS_AUTO_RELOAD === '1') {
   const watchSet = new Set();
   watchDirs.forEach(dir => {
     try {
-      fs.watch(dir, { recursive: true }, (eventType, filename) => {
+      fs.watch(dir, { recursive: true }, (_eventType, filename) => {
         if (!filename) return;
         const ext = path.extname(filename);
         if (['.js', '.html', '.css', '.json'].includes(ext)) {
-          const key = filename + Date.now();
           if (watchSet.has(filename)) return;
           watchSet.add(filename);
           setTimeout(() => watchSet.delete(filename), 1000);
           console.log(`[auto-reload] ${filename} changed`);
         }
       });
-    } catch(e) {}
+    } catch {}
   });
 }

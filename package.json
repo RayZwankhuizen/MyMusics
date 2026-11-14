@@ -1,9 +1,11 @@
 {
   "name": "mymusics",
-  "version": "1.0.24",
+  "version": "1.0.25",
   "private": true,
   "description": "Lightweight browser-based web radio",
   "scripts": {
+    "check": "npm audit --audit-level=high && npm run lint && npm test",
+    "lint": "biome lint",
     "release": "bash scripts/release.sh",
     "start": "node server.js",
     "test": "node --test"
@@ -13,6 +15,7 @@
     "node-fetch": "^2.7.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.6.7",
     "playwright": "^1.64.1"
   }
 }

@@ -194,12 +194,12 @@ export function wireDeckPlaybackControls({ el, state, deckState, saveNaturalFade
       crossfadeButton.textContent = state.crossfadeEnabled ? "Crossfade: ON" : "Crossfade: OFF";
     });
   }
-  document.querySelectorAll("[data-natural-fadeout]").forEach((input) => input.addEventListener("change", () => {
+  document.querySelectorAll("[data-natural-fadeout]").forEach((input) => { input.addEventListener("change", () => {
     const track = deckState.deckTracks[input.dataset.naturalFadeout];
     saveNaturalFadeout(track, input.value);
     input.value = naturalFadeSeconds(track) || "";
     if (track) setStatus(input.value ? `NATURAL OUTRO SAVED · ${input.value}s` : "NATURAL OUTRO CLEARED");
-  }));
+  }); });
   el("#jb-play-current")?.addEventListener("click", () => playDeck(deckState.activeDeck || "a"));
   el("#jb-pause-current")?.addEventListener("click", () => pauseDeck(deckState.activeDeck || "a"));
   el("#jb-play-next")?.addEventListener("click", () => playDeck(deckState.activeDeck === "a" ? "b" : "a"));

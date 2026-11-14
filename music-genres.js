@@ -19,7 +19,10 @@ function group(items) {
     const title = Object.hasOwn(mappings, source) ? mappings[source] : source;
     const key = title.toLocaleLowerCase();
     let entry = groups.get(key);
-    if (!entry) groups.set(key, entry = { kind: "genre", id: title, title, sources: [] });
+    if (!entry) {
+      entry = { kind: "genre", id: title, title, sources: [] };
+      groups.set(key, entry);
+    }
     if (!entry.sources.includes(source)) entry.sources.push(source);
   }
   return [...groups.values()];

@@ -57,11 +57,11 @@
             <form id="new-genre-form" class="inline-form">
               <label class="sr-only" for="new-genre">New genre</label>
               <input id="new-genre" name="name" placeholder="New genre name" maxlength="40" required>
-              <button class="icon-button" aria-label="Add genre">+</button>
+              <button type="submit" class="icon-button" aria-label="Add genre">+</button>
             </form>
             <form id="rename-form" class="rename-form" hidden>
               <label for="rename-genre">Rename selected genre</label>
-              <div class="inline-form"><input id="rename-genre" name="name" maxlength="40" required><button class="small-button">Save name</button></div>
+              <div class="inline-form"><input id="rename-genre" name="name" maxlength="40" required><button type="submit" class="small-button">Save name</button></div>
             </form>
             <div id="genre-delete" class="genre-delete" hidden>
               <button id="delete-genre" class="delete-genre-button" type="button">Delete genre</button>
@@ -76,7 +76,7 @@
           </section>
           <section class="discover-tools" aria-labelledby="discover-heading">
             <div class="panel-heading"><div><p class="eyebrow">Directory</p><h2 id="discover-heading">Find stations by country and music</h2></div></div>
-            <form id="station-search-form" class="station-search-form"><label>Country code (optional)<input name="countrycode" maxlength="2" placeholder="NL, US, GB, ES"></label><label>Music style, tag, or station name<input name="tag" maxlength="80" placeholder="rock, golden oldies, or a station name"></label><button class="save-button">Search</button></form>
+            <form id="station-search-form" class="station-search-form"><label>Country code (optional)<input name="countrycode" maxlength="2" placeholder="NL, US, GB, ES"></label><label>Music style, tag, or station name<input name="tag" maxlength="80" placeholder="rock, golden oldies, or a station name"></label><button type="submit" class="save-button">Search</button></form>
             <div id="station-search-results" class="station-search-results" aria-live="polite"></div>
           </section>
         </div>
