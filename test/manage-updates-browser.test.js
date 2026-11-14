@@ -102,7 +102,7 @@ test("management uses a genre master-detail view and confirms genre deletion by 
   await page.goto(`${baseUrl}/manage.html`);
   await page.getByRole("heading", { name: "Management" }).waitFor();
   assert.equal(await page.locator("#manage-genres .manage-genre").count(), 2);
-  assert.equal(await page.locator("#station-form").isVisible(), true);
+  assert.equal(await page.locator("#station-dialog").isVisible(), false);
   assert.equal(await page.locator("#organize-genre").count(), 0);
   assert.equal(await page.locator(".design-topbar").count(), 0);
   await page.getByRole("button", { name: "Test", exact: true }).click();
@@ -259,7 +259,7 @@ test("station logos are found, optimized, uploaded, and saved with a station", a
   await page.locator("#station-url").fill("radio.example/live");
   await page.locator("#station-website").fill("radio.example");
   await page.locator("#find-station-logo").click();
-  await page.waitForFunction(() => document.querySelector("#station-logo-status")?.textContent === "Logo copied locally and optimized.");
+  await page.waitForFunction(() => document.querySelector("#station-logo-status")?.textContent === "Logo copied locally as WebP (max. 512 pixels). Save the station to keep it.");
   await page.locator('#station-form button[type="submit"]').click();
   await page.waitForFunction(() => document.querySelector("#notice")?.textContent === "Station added.");
   await page.getByRole("button", { name: "Edit" }).click();
@@ -271,7 +271,7 @@ test("station logos are found, optimized, uploaded, and saved with a station", a
   await page.locator('#station-form button[type="submit"]').click();
   await page.waitForFunction(() => document.querySelector("#notice")?.textContent === "Station updated.");
   assert.deepEqual(requests, [
-    { path: "/api/station-images/find", body: { website: "https://radio.example" } },
+    { path: "/api/station-images/find", body: { automatic: true, name: "Test Radio", url: "https://radio.example/live", website: "https://radio.example" } },
     { path: "/api/station-images", contentType: "image/webp", signature: "RIFF", format: "WEBP" },
     { path: "/api/genres/Jazz/stations", body: {
       name: "Test Radio", url: "https://radio.example/live", website: "radio.example", type: "mp3", speechVolumePercent: 30, genre: "Jazz", image: "/station-images/local-logo.webp"
@@ -336,7 +336,7 @@ test("stream search previews HLS and fills the station stream fields", async () 
   await page.locator("#station-name").fill("Test Radio");
   await page.locator("#stream-finder summary").click();
   await page.locator("#stream-search-name").waitFor();
-  assert.equal(await page.locator("#stream-search-name").inputValue(), "Test Radio");
+  await page.waitForFunction(() => document.querySelector("#stream-search-name")?.value === "Test Radio");
   await page.locator("#stream-search-button").click();
   const preview = page.locator('#stream-search-results button[aria-label="Preview Test FM"]');
   await preview.waitFor();

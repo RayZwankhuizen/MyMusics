@@ -123,7 +123,7 @@ export function createMusicJukeboxDecks({ state, deckState, el, getHostDeckStatu
     if (!deckTracks[otherKey] && state.queue[0]?.id !== (deckTracks[activeDeck]?.id || state.current?.id)) deckTracks[otherKey] = state.queue[0] || null;
     updateDeck("a", deckTracks.a);
     updateDeck("b", deckTracks.b);
-    el(".jb-center-card").hidden = !deckTracks[otherKey];
+    el(".jb-center-card").hidden = !deckTracks[activeDeck] && !deckTracks[otherKey];
     el("#jb-play-next").hidden = !deckTracks[otherKey]?.id;
     for (const key of ["a", "b"]) {
       const isActive = key === activeDeck;

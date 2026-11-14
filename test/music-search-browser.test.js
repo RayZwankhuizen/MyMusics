@@ -255,7 +255,7 @@ test("queue avoids duplicate tracks and Empty queue keeps the active track playi
   assert.equal(await page.locator("#queue-list .station-row").count(), 2);
 
   await page.locator("#left-search-close").click();
-  await page.locator("#jb-play-a").click();
+  await page.locator("#jb-play-current").click();
   await page.waitForFunction(() => document.querySelector("#jb-title").textContent === "Test Song");
   const audio = page.locator("#audio");
   assert.equal(await audio.getAttribute("data-playing"), "true");
@@ -416,13 +416,13 @@ test("manual deck switching is direct and automatic next starts a crossfade", as
 
   await page.locator("#left-search-close").click();
   await page.locator("#jb-crossfade").click();
-  await page.locator("#jb-play-a").click();
+  await page.locator("#jb-play-current").click();
   await page.waitForFunction(() => document.querySelector("#audio").dataset.playing === "true");
-  await page.locator("#jb-pause-a").click();
+  await page.locator("#jb-pause-current").click();
   await page.waitForFunction(() => document.querySelector("#audio").dataset.playing === "false");
-  await page.locator("#jb-play-a").click();
+  await page.locator("#jb-play-current").click();
   await page.waitForFunction(() => document.querySelector("#audio").dataset.playing === "true");
-  await page.locator("#jb-play-b").click();
+  await page.locator("#jb-play-next").click();
   await page.waitForFunction(() => document.querySelector("#audio").dataset.playing === "false"
     && document.querySelector("#audio2").dataset.playing === "true");
   assert.equal(await page.locator("#jb-title-b").textContent(), "Test Song 2");
@@ -494,11 +494,11 @@ test("failed deck playback restores the previous active track", async () => {
     await results.nth(index).locator(".station-actions button").first().click();
   }
   await page.locator("#left-search-close").click();
-  await page.locator("#jb-play-a").click();
+  await page.locator("#jb-play-current").click();
   await page.waitForFunction(() => document.querySelector("#audio").dataset.playing === "true");
 
   await page.locator("#audio2").evaluate((audio) => { audio.dataset.failNextPlay = "true"; });
-  await page.locator("#jb-play-b").click();
+  await page.locator("#jb-play-next").click();
   await page.waitForFunction(() => document.querySelector("#player-status").textContent === "PRESS PLAY TO LISTEN");
   assert.equal(await page.locator("#jb-title").textContent(), "Test Song 1");
   assert.equal(await page.locator("#audio").getAttribute("data-playing"), "true");
@@ -540,10 +540,10 @@ test("host playback sends the deck contract and updates the jukebox", async () =
   await page.locator("#music-results .music-result-row").waitFor();
   await page.locator("#music-results .music-result-row .station-actions button").first().click();
   await page.locator("#left-search-close").click();
-  await page.locator("#jb-play-a").click();
+  await page.locator("#jb-play-current").click();
   await page.waitForFunction(() => document.querySelector("#player-status").textContent === "PLAYING ON MYMUSICS HOST");
 
-  assert.deepEqual(hostRequests, [{ id: "track-host", deck: "a", crossfade: false, naturalFadeIn: false, fadeSeconds: 3, volume: 100 }]);
+  assert.deepEqual(hostRequests, [{ equalizer: { enabled: true, gains: [0, 0, 0, 0, 0] }, id: "track-host", deck: "a", crossfade: false, naturalFadeIn: false, fadeSeconds: 3, volume: 100 }]);
   assert.equal(await page.locator("#jb-title").textContent(), "Host Song");
   assert.equal(await page.locator("#audio").isHidden(), true);
   assert.equal(await page.locator("#audio2").isHidden(), true);
@@ -589,7 +589,7 @@ test("natural outro fades in the next deck while the current deck keeps playing"
     await results.nth(index).locator(".station-actions button").first().click();
   }
   await page.locator("#left-search-close").click();
-  await page.locator("#jb-play-a").click();
+  await page.locator("#jb-play-current").click();
   const audio = page.locator("#audio");
   await page.waitForFunction(() => document.querySelector("#audio").dataset.playing === "true");
   await page.locator('[data-natural-fadeout="a"]').fill("5");
@@ -669,7 +669,7 @@ test("radio playback renders metadata from the active station event stream", asy
   await page.locator("#radio-search").fill("test");
   const searchResult = page.locator("#radio-search-results .radio-search-result");
   await searchResult.waitFor();
-  assert.equal(await searchResult.innerText(), "Test Radio\nJazz · MP3");
+  assert.equal(await searchResult.innerText(), "TE\nTest Radio\nJazz · MP3");
   await searchResult.click();
   assert.equal(await page.locator("#radio-search-dialog").evaluate((dialog) => dialog.open), false);
   await page.waitForFunction(() => window.nowPlayingTestSource && document.querySelector("#player-status").textContent === "ON AIR");

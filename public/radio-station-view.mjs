@@ -159,7 +159,7 @@ export function createRadioStationView({ genreNav, stationList, searchInput, fav
       artwork.className = "radio-search-artwork";
       const fallback = document.createElement("span");
       fallback.className = "radio-search-fallback";
-      fallback.textContent = station.name;
+      fallback.textContent = station.name.slice(0, 2).toLocaleUpperCase();
       artwork.append(fallback);
       if (station.image) {
         const logo = document.createElement("img");

@@ -368,4 +368,7 @@ body.music-page #jukebox .jb-center-card{gap:8px;margin-top:12px;padding:16px 0 
 body.music-page #jukebox .jb-center-card .jb-info{padding:0;border:0;border-radius:0;background:transparent;box-shadow:none}
 body.music-page #jukebox .jb-center-card .jb-next-title{color:var(--ink,#eef0f5);font:500 16px/1.4 var(--sans);text-shadow:none}
 body.music-page #jukebox .jb-center-card .jb-artist{color:var(--muted,#a3a9b8)}
+body.music-page #jukebox .jb-center-card .jb-info.is-active{display:block}
+body.music-page #jukebox .jb-center-card .jb-info.is-active>:not(.jb-natural-fade){display:none!important}
+body.music-page #jukebox .jb-center-card .jb-info.is-active>.jb-natural-fade{display:flex!important}
 body.music-page #jukebox .jb-deck .jb-progress{box-sizing:border-box;width:clamp(180px,70%,320px);max-width:100%;min-width:0;justify-self:center}
