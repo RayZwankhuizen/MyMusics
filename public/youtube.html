@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0B0D14">
+  <script>{const ua=navigator.userAgent||'';const actualSilk=/\bSilk(?:\/|\b)/i.test(ua);let emulateSilk=false,saved=null;try{emulateSilk=localStorage.getItem('mymusics:silk-emulation')==='true';saved=localStorage.getItem('mymusics:tv-mode')}catch{}const detectedTv=actualSilk||emulateSilk||/\bAFT[A-Z0-9]*\b|\bKF[A-Z0-9]*\b|Fire TV|SmartTV/i.test(ua);const forceTv=new URLSearchParams(location.search).get('tv')==='1';document.documentElement.classList.toggle('silk-browser',actualSilk||emulateSilk);document.documentElement.classList.toggle('silk-emulated',emulateSilk&&!actualSilk);document.documentElement.classList.toggle('tv-mode',forceTv||emulateSilk||(saved===null?detectedTv:saved==='true'));if(forceTv)try{localStorage.setItem('mymusics:tv-mode','true')}catch{}}</script>
+  <title>YouTube — MyMusics</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/style.css?v=mode-switch-youtube-4">
+  <link rel="stylesheet" href="/app-theme.css?v=mode-switch-youtube-3">
+  <link rel="stylesheet" href="/silk-tv.css?v=silk-tv-7">
+  <link rel="stylesheet" href="/video-options.css?v=8">
+  <script defer src="/playback-target.js?v=youtube-mode-1"></script>
+</head>
+<body class="video-page">
+  <div class="app-shell video-app-shell">
+    <aside class="sidebar mode-sidebar" aria-label="MyMusics navigation">
+      <a class="brand mode-brand" href="/" aria-label="MyMusics home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>my<span class="brand-light">musics</span></span></a>
+      <nav class="mode-switch mode-switch-three" aria-label="Modes"><a class="mode" href="/">Radio</a><a class="mode" href="/youtube.html" aria-current="page">YouTube</a><a class="mode" href="/music.html">Music</a></nav>
+      <label class="playback-target-setting" for="playback-target">Audio output<select id="playback-target"><option value="browser">This browser</option><option value="host">MyMusics host</option></select></label>
+      <a class="sidebar-page" href="/manage.html#video-playlists">Manage video playlists</a>
+      <div class="sidebar-foot"><span class="live-dot"></span> Independent radio, everywhere</div>
+    </aside>
+    <main class="video-main-content">
+      <header class="intro"><p class="eyebrow"><span></span> YOUTUBE</p><h1>Music videos.<br><em>Your queue.</em></h1><p class="lede">Search for a song or artist, find YouTube playlists, and play videos. Add a found track directly to a saved playlist.</p></header>
+      <section class="video-workspace" aria-label="Video player and playlist">
+        <div class="video-main">
+          <div class="player-frame"><div id="youtube-player" title="YouTube video player"></div></div>
+          <div class="video-now"><div><p class="eyebrow">NOW PLAYING</p><h2 id="video-title">Choose a video</h2><p id="video-author"></p></div><div class="transport"><button id="previous-video" type="button" aria-label="Previous video">Previous</button><button id="next-video" type="button">Next</button></div></div>
+          <p id="video-status" class="video-status" role="status">Playback follows the selected audio output.</p>
+        </div>
+        <aside class="video-side">
+          <form id="video-search" class="video-search"><label for="video-query">Search songs or artists</label><div><input id="video-query" type="search" minlength="2" maxlength="120" placeholder="Artist, track or video" required><button>Search</button></div></form>
+          <form id="video-playlist-search" class="video-search"><label for="video-playlist-query">Search YouTube playlists</label><div><input id="video-playlist-query" type="search" minlength="2" maxlength="120" placeholder="Playlist name or artist" required><button>Search playlists</button></div></form>
+          <form id="video-load-playlist" class="video-search"><label for="video-playlist-url">Load a YouTube video or playlist link</label><div><input id="video-playlist-url" type="url" placeholder="Paste a YouTube link" required><button>Load</button></div></form>
+          <div class="saved-playlists"><label for="saved-video-playlists">Add tracks to</label><div><select id="saved-video-playlists"><option value="">Select playlist</option></select><button id="play-video-playlist" type="button" disabled>Play</button></div></div>
+          <div class="queue-heading"><h2 id="queue-heading">Queue</h2><span id="queue-count">0 videos</span><button id="clear-video-queue" type="button" disabled>Clear queue</button></div>
+          <ol id="video-queue" class="video-queue"></ol>
+          <h3 id="results-heading" class="results-heading" hidden>Search results</h3>
+          <ol id="video-results" class="video-queue search-results" aria-label="Search results"></ol>
+        </aside>
+      </section>
+      <p class="footnote">Search and playlist details require a YouTube Data API key in the MyMusics server’s <code>.env</code>. Host audio uses MPV; video remains visible in the browser.</p>
+    </main>
+  </div>
+  <script src="/video-options.js?v=12" defer></script>
+</body>
+</html>

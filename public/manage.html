@@ -7,22 +7,23 @@
   <script>{const ua=navigator.userAgent||'';const actualSilk=/\bSilk(?:\/|\b)/i.test(ua);let emulateSilk=false,saved=null;try{emulateSilk=localStorage.getItem('mymusics:silk-emulation')==='true';saved=localStorage.getItem('mymusics:tv-mode')}catch{}const detectedTv=actualSilk||/\bAFT[A-Z0-9]*\b|\bKF[A-Z0-9]*\b|Fire TV|SmartTV/i.test(ua);const forceTv=new URLSearchParams(location.search).get('tv')==='1';document.documentElement.classList.toggle('silk-browser',actualSilk||emulateSilk);document.documentElement.classList.toggle('silk-emulated',emulateSilk&&!actualSilk);document.documentElement.classList.toggle('tv-mode',forceTv||(saved===null?detectedTv:saved==='true'));if(forceTv)try{localStorage.setItem('mymusics:tv-mode','true')}catch{}}</script>
   <title>Manage — MyMusics</title>
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="/style.css?v=tv-layout-1">
+  <link rel="stylesheet" href="/style.css?v=mode-switch-youtube-4">
   <link rel="stylesheet" href="/manage.css">
-  <script type="module" src="/manage.js?v=temporary-all-stations-1"></script>
-  <link rel="stylesheet" href="/app-theme.css?v=tv-layout-1">
-  <link rel="stylesheet" href="/management-theme.css?v=temporary-all-stations-2">
+  <script type="module" src="/manage.js?v=video-playlists-2"></script>
+  <link rel="stylesheet" href="/app-theme.css?v=mode-switch-youtube-3">
+  <link rel="stylesheet" href="/management-theme.css?v=mode-switch-youtube-1">
   <link rel="stylesheet" href="/manage-settings.css?v=browser-info-1">
 </head>
 <body class="management-page">
   <div class="app-shell manage-shell">
-    <aside class="sidebar" aria-label="MyMusics navigation">
-      <a class="brand" href="/" aria-label="MyMusics home">
+    <aside class="sidebar mode-sidebar" aria-label="MyMusics navigation">
+      <a class="brand mode-brand" href="/" aria-label="MyMusics home">
         <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
         <span>my<span class="brand-light">musics</span></span>
       </a>
-      <nav class="mode-switch" aria-label="Modes">
+      <nav class="mode-switch mode-switch-three" aria-label="Modes">
         <a class="mode" href="/">Radio</a>
+        <a class="mode" href="/youtube.html">YouTube</a>
         <a class="mode" href="/music.html">Music</a>
       </nav>
       <div class="side-label">General</div>
@@ -41,6 +42,7 @@
       <div class="side-label">Music</div>
       <nav class="sidebar-actions" aria-label="Music management">
         <a class="sidebar-page" data-manage-section="playlists" href="/manage.html#playlists">Playlists</a>
+        <a class="sidebar-page" data-manage-section="video-playlists" href="/manage.html#video-playlists">Video playlists</a>
         <a class="sidebar-page" data-manage-section="music-genres" href="/manage.html#music-genres">Genres</a>
       </nav>
       <div class="sidebar-foot"><span class="live-dot"></span> Independent radio, everywhere</div>
@@ -148,6 +150,14 @@
         <p id="playlist-status" class="lookup-status" role="status" aria-live="polite"></p>
         <div id="playlist-list" class="station-list"></div>
         <div id="playlist-tracks" class="playlist-tracks" hidden></div>
+      </section>
+      <section id="video-playlists" class="video-playlist-management panel" aria-labelledby="video-playlist-heading">
+        <header class="playlist-management-heading"><div><p class="eyebrow">YouTube videos</p><h2 id="video-playlist-heading">Video playlists</h2><p>Create and organize your saved YouTube playlists. Search for videos on the player page and add them directly to a selected playlist.</p></div><a class="station-edit-button" href="/youtube.html">Find videos</a></header>
+        <form id="video-playlist-create-form" class="station-filter"><div class="playlist-create-row"><input id="video-playlist-name" maxlength="100" placeholder="New video playlist" autocomplete="off" required><button class="station-edit-button" type="submit">Create playlist</button></div></form>
+        <label class="video-playlist-picker-label" for="video-playlist-picker">Select playlist</label><select id="video-playlist-picker"><option value="">Loading playlists…</option></select>
+        <p id="video-playlist-status" class="lookup-status" role="status" aria-live="polite"></p>
+        <div id="video-playlist-list" class="station-list"></div>
+        <div id="video-playlist-tracks" class="playlist-tracks" hidden></div>
       </section>
       <section id="music-genres" class="music-genre-management panel" aria-labelledby="music-genre-heading">
         <header class="playlist-management-heading"><div><p class="eyebrow">Jellyfin library</p><h2 id="music-genre-heading">Music genres</h2><p>Group noisy Jellyfin labels under a clear name. These display corrections stay in MyMusics and do not edit Jellyfin metadata.</p></div></header>

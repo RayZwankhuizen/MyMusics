@@ -279,6 +279,17 @@ class HostPlayer {
     this.lastError = "";
   }
 
+  async playVideo(videoId) {
+    this.fadeGeneration++;
+    await Promise.all([this.decks.a.stop(), this.decks.b.stop()]);
+    this.activeDeck = null;
+    this.activeType = "";
+    await this.decks.a.load(`https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`, 100);
+    this.activeDeck = "a";
+    this.activeType = "video";
+    this.lastError = "";
+  }
+
   async playMusic({ id, deck, port, crossfade, fadeSeconds, naturalFadeIn = false, volume, equalizer }) {
     if (Number.isFinite(Number(volume))) this.musicVolume = Math.min(100, Math.max(0, Number(volume)));
     const incoming = this.decks[deck];
@@ -309,7 +320,7 @@ class HostPlayer {
       if (outgoing && !seconds) await outgoing.set("pause", false).catch(() => {});
       throw error;
     }
-    if (previousType === "radio" && outgoingKey && outgoingKey !== deck) await this.decks[outgoingKey].stop();
+    if (previousType && previousType !== "music" && outgoingKey && outgoingKey !== deck) await this.decks[outgoingKey].stop();
     this.activeDeck = deck;
     this.activeType = "music";
     this.lastError = "";

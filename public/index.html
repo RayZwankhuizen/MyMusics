@@ -8,25 +8,26 @@
   <title>MyMusics — Radio</title>
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="preconnect" href="https://coverartarchive.org">
-  <link rel="stylesheet" href="/style.css?v=radio-logo-2">
+  <link rel="stylesheet" href="/style.css?v=mode-switch-youtube-4">
   <script defer src="/playback-target.js?v=mpv-host-gate-1"></script>
   <script defer src="/ui-dialogs.js?v=2"></script>
   <script defer src="/equalizer.js?v=stereo-meter-1"></script>
   <script defer src="/synced-lyrics.js?v=1"></script>
-  <script type="module" src="/app.js?v=radio-vu-2"></script>
-  <link rel="stylesheet" href="/app-theme.css?v=tv-layout-1">
+  <script type="module" src="/app.js?v=radio-vu-3"></script>
+  <link rel="stylesheet" href="/app-theme.css?v=mode-switch-youtube-3">
   <link rel="stylesheet" href="/silk-tv.css?v=silk-tv-7">
-  <link rel="stylesheet" href="/radio-receiver.css?v=8">
+  <link rel="stylesheet" href="/radio-receiver.css?v=9">
 </head>
 <body class="radio-page">
   <div class="app-shell">
-    <aside class="sidebar" aria-label="Radio stations">
-      <a class="brand" href="/" aria-label="MyMusics home">
+    <aside class="sidebar mode-sidebar" aria-label="Radio stations">
+      <a class="brand mode-brand" href="/" aria-label="MyMusics home">
         <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
         <span>my<span class="brand-light">musics</span></span>
       </a>
-      <nav class="mode-switch" aria-label="Modes">
+      <nav class="mode-switch mode-switch-three" aria-label="Modes">
         <a class="mode" href="/" aria-current="page">Radio</a>
+        <a class="mode" href="/youtube.html">YouTube</a>
         <a class="mode" href="/music.html">Music</a>
       </nav>
       <label class="playback-target-setting" for="playback-target">Audio output<select id="playback-target"><option value="browser">This browser</option><option value="host">MyMusics host</option></select></label>

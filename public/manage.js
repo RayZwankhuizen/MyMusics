@@ -11,6 +11,7 @@ import { wireManageStationPreview } from "./manage-station-preview.mjs";
 import { wireManageBrowserInfo } from "./manage-browser-info.mjs";
 import { wireManageStationLogoBatch } from "./manage-station-logo-batch.mjs?v=temporary-logo-batch-1";
 import { wireManageAllStations } from "./manage-all-stations.mjs?v=temporary-all-stations-1";
+import { wireManageVideoPlaylists } from "./manage-video-playlists.mjs?v=2";
 
 const el = (selector) => document.querySelector(selector);
 const notice = (message, error = false) => {
@@ -24,6 +25,7 @@ const catalog = createManageCatalog({ el, request, notice, stationImages, stream
 wireManageStationLogoBatch({ el, catalog, request, stationImages });
 wireManageAllStations({ el, catalog, request });
 wireManagePlaylists({ el, initialPlaylistId: new URLSearchParams(location.search).get("playlist") || "" });
+wireManageVideoPlaylists({ el, request });
 wireManageMusicGenres({ el, request });
 wireManageJellyfinSettings({ el, request });
 wireManageBrowserInfo();
@@ -38,7 +40,7 @@ wireStationSearch({
 
 catalog.refresh().catch((error) => notice(error.message, true));
 wireManageUpdates({ request, el }).checkForUpdates();
-const manageSectionIds = ["general", "jellyfin-settings", "host-audio-test", "browser-info", "updates", "stations", "playlists", "music-genres"];
+const manageSectionIds = ["general", "jellyfin-settings", "host-audio-test", "browser-info", "updates", "stations", "playlists", "video-playlists", "music-genres"];
 const manageTiles = new Map();
 for (const id of manageSectionIds) {
   const panel = el(`#${id}`);

@@ -22,7 +22,12 @@ html body.radio-page .receiver .track-title{margin:0;color:#292619;font-size:15p
 html body.radio-page .receiver .track-artist,html body.radio-page .receiver .track-album,html body.radio-page .receiver .lookup-status{margin:3px 0 0;color:#625135;font-size:12px}
 html body.radio-page .receiver :is(.track-divider,.track-kicker){display:none}
 html body.radio-page .receiver .player-bar{position:static;inset:auto;grid-column:1/-1;display:flex;flex-direction:column;gap:10px;width:100%;max-height:none;min-height:0;margin:0;padding:12px;border:1px solid #5f5037;border-radius:9px;background:#151c28;color:#f5f7fa;overflow:visible;backdrop-filter:none;box-shadow:none}
-html body.radio-page .receiver .radio-player-current{display:none}
+html body.radio-page .receiver .radio-player-current{display:flex;align-items:center;gap:10px;width:100%;min-width:0;padding:2px 2px 8px;border-bottom:1px solid #5f5037}
+html body.radio-page .receiver .radio-player-logo{display:grid;place-items:center;width:48px;height:48px;flex:none;border-radius:8px;background-color:#282a31;background-position:center;background-size:cover;color:#f5f7fa;font-weight:700}
+html body.radio-page .receiver .radio-player-copy{display:grid;gap:3px;min-width:0}
+html body.radio-page .receiver .radio-player-copy strong,html body.radio-page .receiver .radio-player-copy span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body.radio-page .receiver .radio-player-copy strong{color:#f5f7fa;font-size:14px}
+html body.radio-page .receiver .radio-player-copy span{color:#c2c7d1;font-size:12px}
 html body.radio-page .receiver .radio-player-controls{display:flex;flex-wrap:wrap;gap:10px;width:100%}
 html body.radio-page .receiver #radio-player-toggle{min-width:48px;min-height:48px}
 html body.radio-page .receiver #radio-player-volume{width:auto;flex:1;min-width:60px;max-width:260px}

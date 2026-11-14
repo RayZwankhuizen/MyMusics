@@ -231,11 +231,13 @@ html.layout-experiment .content-layout .now-section{grid-column:2;grid-row:1;}
 .metadata-dialog .metadata-blocks{flex:1;min-height:0;max-height:none;margin:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
 @media(max-width:600px){.metadata-dialog{width:calc(100vw - 20px);height:84vh;padding:12px}}
 
-/* Mode switch: Radio and Music share one shell. */
+/* Radio, YouTube and Music share one mode switch. */
 .mode-switch{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-top:22px;padding:3px;border-radius:9px;background:#e5e2d9}
+.mode-switch.mode-switch-three{grid-template-columns:repeat(3,minmax(0,1fr));width:100%;margin-top:22px}
+.mode-switch.mode-switch-three .mode{display:flex;align-items:center;justify-content:center;min-height:36px;padding:0 6px;font:700 10px/1 var(--mono);letter-spacing:.9px}
 .mode-switch .mode{padding:8px 6px;border-radius:7px;color:#555a53;font:700 10px var(--mono);letter-spacing:.9px;text-align:center;text-decoration:none;text-transform:uppercase;transition:background .2s,color .2s}
-.mode-switch .mode:hover{color:var(--ink)}
-.mode-switch .mode[aria-current="page"]{background:var(--white);color:var(--ink);box-shadow:0 2px 8px #23251e0a}
+.mode-switch .mode:hover,.mode-switch .mode:focus-visible{background:#fffefa;color:#25251f}
+.mode-switch .mode[aria-current="page"]{background:#fffefa;color:#25251f;box-shadow:0 2px 8px #23251e0a}
 .mode-switch + .side-label{margin-top:18px}
 .side-note{margin:-4px 10px 0;color:#8e918a;font-size:11px;line-height:1.5}
 

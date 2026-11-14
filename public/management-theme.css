@@ -8,9 +8,6 @@
 .management-page .side-label{margin:24px 0 8px}
 .management-page .sidebar-page{color:var(--muted);font-size:14px;font-weight:400}
 .management-page .sidebar-page:hover,.management-page .sidebar-page.selected{background:#191b21;color:var(--ink);box-shadow:inset 2px 0 var(--accent)}
-.management-page .mode-switch{border:1px solid var(--line);border-radius:8px;background:#11141c}
-.management-page .mode-switch .mode{border-radius:6px;color:var(--muted);font-size:13px;letter-spacing:0;text-transform:none}
-.management-page .mode-switch .mode[aria-current=page]{background:#252830;color:var(--ink);box-shadow:none}
 .management-page .manage-intro{gap:8px 24px;padding:32px 0 24px}
 .management-page .manage-intro h1{margin:0;font-size:clamp(28px,3vw,40px);font-weight:500;letter-spacing:0;line-height:1.15}
 .management-page .manage-intro>p:not(.kicker){margin:0;color:var(--muted);font-size:15px;line-height:1.5}
@@ -168,3 +165,7 @@ body.management-page .manage-tile[open]>#updates{margin-top:0}
 .management-page .all-station-details span,.management-page .all-station-details small{color:var(--muted);font-size:12px}
 .management-page .all-station-row button{min-height:38px;padding:7px 10px}
 @media(max-width:600px){.management-page .all-station-row{grid-template-columns:minmax(0,1fr)}.management-page .all-station-row button{justify-self:start}}
+.management-page .video-playlist-management{display:grid;gap:14px;margin-top:20px;padding:20px;scroll-margin-top:20px}.management-page .video-playlist-management .playlist-management-heading{align-items:center}.management-page .video-playlist-management .playlist-tracks{display:grid;gap:7px;margin-top:0;background:#0d1017}.management-page .video-playlist-management .playlist-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 4px}.management-page .video-playlist-management .station-row{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:64px;padding:12px 14px;border:1px solid var(--line);border-radius:9px;background:#0d1017}.management-page .video-playlist-management .station-details{display:grid;gap:4px;min-width:0}.management-page .video-playlist-management .station-details strong{color:var(--ink);font-size:16px}.management-page .video-playlist-management .station-details span{color:var(--muted);font-size:13px}.management-page .video-playlist-management .station-actions{display:flex;flex-wrap:wrap;gap:7px}.management-page .video-playlist-management .station-actions button{min-height:42px;padding:8px 11px}.management-page #video-playlist-status:empty{display:none}
+html.tv-mode .management-page .video-playlist-management{padding:24px}html.tv-mode .management-page .video-playlist-management .station-row{min-height:80px}
+@media(max-width:700px){.management-page .video-playlist-management{padding:14px}.management-page .video-playlist-management .station-row{align-items:flex-start;flex-direction:column}.management-page .video-playlist-management .station-actions{justify-content:flex-start}}
+.management-page .video-playlist-management .playlist-tracks[hidden]{display:none!important}.management-page #video-playlist-picker{width:min(100%,520px);min-height:42px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:#0d1017;color:var(--ink)}.management-page .video-playlist-picker-label{margin:0 0 -8px;color:var(--muted);font-size:12px}.management-page .video-playlist-management .station-row.selected{border-color:var(--cyan);background:#131c2b}

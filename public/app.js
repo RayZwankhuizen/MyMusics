@@ -13,7 +13,7 @@ import { createRadioEqualizerController } from "./radio-equalizer-controller.mjs
 import { createRadioHlsPlayback } from "./radio-hls-playback.mjs";
 import { createRadioBrowserPlayback } from "./radio-browser-playback.mjs";
 import { createRadioLyricsController } from "./radio-lyrics-controller.mjs?v=shared-lyrics-2";
-import { createRadioSuppressionController } from "./radio-suppression-controller.mjs";
+import { createRadioSuppressionController } from "./radio-suppression-controller.mjs?v=manual-track-suppression-2";
 import { wireRadioSpeechVolumeSettings } from "./radio-speech-volume-settings.mjs";
 import { createRadioStationCatalog } from "./radio-station-catalog.mjs";
 import { createRadioTrackUpdates } from "./radio-track-updates.mjs";

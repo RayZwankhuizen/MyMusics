@@ -96,7 +96,7 @@ tar -xzf "$WORK_DIR/mymusics.tar.gz" --no-same-owner --no-same-permissions -C "$
 for file in VERSION BUILD_DATE server.js storage.js jellyfin.js playlists.js package.json package-lock.json stations.json \
   deploy/runtime-files.txt \
   deploy/mymusics-update.sh deploy/mymusics-install-mpv.sh deploy/mymusics.service deploy/mymusics-update.service deploy/mymusics-update.sudoers \
-  routes/updates.js routes/stations.js routes/station-discovery.js routes/music.js routes/metadata.js routes/health.js; do
+  routes/updates.js routes/stations.js routes/station-discovery.js routes/music.js routes/videos.js routes/metadata.js routes/health.js; do
   [[ -f "$WORK_DIR/app/$file" ]]
 done
 while IFS= read -r file; do

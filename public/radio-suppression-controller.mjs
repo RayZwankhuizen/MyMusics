@@ -20,22 +20,26 @@ export function createRadioSuppressionController({ store, speechDetector, getSta
   }
 
   function setDucked(active) {
-    if (active && isConfirmedTrack()) active = false;
     clearTimeout(speechUnduckTimer);
     speechUnduckTimer = null;
     clearInterval(audioVolumeRampTimer);
     audioVolumeRampTimer = null;
-    if (speechDucked === active) return;
-    speechDucked = active;
     const percent = Number.isInteger(getStation()?.speechVolumePercent) ? getStation().speechVolumePercent : 30;
+    const target = active ? preferredVolume * percent / 100 : preferredVolume;
     const status = document.querySelector("#speech-suppression-status");
+    if (speechDucked === active && Math.abs(getAudio().volume - target) < 0.005) {
+      status.textContent = active ? "Suppressed" : isConfirmedTrack() ? isTrackEnabled(currentTrackKey) ? "Song identified · suppression enabled" : "Song identified · normal volume" : "Listening";
+      status.dataset.state = active ? "suppressed" : "listening";
+      return;
+    }
+    speechDucked = active;
     if (active) {
       setVolume(preferredVolume * percent / 100);
       status.textContent = "Suppressed";
       status.dataset.state = "suppressed";
       return;
     }
-    status.textContent = "Restoring";
+    status.textContent = isConfirmedTrack() ? "Song identified · restoring volume" : "Restoring";
     status.dataset.state = "restoring";
     const audio = getAudio();
     const from = audio.volume;
@@ -47,7 +51,7 @@ export function createRadioSuppressionController({ store, speechDetector, getSta
       if (progress === 1) {
         clearInterval(audioVolumeRampTimer);
         audioVolumeRampTimer = null;
-        status.textContent = "Listening";
+        status.textContent = isConfirmedTrack() ? isTrackEnabled(currentTrackKey) ? "Song identified · suppression enabled" : "Song identified · normal volume" : "Listening";
         status.dataset.state = "listening";
       }
     }, volumeRampInterval);
@@ -86,9 +90,9 @@ export function createRadioSuppressionController({ store, speechDetector, getSta
   function renderTrack(button, key) {
     const suppress = Boolean(key && isTrackEnabled(key));
     const feedback = key && store.feedback.get(key);
-    button.hidden = !key || (key === currentTrackKey && isConfirmedTrack());
+    button.hidden = !key;
     button.setAttribute("aria-pressed", String(suppress));
-    button.textContent = suppress ? "Suppress this track" : "Do not suppress this track";
+    button.textContent = suppress ? "Stop suppressing this track" : "Suppress this track";
     button.title = feedback
       ? feedback.suppressionCorrect === null
         ? `Saved choice: suppression ${suppress ? "on" : "off"}.`
@@ -121,7 +125,7 @@ export function createRadioSuppressionController({ store, speechDetector, getSta
       else if (suppress && speechDetector.speechActive) setDucked(true);
       else if (!speechDetector.speechActive || !suppress) setDucked(false);
       const status = document.querySelector("#speech-suppression-status");
-      status.textContent = isConfirmedTrack() ? "Song identified · normal volume" : suppress ? "Listening · suppression on" : "Track suppression off";
+      status.textContent = speechDucked ? "Suppressed" : isConfirmedTrack() ? suppress ? "Song identified · suppression enabled" : "Song identified · normal volume" : suppress ? "Listening · suppression on" : "Track suppression off";
       status.dataset.state = speechDucked ? "suppressed" : "listening";
     }
     document.querySelectorAll(".metadata-track-toggle").forEach((button) => {
@@ -166,9 +170,7 @@ export function createRadioSuppressionController({ store, speechDetector, getSta
     renderCurrentTrackButton();
     const status = document.querySelector("#speech-suppression-status");
     if (isConfirmedTrack()) {
-      setDucked(false);
-      status.textContent = "Song identified · normal volume";
-      status.dataset.state = "listening";
+      setDucked(isTrackEnabled(currentTrackKey) && speechDetector.speechActive);
       return;
     }
     if (store.suppressedMetadataBlocks.has(currentBlockKey)) {
@@ -190,17 +192,14 @@ export function createRadioSuppressionController({ store, speechDetector, getSta
   function confirmTrack(key) {
     if (currentTrackKey !== key) return;
     confirmedTrackKey = key;
-    setDucked(false);
+    setDucked(isTrackEnabled(key) && speechDetector.speechActive);
     renderCurrentTrackButton();
-    const status = document.querySelector("#speech-suppression-status");
-    status.textContent = "Song identified · normal volume";
-    status.dataset.state = "listening";
   }
 
   function onSpeechStart() {
     document.querySelector("#speech-feedback").hidden = !currentTrackKey || isConfirmedTrack();
     const choice = store.feedback.get(currentTrackKey)?.suppress;
-    if (!isConfirmedTrack() && (store.suppressedMetadataBlocks.has(currentBlockKey) || choice === true || (choice !== false && !confirmedTrackKey))) setDucked(true);
+    if (store.suppressedMetadataBlocks.has(currentBlockKey) || choice === true || (!isConfirmedTrack() && choice !== false && !confirmedTrackKey)) setDucked(true);
   }
 
   function resetTrack() {

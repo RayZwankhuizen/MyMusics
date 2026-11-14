@@ -94,7 +94,6 @@ main:has(.design-topbar){padding-top:0}.help-main .design-topbar{margin-bottom:1
 .radio-page .genre-nav{gap:2px}.radio-page .genre-nav button{min-height:36px;padding:6px 8px;border-radius:8px;color:var(--muted);font-weight:400;transition:background-color .16s,color .16s}
 .radio-page .genre-nav button:hover,.radio-page .genre-nav button:focus-visible,.radio-page .genre-nav button.selected,.radio-page .sidebar-page:hover,.radio-page .sidebar-page.selected{background:#11141c;color:var(--ink);box-shadow:none}
 .radio-page .genre-nav button.selected,.radio-page .sidebar-page.selected{box-shadow:inset 2px 0 var(--accent)}.radio-page .genre-count{font:400 12px/16px var(--mono)}
-.radio-page .mode-switch{background:#11141c}.radio-page .mode-switch .mode{font:500 13px/20px var(--sans);letter-spacing:0;text-transform:none;color:var(--muted)}.radio-page .mode-switch .mode[aria-current="page"]{background:#23252b;color:var(--ink);box-shadow:none}
 .radio-page .playback-target-setting{border-color:var(--line);color:var(--muted)}.radio-page .playback-target-setting select{border-color:var(--line);background:#11141c;color:var(--ink)}.radio-page .sidebar-manage{border-color:var(--line)}
 .radio-page .sidebar-manage>summary,.radio-page .sidebar-page{color:var(--muted);font-size:14px;font-weight:400}.radio-page .sidebar-foot{color:var(--muted)}.radio-page .live-dot{width:6px;height:6px;background:var(--accent);box-shadow:none}
 .radio-page main{padding-inline:clamp(24px,4vw,48px)}.radio-page .content-layout{gap:24px;padding-top:24px;padding-bottom:168px}
@@ -150,3 +149,5 @@ html.tv-mode body :is(p,label,li,span,strong,button,a,output,legend,small,summar
 html.tv-mode .radio-page .player-bar{left:calc(clamp(280px,21vw,380px) + 2vw);right:5vw}html.tv-mode .sidebar-foot{display:none}
 @media(max-width:760px){html.tv-mode .sidebar{width:auto;padding:5vh 5vw 2vh}html.tv-mode main{margin-left:0;padding:3vh 5vw 16vh}html.tv-mode .radio-page .player-bar{left:5vw;right:5vw;bottom:3vh}html.tv-mode .radio-page .content-layout{padding-bottom:190px}}
 html.tv-mode .radio-page .player-bar{width:auto}
+.sidebar.mode-sidebar{padding:24px 16px}.sidebar .brand.mode-brand{gap:8px;font-size:18px;font-weight:600;letter-spacing:0}.sidebar .brand.mode-brand .brand-mark{width:24px;height:24px;border-radius:6px}.sidebar .brand.mode-brand .brand-light{font-weight:400}
+html.tv-mode .mode-switch.mode-switch-three .mode{min-height:64px;font-size:1rem}html.silk-browser.tv-mode .mode-switch.mode-switch-three .mode{min-width:112px;min-height:58px;font-size:20px}

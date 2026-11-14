@@ -17,6 +17,8 @@ MyMusics is completely vibe-coded.
 - Show now-playing information when a stream provides metadata, with album details and artwork when available.
 - Display plain or synchronized lyrics when a match is available from the supported lyric services.
 - Use an equalizer on streams that allow browser audio analysis. Playback still works when a stream blocks analysis.
+- Search songs and artists, search and inspect YouTube playlists, then play videos using the selected browser or MyMusics host audio output.
+- Manage saved YouTube video playlists under Manage → Video playlists.
 - Automatically fade the volume down while speech or ads are detected on compatible MP3 streams; set the target volume per station.
 
 Metadata, artwork, and lyrics depend on the stream and third-party services; they may be unavailable for some tracks. Genius artwork lookup is optional and requires an API token.
@@ -26,6 +28,7 @@ Metadata, artwork, and lyrics depend on the stream and third-party services; the
 - Node.js 18 or newer
 - npm
 - An internet connection to reach radio streams and metadata services
+- A YouTube Data API key for video search and queue titles (optional; direct video and playlist playback still work without it)
 
 ## Install and run
 
@@ -41,6 +44,8 @@ Open [http://localhost:6565](http://localhost:6565) and choose a genre or a stat
 ```sh
 HOST=127.0.0.1 PORT=6566 npm start
 ```
+
+Open **YouTube** from the left menu to search songs or artists, find YouTube playlists, inspect their songs, and play them. **Manage → Video playlists** is where saved video playlists are created and maintained. The Audio output choice is shared with Radio and Music; browser output plays through this browser, while host output sends audio to MPV on the MyMusics host and keeps the video visible here. Host playback depends on MPV being able to resolve YouTube video URLs. To enable search and playlist metadata, create a Google Cloud project, enable YouTube Data API v3, and create an API key using the [official setup guide](https://developers.google.com/youtube/data/getting-started). Keep the key on the server: add `YOUTUBE_API_KEY=YOUR_KEY` to `.env` for local use or `/etc/mymusics/mymusics.env` for the Ubuntu service, then restart MyMusics.
 
 ## Ubuntu runtime deployment
 

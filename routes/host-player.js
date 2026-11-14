@@ -52,6 +52,19 @@ module.exports = function registerHostPlayerRoutes(app, { hostPlayer, getStation
     res.json(await hostPlayer.status());
   });
 
+  app.post("/api/host-player/video", async (req, res) => {
+    if (!req.is("application/json")) return res.status(415).json({ error: "Video playback requests must use JSON." });
+    if (req.get("origin") !== `${req.protocol}://${req.get("host")}`) return res.status(403).json({ error: "Video playback can only be started from this MyMusics page." });
+    const videoId = String(req.body?.videoId || "");
+    if (!/^[\w-]{11}$/.test(videoId)) return res.status(400).json({ error: "Choose a valid YouTube video." });
+    try {
+      await hostPlayer.playVideo(videoId);
+      res.json({ ok: true });
+    } catch (error) {
+      res.status(503).json({ error: error.message || "Host MPV could not play this YouTube video." });
+    }
+  });
+
   app.get("/api/host-player/radio-level", async (_req, res) => {
     try { res.json({ levels: await hostPlayer.radioLevel() || [] }); }
     catch { res.json({ levels: [] }); }

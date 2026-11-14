@@ -380,7 +380,7 @@
       "url": "https://stream.player.arrow.nl/arrow",
       "type": "mp3",
       "favorite": true,
-      "speechVolumePercent": 20,
+      "speechVolumePercent": 5,
       "image": "/station-images/f0b48dd7-dc9e-4397-8d4a-9f9d7d33b394.webp"
     },
     {
