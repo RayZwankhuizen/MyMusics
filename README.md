@@ -45,7 +45,7 @@ Open [http://localhost:6565](http://localhost:6565) and choose a genre or a stat
 HOST=127.0.0.1 PORT=6566 npm start
 ```
 
-Open **YouTube** from the left menu to search songs or artists, find YouTube playlists, inspect their songs, and play them. **Manage → Video playlists** is where saved video playlists are created and maintained. The Audio output choice is shared with Radio and Music; browser output plays through this browser, while host output sends audio to MPV on the MyMusics host and keeps the video visible here. Host playback depends on MPV being able to resolve YouTube video URLs. To enable search and playlist metadata, create a Google Cloud project, enable YouTube Data API v3, and create an API key using the [official setup guide](https://developers.google.com/youtube/data/getting-started). Save the key under **Manage → Jellyfin/YouTube**; alternatively, `YOUTUBE_API_KEY` in `.env` or `/etc/mymusics/mymusics.env` remains supported.
+Open **YouTube** from the left menu to search songs or artists, find YouTube playlists, inspect their songs, and play them. **Manage → Video playlists** is where saved video playlists are created and maintained. The Audio output choice is shared with Radio and Music; browser output plays through this browser, while host output sends audio to MPV on the MyMusics host and keeps the video visible here. Host playback requires MPV and yt-dlp on the MyMusics host. To enable search and playlist metadata, create a Google Cloud project, enable YouTube Data API v3, and create an API key using the [official setup guide](https://developers.google.com/youtube/data/getting-started). Save the key under **Manage → Jellyfin/YouTube**; alternatively, `YOUTUBE_API_KEY` in `.env` or `/etc/mymusics/mymusics.env` remains supported.
 
 ## Ubuntu runtime deployment
 
@@ -86,7 +86,7 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now mymusics
 ```
 
-On its first start, MyMusics checks for MPV and installs the Ubuntu `mpv` package if it is missing. This requires working package repositories and may take a few minutes. The app still starts if package installation fails; use **Manage → General → Host audio** to check the result and retry.
+On startup, MyMusics checks for MPV and yt-dlp and installs either missing Ubuntu package. This requires working package repositories and may take a few minutes. The app still starts if package installation fails; use **Manage → General → Host audio** to check the result and retry.
 
 The systemd unit sets `MYMUSICS_DATA_DIR=/var/lib/mymusics`. On first start, MyMusics copies the packaged `stations.json` into that directory if no persistent copy exists. If an older installation has station logos in `/opt/mymusics/data/station-images/`, they are copied to `/var/lib/mymusics/station-images/` when that persistent logo directory does not exist. The service account owns `/var/lib/mymusics` through systemd's `StateDirectory` setting.
 
@@ -150,7 +150,7 @@ Music mode requires Jellyfin to remain installed and running on your media serve
 
 `/music.html` adds a second mode next to the radio stations: an endless DJ queue built from your own Jellyfin music library. Radio stations and the music mode stay separate; both are reached from the mode switch at the top of the sidebar.
 
-Both pages let you choose **This browser** or **MyMusics host** as the audio output. Browser output is the default. Host output uses MPV on the MyMusics server and plays through its audio device. The service runs with the `audio` supplementary group so MPV can access ALSA devices. MPV is installed on first start when missing; use **Manage → General → Host audio** to check or retry. Connect speakers or a receiver to the host’s selected output. To inspect MPV audio diagnostics, run `sudo journalctl -u mymusics.service -f` while starting a track. Radio metadata and Jellyfin playback remain server-proxied. Browser EQ and speech detection are unavailable with host output.
+Both pages let you choose **This browser** or **MyMusics host** as the audio output. Browser output is the default. Host output uses MPV on the MyMusics server and plays through its audio device. The service runs with the `audio` supplementary group so MPV can access ALSA devices. MPV and yt-dlp are installed on startup when missing; use **Manage → General → Host audio** to check or retry. Connect speakers or a receiver to the host’s selected output. To inspect MPV audio diagnostics, run `sudo journalctl -u mymusics.service -f` while starting a track. Radio metadata and Jellyfin playback remain server-proxied. Browser EQ and speech detection are unavailable with host output.
 
 Configure Jellyfin in **Manage → General → Jellyfin connection**. Enter the server URL and an API key created under **Jellyfin Dashboard → API Keys**, then choose **Save settings** and **Test connection**. You can paste the web address `http://192.168.18.124:8096/web/#/login`; MyMusics removes `/web/#/login` and saves the base URL. The optional user ID pins a Jellyfin account; leave it blank to use the first enabled user.
 

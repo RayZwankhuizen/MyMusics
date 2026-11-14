@@ -1,7 +1,7 @@
 import { wireManageUpdates } from "./manage-updates.mjs";
 import { wireManagePlaylists } from "./manage-playlists.mjs";
 import { wireManageMusicGenres } from "./manage-music-genres.mjs";
-import { wireManageJellyfinSettings } from "./manage-jellyfin-settings.mjs";
+import { wireManageJellyfinSettings } from "./manage-jellyfin-settings.mjs?v=host-ytdlp-1";
 import { wireManageYouTubeSettings } from "./manage-youtube-settings.mjs";
 import { request } from "./manage-api.mjs";
 import { createManageCatalog } from "./manage-catalog.mjs?v=preserve-source-genre-1";

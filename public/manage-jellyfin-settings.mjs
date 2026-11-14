@@ -66,14 +66,17 @@ export function wireManageJellyfinSettings({ el, request }) {
   };
 
   function showMpv(settings) {
-    installMpvButton.disabled = settings.installed || !settings.canInstall || settings.installing || installingMpv;
-    if (settings.installed) {
-      mpvStatus.textContent = `MPV is installed on this host${settings.version ? ` (${settings.version})` : ""}. Host audio is available.`;
+    const ready = settings.installed && settings.youtubeResolverInstalled;
+    installMpvButton.disabled = ready || !settings.canInstall || settings.installing || installingMpv;
+    if (settings.installing || installingMpv) {
+      mpvStatus.textContent = "MyMusics is restarting and installing MPV and yt-dlp on the host…";
       mpvStatus.classList.remove("error");
+    } else if (settings.installed) {
+      mpvStatus.textContent = ready
+        ? `MPV and yt-dlp are installed${settings.version ? ` (${settings.version})` : ""}. Host Radio, Music, and YouTube playback are available.`
+        : "MPV is installed, but yt-dlp is missing. Host Radio and Music can play, but YouTube host audio needs yt-dlp. Install or repair the host tools.";
+      mpvStatus.classList.toggle("error", !ready);
       loadAudioDevices();
-    } else if (settings.installing || installingMpv) {
-      mpvStatus.textContent = "MyMusics is restarting and installing MPV on the host…";
-      mpvStatus.classList.remove("error");
     } else if (settings.canInstall) {
       mpvStatus.textContent = settings.error || "MPV is not installed. Install it on the Ubuntu host to enable host audio.";
       mpvStatus.classList.toggle("error", Boolean(settings.failed));
@@ -105,7 +108,7 @@ export function wireManageJellyfinSettings({ el, request }) {
     installingMpv = true;
     checkMpvButton.disabled = true;
     installMpvButton.disabled = true;
-    mpvStatus.textContent = "Requesting MPV installation. MyMusics will restart…";
+    mpvStatus.textContent = "Installing or repairing MPV and yt-dlp. MyMusics will restart…";
     mpvStatus.classList.remove("error");
     try {
       await request("/api/host-player/mpv/install", "POST", {});
@@ -114,15 +117,15 @@ export function wireManageJellyfinSettings({ el, request }) {
         await new Promise((resolve) => setTimeout(resolve, 2500));
         try {
           const settings = await request("/api/host-player/mpv");
-          if (settings.installed) {
+          if (settings.installed && settings.youtubeResolverInstalled) {
             showMpv(settings);
-            finalMessage = "MPV is installed. MyMusics host audio is available on the Radio and Music pages.";
+            finalMessage = "MPV and yt-dlp are installed. Host audio is available for Radio, Music, and YouTube.";
             try { localStorage.setItem("mymusics:mpv-installed", String(Date.now())); } catch {}
             return;
           }
           if (!settings.installing) {
             showMpv({ ...settings, failed: true });
-            finalMessage = "MPV installation did not complete. Check the host’s package repositories and system log, then retry.";
+            finalMessage = "MPV or yt-dlp installation did not complete. Check the host’s package repositories and system log, then retry.";
             finalError = true;
             return;
           }

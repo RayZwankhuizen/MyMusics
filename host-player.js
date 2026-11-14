@@ -285,6 +285,11 @@ class HostPlayer {
   }
 
   async playVideo(videoId) {
+    try {
+      await execFile("yt-dlp", ["--version"], { timeout: 5000, maxBuffer: 4096 });
+    } catch {
+      throw new Error("YouTube host playback needs yt-dlp on the MyMusics host. Install it under Manage → General → Host audio.");
+    }
     this.fadeGeneration++;
     await Promise.all([this.decks.a.stop(), this.decks.b.stop()]);
     this.activeDeck = null;
@@ -415,7 +420,11 @@ class HostPlayer {
     const binary = process.env.MPV_BIN || "mpv";
     try {
       const { stdout } = await execFile(binary, ["--version"], { timeout: 5000, maxBuffer: 4096 });
-      return { installed: true, version: stdout.split(/\r?\n/, 1)[0] || "MPV installed" };
+      const { stdout: ytDlpVersion } = await execFile("yt-dlp", ["--version"], { timeout: 5000, maxBuffer: 4096 }).catch(() => ({ stdout: "" }));
+      return {
+        installed: true, version: stdout.split(/\r?\n/, 1)[0] || "MPV installed",
+        youtubeResolverInstalled: Boolean(ytDlpVersion.trim()), youtubeResolverVersion: ytDlpVersion.trim()
+      };
     } catch (error) {
       return { installed: false, error: error.code === "ENOENT" ? "MPV is not installed on the MyMusics host." : "MPV could not be started." };
     }

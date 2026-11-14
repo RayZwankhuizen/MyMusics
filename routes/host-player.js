@@ -16,11 +16,13 @@ module.exports = function registerHostPlayerRoutes(app, { hostPlayer, getStation
   }
 
   app.get("/api/host-player/mpv", async (_req, res) => {
-    const { installed, version, error } = await hostPlayer.mpvStatus();
-    if (installed) mpvInstallQueued = false;
+    const status = await hostPlayer.mpvStatus();
+    const { installed, version, error } = status;
+    if (status.installed && status.youtubeResolverInstalled) mpvInstallQueued = false;
     res.json({
+      ...status,
       installed, version: version || "", error: error || "",
-      installing: mpvInstallQueued && !installed,
+      installing: mpvInstallQueued && !(status.installed && status.youtubeResolverInstalled),
       canInstall: canInstallMpv()
     });
   });
@@ -31,7 +33,7 @@ module.exports = function registerHostPlayerRoutes(app, { hostPlayer, getStation
       return res.status(403).json({ error: "MPV installation can only be started from this MyMusics page." });
     }
     const status = await hostPlayer.mpvStatus();
-    if (status.installed) return res.status(409).json({ error: "MPV is already installed on the MyMusics host." });
+    if (status.installed && status.youtubeResolverInstalled) return res.status(409).json({ error: "MPV and yt-dlp are already installed on the MyMusics host." });
     if (mpvInstallQueued) return res.status(409).json({ error: "MPV installation is already starting." });
     if (!canInstallMpv()) {
       return res.status(503).json({ error: "Host MPV installation is not configured on this server." });
@@ -44,7 +46,7 @@ module.exports = function registerHostPlayerRoutes(app, { hostPlayer, getStation
       res.status(202).json({ state: "installing", willRestart: true });
     } catch {
       mpvInstallQueued = false;
-      res.status(503).json({ error: "Could not start MPV installation. Check the MyMusics system service setup." });
+      res.status(503).json({ error: "Could not install MPV and yt-dlp. Check the MyMusics system service setup." });
     }
   });
 
