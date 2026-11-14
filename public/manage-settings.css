@@ -50,7 +50,7 @@
 .management-page #browser-info-status{min-height:20px;margin:10px 0;color:var(--muted)}
 .management-page .browser-preview-links{display:flex;gap:8px;margin:0 0 14px}
 .management-page .browser-preview-links[hidden]{display:none}
-.management-page .browser-info-table-wrap{max-height:64vh;overflow:auto;border:1px solid var(--line);border-radius:9px;background:#0b0d14}
+.management-page .browser-info-table-wrap{border:1px solid var(--line);border-radius:9px;background:#0b0d14}
 .management-page .browser-details{display:grid;grid-template-columns:minmax(180px,.38fr) minmax(0,1fr);margin:0;padding:0 14px}
 .management-page .browser-details dt,.management-page .browser-details dd{min-width:0;margin:0;padding:10px 6px;border-bottom:1px solid var(--line);font-size:12px;line-height:1.5}
 .management-page .browser-details dt{color:var(--muted);font-weight:550}
