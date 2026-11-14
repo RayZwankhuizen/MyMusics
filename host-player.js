@@ -242,9 +242,9 @@ class MpvDeck {
 }
 
 class HostPlayer {
-  constructor({ audioDevice = "auto" } = {}) {
-    this.audioDevice = audioDevice;
-    this.decks = { a: new MpvDeck("a", audioDevice), b: new MpvDeck("b", audioDevice) };
+  constructor({ device = "auto" } = {}) {
+    this.audioDevice = device;
+    this.decks = { a: new MpvDeck("a", device), b: new MpvDeck("b", device) };
     this.activeDeck = null;
     this.activeType = "";
     this.musicVolume = 100;
