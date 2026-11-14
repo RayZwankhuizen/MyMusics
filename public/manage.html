@@ -9,10 +9,10 @@
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/style.css?v=mode-switch-youtube-4">
   <link rel="stylesheet" href="/manage.css">
-  <script type="module" src="/manage.js?v=video-playlists-2"></script>
+  <script type="module" src="/manage.js?v=youtube-api-settings-1"></script>
   <link rel="stylesheet" href="/app-theme.css?v=mode-switch-youtube-3">
   <link rel="stylesheet" href="/management-theme.css?v=mode-switch-youtube-1">
-  <link rel="stylesheet" href="/manage-settings.css?v=browser-info-1">
+  <link rel="stylesheet" href="/manage-settings.css?v=youtube-api-settings-1">
 </head>
 <body class="management-page">
   <div class="app-shell manage-shell">
@@ -29,7 +29,7 @@
       <div class="side-label">General</div>
       <nav class="sidebar-actions" aria-label="General settings">
         <a class="sidebar-page" data-manage-section="general" href="/manage.html#general">General</a>
-        <a class="sidebar-page" data-manage-section="jellyfin-settings" href="/manage.html#jellyfin-settings">Jellyfin</a>
+        <a class="sidebar-page" data-manage-section="jellyfin-settings" href="/manage.html#jellyfin-settings">Jellyfin/YouTube</a>
         <a class="sidebar-page" data-manage-section="host-audio-test" href="/manage.html#host-audio-test">Test</a>
         <a class="sidebar-page" data-manage-section="browser-info" href="/manage.html#browser-info">Browser</a>
         <a class="sidebar-page" data-manage-section="updates" href="/manage.html#updates">Updates</a>
@@ -49,14 +49,14 @@
     </aside>
 
     <main>
-      <header class="manage-page-heading"><p class="kicker">MyMusics</p><h1>Management</h1><p>Configure Jellyfin and maintain your radio stations, genres, and music playlists.</p></header>
+      <header class="manage-page-heading"><p class="kicker">MyMusics</p><h1>Management</h1><p>Configure Jellyfin and YouTube, and maintain your radio stations, genres, and music playlists.</p></header>
       <aside id="tv-manage-notice" class="tv-manage-notice" role="status">Editing stations is easier from a phone or computer. Open this page there to make changes.</aside>
       <p id="notice" class="notice" role="status" aria-live="polite"></p>
       <section id="general" class="general-intro panel" aria-labelledby="general-heading">
         <p class="eyebrow">General</p><h2 id="general-heading">MyMusics settings</h2><p>Configure the Jellyfin connection and check host audio output. Radio and Music settings are listed separately.</p>
       </section>
       <section id="jellyfin-settings" class="general-settings panel" aria-labelledby="jellyfin-heading">
-        <header class="general-settings-heading"><div><p class="eyebrow">Jellyfin</p><h2 id="jellyfin-heading">Jellyfin connection</h2><p>Jellyfin must be running on your media server. MyMusics connects from this server to Jellyfin.</p></div><span id="jellyfin-config-badge" class="general-config-badge" role="status">Checking</span></header>
+        <header class="general-settings-heading"><div><p class="eyebrow">Jellyfin / YouTube</p><h2 id="jellyfin-heading">API connections</h2><p>Configure the Jellyfin library and YouTube search from this server.</p></div><span id="jellyfin-config-badge" class="general-config-badge" role="status">Checking</span></header>
         <form id="jellyfin-settings-form" class="general-settings-form">
           <label for="jellyfin-url">Jellyfin server URL</label>
           <input id="jellyfin-url" name="url" type="url" inputmode="url" autocomplete="url" placeholder="http://127.0.0.1:8096" maxlength="500" required>
@@ -68,6 +68,14 @@
           <input id="jellyfin-user-id" name="userId" type="text" autocomplete="off" maxlength="200" placeholder="Use the first enabled user">
           <div class="general-settings-actions"><button class="save-button" type="submit">Save settings</button><button id="jellyfin-test" class="text-button" type="button">Test connection</button></div>
           <p id="jellyfin-settings-status" class="form-hint" role="status" aria-live="polite">Loading Jellyfin settings…</p>
+        </form>
+        <header class="general-settings-subheading"><div><p class="eyebrow">YouTube</p><h3>YouTube Data API v3</h3><p>Needed for video search, playlist search, and playlist details. Direct video playback does not require this key.</p></div><span id="youtube-config-badge" class="general-config-badge" role="status">Checking</span></header>
+        <form id="youtube-settings-form" class="general-settings-form">
+          <label for="youtube-api-key">YouTube API key</label>
+          <input id="youtube-api-key" name="apiKey" type="password" autocomplete="new-password" placeholder="Leave blank to keep the current key" maxlength="512">
+          <p class="form-hint">Create a key in Google Cloud with YouTube Data API v3 enabled. The key is stored on this MyMusics server and never sent back to the page. A key from the environment remains supported.</p>
+          <div class="general-settings-actions"><button class="save-button" type="submit">Save YouTube key</button><button id="youtube-test" class="text-button" type="button" disabled>Test key</button><button id="youtube-clear" class="text-button" type="button" hidden>Remove saved key</button></div>
+          <p id="youtube-settings-status" class="form-hint" role="status" aria-live="polite">Loading YouTube settings…</p>
         </form>
       </section>
       <section id="host-audio-test" class="general-settings panel" aria-labelledby="host-audio-test-heading">

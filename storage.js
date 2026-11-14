@@ -11,6 +11,7 @@ function createStorage({ dataDir: configuredDir = process.env.MYMUSICS_DATA_DIR,
     videoPlaylists: path.join(dataDir || root, "video-playlists.json"),
     musicGenres: path.join(dataDir || root, "music-genre-mappings.json"),
     jellyfinSettings: path.join(dataDir || root, "jellyfin-settings.json"),
+    youtubeSettings: path.join(dataDir || root, "youtube-settings.json"),
     hostAudioSettings: path.join(dataDir || root, "host-audio-settings.json"),
     updateStatus: path.join(dataDir || path.join(root, "data"), "update-status.json")
   };
@@ -93,6 +94,17 @@ function createStorage({ dataDir: configuredDir = process.env.MYMUSICS_DATA_DIR,
     writeJson(paths.jellyfinSettings, value, 0o600);
   }
 
+  function readYouTubeSettings() {
+    return readJson(paths.youtubeSettings, { apiKey: "" }, (value) =>
+      Boolean(value && typeof value === "object" && !Array.isArray(value) && typeof value.apiKey === "string")
+    );
+  }
+
+  function writeYouTubeSettings(value) {
+    if (!value || typeof value.apiKey !== "string") throw new Error("YouTube settings have an invalid structure.");
+    writeJson(paths.youtubeSettings, { apiKey: value.apiKey }, 0o600);
+  }
+
   function validHostAudioSettings(value) {
     return Boolean(value && typeof value === "object" && !Array.isArray(value)
       && typeof value.device === "string" && value.device.length > 0 && value.device.length <= 500);
@@ -130,7 +142,7 @@ function createStorage({ dataDir: configuredDir = process.env.MYMUSICS_DATA_DIR,
 
   initialize();
   return { paths, readJson, writeJson, readStations, writeStations, readUpdateStatus,
-    readJellyfinSettings, writeJellyfinSettings, readHostAudioSettings, writeHostAudioSettings,
+    readJellyfinSettings, writeJellyfinSettings, readYouTubeSettings, writeYouTubeSettings, readHostAudioSettings, writeHostAudioSettings,
     hasStationImage, writeStationImage, removeUnusedStationImages };
 }
 

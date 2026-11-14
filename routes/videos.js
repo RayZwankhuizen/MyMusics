@@ -11,18 +11,20 @@ function validPlaylist(value) {
 }
 
 module.exports = function registerVideoRoutes(app, { storage }) {
-  const apiKey = process.env.YOUTUBE_API_KEY || "";
+  const getApiKey = () => storage.readYouTubeSettings().apiKey || process.env.YOUTUBE_API_KEY || "";
   const readPlaylists = () => storage.readJson(storage.paths.videoPlaylists, [], validPlaylist);
   const writePlaylists = (value) => storage.writeJson(storage.paths.videoPlaylists, value);
 
-  app.get("/api/videos/status", (_req, res) => res.json({
-    provider: "youtube-iframe", searchAvailable: Boolean(apiKey), metadataAvailable: Boolean(apiKey)
-  }));
+  app.get("/api/videos/status", (_req, res) => {
+    const configured = Boolean(getApiKey());
+    res.json({ provider: "youtube-iframe", searchAvailable: configured, metadataAvailable: configured });
+  });
 
   app.get("/api/videos/search", async (req, res) => {
     const query = String(req.query.q || "").trim().slice(0, 120);
     if (query.length < 2) return res.status(400).json({ error: "Enter at least two characters to search." });
-    if (!apiKey) return res.status(503).json({ error: "Video search needs YOUTUBE_API_KEY in the MyMusics .env file." });
+    const apiKey = getApiKey();
+    if (!apiKey) return res.status(503).json({ error: "Configure a YouTube API key in Manage → Jellyfin/YouTube." });
     try {
       const url = new URL("https://www.googleapis.com/youtube/v3/search");
       url.search = new URLSearchParams({ part: "snippet", type: "video", videoEmbeddable: "true", maxResults: "10", q: query, key: apiKey });
@@ -46,7 +48,8 @@ module.exports = function registerVideoRoutes(app, { storage }) {
   app.get("/api/videos/search-playlists", async (req, res) => {
     const query = String(req.query.q || "").trim().slice(0, 120);
     if (query.length < 2) return res.status(400).json({ error: "Enter at least two characters to search." });
-    if (!apiKey) return res.status(503).json({ error: "Playlist search needs YOUTUBE_API_KEY in the MyMusics .env file." });
+    const apiKey = getApiKey();
+    if (!apiKey) return res.status(503).json({ error: "Configure a YouTube API key in Manage → Jellyfin/YouTube." });
     try {
       const url = new URL("https://www.googleapis.com/youtube/v3/search");
       url.search = new URLSearchParams({ part: "snippet", type: "playlist", maxResults: "10", q: query, key: apiKey });
@@ -65,7 +68,8 @@ module.exports = function registerVideoRoutes(app, { storage }) {
   app.get("/api/videos/playlist-items", async (req, res) => {
     const playlist = String(req.query.id || "").trim();
     if (!/^[\w-]{10,80}$/.test(playlist)) return res.status(400).json({ error: "Enter a valid YouTube playlist ID." });
-    if (!apiKey) return res.status(503).json({ error: "Playlist tracks need YOUTUBE_API_KEY in the MyMusics .env file." });
+    const apiKey = getApiKey();
+    if (!apiKey) return res.status(503).json({ error: "Configure a YouTube API key in Manage → Jellyfin/YouTube." });
     try {
       const items = [];
       let pageToken = "";
@@ -94,7 +98,8 @@ module.exports = function registerVideoRoutes(app, { storage }) {
   app.get("/api/videos/details", async (req, res) => {
     const ids = [...new Set(String(req.query.ids || "").split(",").filter((id) => videoIdPattern.test(id)))].slice(0, 50);
     if (!ids.length) return res.status(400).json({ error: "Provide valid video IDs." });
-    if (!apiKey) return res.status(503).json({ error: "Queue titles need YOUTUBE_API_KEY in the MyMusics .env file." });
+    const apiKey = getApiKey();
+    if (!apiKey) return res.status(503).json({ error: "Configure a YouTube API key in Manage → Jellyfin/YouTube." });
     try {
       const url = new URL("https://www.googleapis.com/youtube/v3/videos");
       url.search = new URLSearchParams({ part: "snippet", id: ids.join(","), key: apiKey });

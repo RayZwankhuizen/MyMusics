@@ -42,7 +42,7 @@ app.use(apiRequest);
 app.use(express.json({ limit: "1mb" }));
 registerHealthRoute(app, appVersion);
 registerUpdateRoutes(app, { storage, appVersion, appBuildDate, updateScript });
-registerJellyfinSettingsRoutes(app, jellyfin);
+registerJellyfinSettingsRoutes(app, jellyfin, storage);
 const getStations = registerStationRoutes(app, { storage });
 registerRadioStreamRoute(app, { getStations });
 const hostPlayer = new HostPlayer(storage.readHostAudioSettings());

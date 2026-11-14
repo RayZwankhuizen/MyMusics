@@ -2,6 +2,7 @@ import { wireManageUpdates } from "./manage-updates.mjs";
 import { wireManagePlaylists } from "./manage-playlists.mjs";
 import { wireManageMusicGenres } from "./manage-music-genres.mjs";
 import { wireManageJellyfinSettings } from "./manage-jellyfin-settings.mjs";
+import { wireManageYouTubeSettings } from "./manage-youtube-settings.mjs";
 import { request } from "./manage-api.mjs";
 import { createManageCatalog } from "./manage-catalog.mjs?v=preserve-source-genre-1";
 import { wireStationSearch } from "./manage-station-search.mjs";
@@ -28,6 +29,7 @@ wireManagePlaylists({ el, initialPlaylistId: new URLSearchParams(location.search
 wireManageVideoPlaylists({ el, request });
 wireManageMusicGenres({ el, request });
 wireManageJellyfinSettings({ el, request });
+wireManageYouTubeSettings({ el, request });
 wireManageBrowserInfo();
 
 wireStationSearch({

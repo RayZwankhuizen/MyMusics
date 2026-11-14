@@ -5,6 +5,10 @@
 .management-page .general-settings-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--line)}
 .management-page .general-settings-heading h2{margin:0 0 7px;font-size:20px}
 .management-page .general-settings-heading p:last-child{max-width:620px;margin:0;color:var(--muted);font-size:13px;line-height:1.55}
+.management-page .general-settings-subheading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:14px 0 0;border-top:1px solid var(--line)}
+.management-page .general-settings-subheading>div{display:grid;gap:5px}
+.management-page .general-settings-subheading h3{margin:0;font-size:16px}
+.management-page .general-settings-subheading p:last-child{max-width:620px;margin:0;color:var(--muted);font-size:12px;line-height:1.5}
 .management-page .general-config-badge{flex:none;padding:6px 10px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:11px}
 .management-page .general-settings-form{display:grid;grid-template-columns:minmax(140px,.38fr) minmax(0,1fr);align-items:center;gap:9px 16px}
 .management-page .general-settings-form>label{color:var(--ink);font-size:12px;font-weight:600}
