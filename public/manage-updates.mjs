@@ -11,7 +11,7 @@ export function wireManageUpdates({ request, el }) {
     if (technicalDetails) technicalDetails.hidden = true;
   }
 
-  async function checkForUpdates() {
+  async function checkForUpdates(forceRefresh = false) {
     const button = el("#check-update");
     const install = el("#install-update");
     const message = el("#update-message");
@@ -20,7 +20,7 @@ export function wireManageUpdates({ request, el }) {
     clearTechnicalError();
     message.textContent = "Checking GitHub for the latest release…";
     try {
-      const info = await request("/api/update");
+      const info = await request(`/api/update${forceRefresh ? "?refresh=1" : ""}`);
       el("#app-version").textContent = `Version ${info.currentVersion} · code updated ${updateDate(info.buildDate)}`;
       if (info.updateAvailable) {
         message.textContent = `Version ${info.latestVersion} is available · released ${updateDate(info.latestDate)}.`;
@@ -53,7 +53,7 @@ export function wireManageUpdates({ request, el }) {
           return;
         }
         if (state.state === "complete" && state.version === version) {
-          await checkForUpdates();
+          await checkForUpdates(true);
           message.textContent = `Updated to ${version}.`;
           install.disabled = false;
           window.setTimeout(() => window.location.reload(), 1500);
@@ -69,7 +69,7 @@ export function wireManageUpdates({ request, el }) {
     install.disabled = false;
   }
 
-  el("#check-update").addEventListener("click", checkForUpdates);
+  el("#check-update").addEventListener("click", () => checkForUpdates(true));
   el("#install-update").addEventListener("click", async () => {
     if (!window.confirm("Download and install the latest release? MyMusics will restart; playback may stop briefly.")) return;
     const install = el("#install-update");

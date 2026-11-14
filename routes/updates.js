@@ -11,8 +11,8 @@ module.exports = function registerUpdateRoutes(app, { storage, appVersion, appBu
     return storage.readUpdateStatus();
   }
 
-  async function getLatestRelease() {
-    if (releaseCache && Date.now() - releaseCacheAt < 300_000) return releaseCache;
+  async function getLatestRelease(forceRefresh = false) {
+    if (!forceRefresh && releaseCache && Date.now() - releaseCacheAt < 300_000) return releaseCache;
     const response = await fetch("https://api.github.com/repos/RayZwankhuizen/MyMusics/releases/latest", {
       headers: {
         Accept: "application/vnd.github+json", "User-Agent": "MyMusics",
@@ -27,9 +27,9 @@ module.exports = function registerUpdateRoutes(app, { storage, appVersion, appBu
     return releaseCache;
   }
 
-  app.get("/api/update", async (_req, res) => {
+  app.get("/api/update", async (req, res) => {
     try {
-      const latest = await getLatestRelease();
+      const latest = await getLatestRelease(req.query.refresh === "1");
       res.json({
         currentVersion: appVersion, buildDate: appBuildDate, latestVersion: latest.version, latestDate: latest.date,
         releaseUrl: latest.url, updateAvailable: latest.version !== appVersion,
@@ -54,7 +54,7 @@ module.exports = function registerUpdateRoutes(app, { storage, appVersion, appBu
       return res.status(409).json({ error: "An update is already running." });
     }
     try {
-      const latest = await getLatestRelease();
+      const latest = await getLatestRelease(true);
       if (latest.version === appVersion) return res.status(409).json({ error: "MyMusics is already up to date." });
       await execFile("/usr/bin/sudo", ["-n", "/usr/bin/systemctl", "--no-block", "start", "mymusics-update.service"], { timeout: 5000 });
       res.status(202).json({ state: "checking", version: latest.version });

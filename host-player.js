@@ -42,7 +42,8 @@ class MpvDeck {
     const binary = process.env.MPV_BIN || "mpv";
     this.child = spawn(binary, [
       "--no-config", "--no-video", "--audio-display=no", "--force-window=no",
-      "--audio-channels=stereo", "--idle=yes", "--no-terminal", "--msg-level=all=info", `--input-ipc-server=${this.socketPath}`
+      "--audio-channels=stereo", ...(this.audioDevice === "auto" ? [] : [`--audio-device=${this.audioDevice}`]),
+      "--idle=yes", "--no-terminal", "--msg-level=all=info", `--input-ipc-server=${this.socketPath}`
     ], { stdio: ["ignore", "ignore", "pipe"], windowsHide: true });
     this.child.stderr.setEncoding("utf8");
     this.child.stderr.on("data", (chunk) => {
