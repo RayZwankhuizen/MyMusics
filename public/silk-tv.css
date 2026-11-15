@@ -130,3 +130,17 @@ html.silk-browser.tv-mode body.music-page .jukebox.jb-vintage .jb-deck.is-active
 html.silk-browser.tv-mode body.music-page .jukebox.jb-vintage .jb-deck.is-active .jb-progress{grid-column:2;grid-row:3}
 html.silk-browser.tv-mode body.music-page .jukebox.jb-vintage .jb-deck.is-active .jb-time{grid-column:2;grid-row:4;text-align:left}
 html.silk-browser.tv-mode body.music-page .jukebox.jb-vintage .jb-deck.is-active .jb-turntable{grid-column:1;grid-row:1/5;width:150px}
+
+/* TV decks face the listener: show the record as a large, circular top view. */
+html.tv-mode body.music-page #jukebox .jb-deck.is-active,
+html.silk-browser.tv-mode body.music-page #jukebox .jb-deck.is-active{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto auto auto;justify-items:center;gap:6px 12px;padding:12px 10px 16px;text-align:center}
+html.tv-mode body.music-page #jukebox .jb-deck.is-active .jb-turntable,
+html.silk-browser.tv-mode body.music-page #jukebox .jb-deck.is-active .jb-turntable{grid-column:1;grid-row:1;width:clamp(170px,20vw,230px);max-width:100%;aspect-ratio:1;transform:none}
+html.tv-mode body.music-page #jukebox .jb-deck.is-active .jb-title,
+html.silk-browser.tv-mode body.music-page #jukebox .jb-deck.is-active .jb-title{grid-column:1;grid-row:2;text-align:center}
+html.tv-mode body.music-page #jukebox .jb-deck.is-active .jb-deck-artist,
+html.silk-browser.tv-mode body.music-page #jukebox .jb-deck.is-active .jb-deck-artist{grid-column:1;grid-row:3;justify-self:center}
+html.tv-mode body.music-page #jukebox .jb-deck.is-active .jb-progress,
+html.silk-browser.tv-mode body.music-page #jukebox .jb-deck.is-active .jb-progress{grid-column:1;grid-row:4;width:100%;justify-self:stretch}
+html.tv-mode body.music-page #jukebox .jb-deck.is-active .jb-time,
+html.silk-browser.tv-mode body.music-page #jukebox .jb-deck.is-active .jb-time{grid-column:1;grid-row:5;text-align:center}
