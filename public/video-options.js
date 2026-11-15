@@ -14,6 +14,7 @@ let hostVideoId = "";
 let hostVideoSession = "";
 let pageLeaving = false;
 let queueCleared = false;
+let loadedPlaylistId = "";
 const videoMetadata = new Map();
 
 async function request(path, options) {
@@ -58,7 +59,7 @@ function renderList(element, items, mode) {
     if (mode === "results") {
       action("Play", () => { queueCleared = false; queue = [item, ...queue]; renderQueue(); playAt(0); });
       action("Add", () => { queueCleared = false; queue.push(item); renderQueue(); say(`Added “${item.title}” to the queue.`); });
-      action("+ Playlist", () => addToSelectedPlaylist(item));
+      action("Add to playlist", () => addToSelectedPlaylist(item));
     } else if (mode === "playlist-results") {
       action("Show songs", () => showYoutubePlaylist(item.id, item.title));
       action("Play", async () => { await showYoutubePlaylist(item.id, item.title); if (queue.length) playAt(0); });
@@ -280,7 +281,17 @@ async function addToSelectedPlaylist(item) {
   const selected = playlists.find((list) => list.id === playlistId());
   if (!selected) return say("Choose or create a playlist first.");
   if (selected.items.some((video) => video.id === item.id)) return say(`“${item.title}” is already in “${selected.name}”.`);
-  await updateSelectedPlaylist([...selected.items, item], (list) => `Added “${item.title}” to “${list.name}”.`);
+  const updated = await updateSelectedPlaylist([...selected.items, item], (list) => `Added “${item.title}” to “${list.name}”.`);
+  if (updated && loadedPlaylistId === selected.id) {
+    queue = selected.items.concat(item).map((video) => ({ ...video }));
+    renderQueue();
+  }
+}
+
+function clearSearchResults() {
+  resultsEl.replaceChildren();
+  $("#results-heading").hidden = true;
+  $("#clear-video-results").hidden = true;
 }
 
 
@@ -290,9 +301,9 @@ async function loadYoutubePlaylist(list) {
     current = -1;
     iframeQueueKey = "";
     queue = [];
+    loadedPlaylistId = "";
     $("#queue-heading").textContent = "YouTube playlist";
-    resultsEl.replaceChildren();
-    $("#results-heading").hidden = true;
+    clearSearchResults();
     renderQueue();
     const embed = await ensureIframePlayer();
     if (window.MyMusicsPlayback?.isHost) embed.mute();
@@ -305,6 +316,7 @@ async function loadYoutubePlaylist(list) {
 async function showYoutubePlaylist(list, title) {
   queueCleared = false;
   queue = [];
+  loadedPlaylistId = "";
   current = -1;
   renderQueue();
   try {
@@ -319,6 +331,27 @@ async function showYoutubePlaylist(list, title) {
   } catch (error) { say(error.message); }
 }
 
+async function loadSavedPlaylist(selected, play = false) {
+  queueCleared = true;
+  queueSync++;
+  iframeQueueKey = "";
+  iframePlayer?.stopVideo?.();
+  iframePlayer?.clearVideo?.();
+  await stopHostVideo();
+  current = -1;
+  queue = selected.items.map((item) => ({ ...item }));
+  loadedPlaylistId = selected.id;
+  queueCleared = false;
+  clearSearchResults();
+  $("#queue-heading").textContent = selected.name;
+  $("#video-title").textContent = "Choose a video";
+  $("#video-author").textContent = "";
+  renderQueue();
+  if (!queue.length) return say(`“${selected.name}” is empty.`);
+  say(`Loaded ${queue.length} tracks from “${selected.name}”.`);
+  if (play) playAt(0);
+}
+
 $("#video-search").addEventListener("submit", async (event) => {
   event.preventDefault();
   const query = $("#video-query").value.trim();
@@ -328,9 +361,9 @@ $("#video-search").addEventListener("submit", async (event) => {
     say("Searching YouTube…");
     const data = await request(`/api/videos/search?q=${encodeURIComponent(query)}`);
     renderList(resultsEl, data.results, "results");
-    $("#queue-heading").textContent = "Queue";
     $("#results-heading").textContent = `Search results (${data.results.length})`;
     $("#results-heading").hidden = false;
+    $("#clear-video-results").hidden = false;
     say(`Found ${data.results.length} videos.`);
   } catch (error) { say(error.message); }
   finally { event.submitter.disabled = false; event.submitter.textContent = "Search"; }
@@ -347,6 +380,7 @@ $("#video-playlist-search").addEventListener("submit", async (event) => {
     renderList(resultsEl, data.results, "playlist-results");
     $("#results-heading").textContent = `YouTube playlists (${data.results.length})`;
     $("#results-heading").hidden = false;
+    $("#clear-video-results").hidden = false;
     say(`Found ${data.results.length} playlists.`);
   } catch (error) { say(error.message); }
   finally { event.submitter.disabled = false; event.submitter.textContent = "Search playlists"; }
@@ -365,9 +399,9 @@ $("#video-load-playlist").addEventListener("submit", async (event) => {
     if (list) { await loadYoutubePlaylist(list); return; }
     iframeQueueKey = "";
     queue = [{ id, title: "Loading title…", artist: "Loading artist…" }];
+    loadedPlaylistId = "";
     $("#queue-heading").textContent = "Queue";
-    resultsEl.replaceChildren();
-    $("#results-heading").hidden = true;
+    clearSearchResults();
     renderQueue();
     await playAt(0);
   } catch (error) { say(error.message); }
@@ -375,18 +409,15 @@ $("#video-load-playlist").addEventListener("submit", async (event) => {
 });
 
 $("#saved-video-playlists").addEventListener("change", () => {
-  $("#play-video-playlist").disabled = !playlistId();
+  const selected = playlists.find((item) => item.id === playlistId());
+  $("#play-video-playlist").disabled = !selected;
+  if (selected) loadSavedPlaylist(selected);
 });
 
 $("#play-video-playlist").addEventListener("click", () => {
   const selected = playlists.find((item) => item.id === playlistId());
   if (!selected) return say("Choose a saved playlist first.");
-  queue = selected.items.map((item) => ({ ...item }));
-  current = -1;
-  $("#queue-heading").textContent = selected.name;
-  renderQueue();
-  if (!queue.length) return say("This playlist is empty.");
-  playAt(0);
+  loadSavedPlaylist(selected, true);
 });
 
 $("#clear-video-queue").addEventListener("click", async () => {
@@ -394,6 +425,7 @@ $("#clear-video-queue").addEventListener("click", async () => {
   queueSync++;
   iframeQueueKey = "";
   queue = [];
+  loadedPlaylistId = "";
   current = -1;
   iframePlayer?.stopVideo?.();
   iframePlayer?.clearVideo?.();
@@ -418,6 +450,11 @@ window.addEventListener("mymusics:playback-target-change", async () => {
   }
 });
 
+$("#clear-video-results").addEventListener("click", () => {
+  clearSearchResults();
+  say("Showing playlist only.");
+});
+
 window.addEventListener("pagehide", () => {
   pageLeaving = true;
   iframePlayer?.stopVideo?.();
@@ -439,4 +476,7 @@ Promise.all([
       : "Playback works. Add YOUTUBE_API_KEY for search and queue titles.");
   }),
   refreshPlaylists(new URLSearchParams(location.search).get("playlist") || "")
-]).catch((error) => say(error.message));
+]).then(() => {
+  const initial = playlists.find((item) => item.id === playlistId());
+  if (initial) loadSavedPlaylist(initial);
+}).catch((error) => say(error.message));

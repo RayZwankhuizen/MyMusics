@@ -12,9 +12,39 @@ import { wireManageStationPreview } from "./manage-station-preview.mjs";
 import { wireManageBrowserInfo } from "./manage-browser-info.mjs";
 import { wireManageStationLogoBatch } from "./manage-station-logo-batch.mjs?v=temporary-logo-batch-1";
 import { wireManageAllStations } from "./manage-all-stations.mjs?v=temporary-all-stations-1";
-import { wireManageVideoPlaylists } from "./manage-video-playlists.mjs?v=youtube-import-sources-2";
+import { wireManageVideoPlaylists } from "./manage-video-playlists.mjs?v=youtube-playlist-tools-1";
 
 const el = (selector) => document.querySelector(selector);
+const exportButton = el("#export-saved-data");
+const exportStatus = el("#export-saved-data-status");
+exportButton.addEventListener("click", async () => {
+  exportButton.disabled = true;
+  exportStatus.textContent = "Preparing export…";
+  try {
+    const [radioStations, music, youtube] = await Promise.all([
+      request("/stations"), request("/api/music/playlists"), request("/api/videos/playlists")
+    ]);
+    const payload = {
+      format: "mymusics-data-export",
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      radioStations,
+      musicPlaylists: music.playlists,
+      youtubePlaylists: youtube.playlists
+    };
+    const url = URL.createObjectURL(new Blob([`${JSON.stringify(payload, null, 2)}\n`], { type: "application/json" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `mymusics-export-${payload.exportedAt.slice(0, 10)}.json`;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    const stationCount = Object.values(radioStations).reduce((count, list) => count + (Array.isArray(list) ? list.length : 0), 0);
+    exportStatus.textContent = `Exported ${stationCount} radio stations, ${music.playlists.length} Music playlists, and ${youtube.playlists.length} YouTube playlists.`;
+  } catch (error) { exportStatus.textContent = error.message; }
+  finally { exportButton.disabled = false; }
+});
 const notice = (message, error = false) => {
   el("#notice").textContent = message;
   el("#notice").classList.toggle("error", error);

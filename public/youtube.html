@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="/style.css?v=mode-switch-youtube-4">
   <link rel="stylesheet" href="/app-theme.css?v=mode-switch-youtube-3">
   <link rel="stylesheet" href="/silk-tv.css?v=silk-tv-7">
-  <link rel="stylesheet" href="/video-options.css?v=8">
+  <link rel="stylesheet" href="/video-options.css?v=9">
   <script defer src="/playback-target.js?v=host-playback-lease-1"></script>
 </head>
 <body class="video-page">
@@ -35,15 +35,15 @@
           <form id="video-playlist-search" class="video-search"><label for="video-playlist-query">Search YouTube playlists</label><div><input id="video-playlist-query" type="search" minlength="2" maxlength="120" placeholder="Playlist name or artist" required><button type="submit">Search playlists</button></div></form>
           <form id="video-load-playlist" class="video-search"><label for="video-playlist-url">Load a YouTube video or playlist link</label><div><input id="video-playlist-url" type="url" placeholder="Paste a YouTube link" required><button type="submit">Load</button></div></form>
           <div class="saved-playlists"><label for="saved-video-playlists">Add tracks to</label><div><select id="saved-video-playlists"><option value="">Select playlist</option></select><button id="play-video-playlist" type="button" disabled>Play</button></div></div>
+          <div class="results-bar"><h3 id="results-heading" class="results-heading" hidden>Search results</h3><button id="clear-video-results" class="results-clear" type="button" hidden>Show playlist only</button></div>
+          <ol id="video-results" class="video-queue search-results" aria-label="Search results"></ol>
           <div class="queue-heading"><h2 id="queue-heading">Queue</h2><span id="queue-count">0 videos</span><button id="clear-video-queue" type="button" disabled>Clear queue</button></div>
           <ol id="video-queue" class="video-queue"></ol>
-          <h3 id="results-heading" class="results-heading" hidden>Search results</h3>
-          <ol id="video-results" class="video-queue search-results" aria-label="Search results"></ol>
         </aside>
       </section>
       <p class="footnote">Search and playlist details require a YouTube Data API key in the MyMusics server’s <code>.env</code>. Host audio uses MPV; video remains visible in the browser.</p>
     </main>
   </div>
-  <script src="/video-options.js?v=16" defer></script>
+  <script src="/video-options.js?v=18" defer></script>
 </body>
 </html>

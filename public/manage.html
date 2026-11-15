@@ -9,9 +9,9 @@
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/style.css?v=mode-switch-youtube-4">
   <link rel="stylesheet" href="/manage.css">
-  <script type="module" src="/manage.js?v=host-ytdlp-1"></script>
+  <script type="module" src="/manage.js?v=playlist-station-export-2"></script>
   <link rel="stylesheet" href="/app-theme.css?v=mode-switch-youtube-3">
-  <link rel="stylesheet" href="/management-theme.css?v=mode-switch-youtube-1">
+  <link rel="stylesheet" href="/management-theme.css?v=playlist-station-export-2">
   <link rel="stylesheet" href="/manage-settings.css?v=youtube-api-settings-1">
 </head>
 <body class="management-page">
@@ -50,6 +50,7 @@
 
     <main>
       <header class="manage-page-heading"><p class="kicker">MyMusics</p><h1>Management</h1><p>Configure Jellyfin and YouTube, and maintain your radio stations, genres, and music playlists.</p></header>
+      <section class="manage-export panel" aria-label="Export saved data"><div><strong>Export playlists and radio stations</strong><p>Download local Music playlists, YouTube playlists, and radio stations as a JSON file.</p></div><button id="export-saved-data" class="station-edit-button" type="button">Export JSON</button><p id="export-saved-data-status" role="status" aria-live="polite"></p></section>
       <aside id="tv-manage-notice" class="tv-manage-notice" role="status">Editing stations is easier from a phone or computer. Open this page there to make changes.</aside>
       <p id="notice" class="notice" role="status" aria-live="polite"></p>
       <section id="general" class="general-intro panel" aria-labelledby="general-heading">
@@ -160,17 +161,22 @@
         <div id="playlist-tracks" class="playlist-tracks" hidden></div>
       </section>
       <section id="video-playlists" class="video-playlist-management panel" aria-labelledby="video-playlist-heading">
-        <header class="playlist-management-heading"><div><p class="eyebrow">YouTube videos</p><h2 id="video-playlist-heading">Video playlists</h2><p>Create and organize your saved YouTube playlists. Search for videos on the player page and add them directly to a selected playlist.</p></div><a class="station-edit-button" href="/youtube.html">Find videos</a></header>
+        <header class="playlist-management-heading"><div><p class="eyebrow">YouTube videos</p><h2 id="video-playlist-heading">Video playlists</h2><p>Create playlists, edit track details, preview videos, and move tracks between playlists.</p></div><a class="station-edit-button" href="/youtube.html">Find videos</a></header>
         <form id="video-playlist-create-form" class="station-filter"><div class="playlist-create-row"><input id="video-playlist-name" maxlength="100" placeholder="New video playlist" autocomplete="off" required><button class="station-edit-button" type="submit">Create playlist</button></div></form>
-        <label class="video-playlist-picker-label" for="video-playlist-picker">Select playlist</label><select id="video-playlist-picker"><option value="">Loading playlists…</option></select>
-        <form id="video-playlist-import-form" class="video-playlist-import">
+        <label class="video-playlist-picker-label" for="video-playlist-picker">Manage playlist</label><select id="video-playlist-picker"><option value="">Loading playlists…</option></select>
+        <div class="video-playlist-import">
           <label for="video-playlist-import-input">Import YouTube video IDs or URLs</label>
           <textarea id="video-playlist-import-input" rows="5" placeholder="Paste video IDs or YouTube URLs, one per line"></textarea>
-          <p class="form-hint">Paste YouTube video or playlist URLs, or a MyMusics <code>/api/videos/playlist-items?id=…</code> URL. You can also paste or load its JSON response. URL imports need the YouTube Data API key above; JSON imports use the included video details.</p>
+          <p class="form-hint">Only individual YouTube and Vevo video bookmarks are included; other bookmarks are ignored. Chrome files may not contain artist data. Playlist-only bookmarks need a video-list JSON response.</p>
           <label class="video-playlist-file-label" for="video-playlist-import-file">Or load a Chrome HTML, JSON, text, or CSV bookmarks file from this device</label>
           <input id="video-playlist-import-file" type="file" accept=".html,.htm,.json,.txt,.csv,text/html,application/json,text/plain,text/csv">
-          <button id="video-playlist-import-submit" class="station-edit-button" type="submit" disabled>Import to selected playlist</button>
-        </form>
+          <button id="video-playlist-preview-button" class="station-edit-button" type="button">Preview videos</button>
+          <section id="video-playlist-preview" class="video-playlist-preview" aria-label="Videos to import" hidden>
+            <div class="video-playlist-preview-actions"><strong id="video-playlist-preview-count" role="status" aria-live="polite"></strong><div><button id="video-playlist-select-all" class="text-button" type="button">Select all</button><button id="video-playlist-select-none" class="text-button" type="button">Deselect all</button></div></div>
+            <div id="video-playlist-preview-list" class="video-playlist-preview-list"></div>
+            <button id="video-playlist-import-submit" class="station-edit-button" type="button" hidden>Inlezen</button>
+          </section>
+        </div>
         <p id="video-playlist-status" class="lookup-status" role="status" aria-live="polite"></p>
         <div id="video-playlist-list" class="station-list"></div>
         <div id="video-playlist-tracks" class="playlist-tracks" hidden></div>
@@ -181,6 +187,7 @@
         <div id="music-genre-list" class="music-genre-list"></div>
       </section>
       <details id="updates" class="about-updates panel"><summary><span><span class="eyebrow">About</span><strong>Version and updates</strong></span></summary><section class="update-card" aria-label="MyMusics version and updates"><div class="update-card-copy"><strong id="app-version">Version check pending</strong><p id="update-message" role="status" aria-live="polite">Checking for updates…</p><details id="update-details" class="update-details" hidden><summary>Technical details</summary><pre id="update-error"></pre></details></div><div class="update-card-actions"><button id="check-update" class="text-button" type="button">Check for updates</button><button id="install-update" class="save-button" type="button" hidden>Install and restart</button></div></section></details>
+      <dialog id="video-move-dialog" class="video-move-dialog" aria-labelledby="video-move-title"><form id="video-move-form"><h2 id="video-move-title">Move video</h2><p id="video-move-description"></p><label for="video-move-target">Destination playlist</label><select id="video-move-target" required><option value="">Select playlist</option></select><div><button id="video-move-cancel" class="text-button" type="button" autofocus>Cancel</button><button class="station-edit-button" type="submit" disabled>Move</button></div></form></dialog>
       <dialog id="genre-delete-dialog" class="genre-delete-dialog" aria-labelledby="genre-delete-title"><form id="genre-delete-form"><h2 id="genre-delete-title">Delete genre</h2><p id="genre-delete-description"></p><label for="genre-delete-confirm-name">Type the genre name to confirm</label><input id="genre-delete-confirm-name" autocomplete="off"><div><button id="genre-delete-cancel" class="text-button" type="button" autofocus>Cancel</button><button id="genre-delete-confirm" class="delete-genre-button" type="submit" disabled>Delete genre</button></div></form></dialog>
     </main>
   </div>

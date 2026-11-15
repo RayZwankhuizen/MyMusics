@@ -7,7 +7,7 @@ function validPlaylist(value) {
   return Array.isArray(value) && value.every((item) => item && typeof item.id === "string"
     && /^[a-f\d-]{36}$/.test(item.id) && typeof item.name === "string" && Array.isArray(item.items)
     && item.items.length <= 500 && item.items.every((video) => video && videoIdPattern.test(video.id)
-      && typeof video.title === "string"));
+      && typeof video.title === "string" && (video.genre === undefined || typeof video.genre === "string")));
 }
 
 module.exports = function registerVideoRoutes(app, { storage }) {
@@ -137,19 +137,38 @@ module.exports = function registerVideoRoutes(app, { storage }) {
       playlist.name = name;
     }
     if (Array.isArray(req.body?.items)) {
-      if (req.body.items.length > 500 || req.body.items.some((item) => !item || !videoIdPattern.test(item.id) || typeof item.title !== "string")) {
+      if (req.body.items.length > 500 || req.body.items.some((item) => !item || typeof item.id !== "string" || !videoIdPattern.test(item.id) || typeof item.title !== "string" || (item.genre !== undefined && typeof item.genre !== "string"))) {
         return res.status(400).json({ error: "Playlist items are invalid." });
       }
       playlist.items = req.body.items.map((item) => ({
         id: item.id,
         title: String(item.title).slice(0, 300),
         artist: String(item.artist || item.author || "").slice(0, 160),
+        genre: String(item.genre || "").slice(0, 80),
         thumbnail: typeof item.thumbnail === "string" && item.thumbnail.startsWith("https://") ? item.thumbnail : null
       }));
     }
     playlist.updatedAt = new Date().toISOString();
     writePlaylists(playlists);
     res.json({ playlist });
+  });
+
+  app.post("/api/videos/playlists/:id/move", (req, res) => {
+    const playlists = readPlaylists();
+    const source = playlists.find((item) => item.id === req.params.id);
+    const target = playlists.find((item) => item.id === req.body?.targetPlaylistId);
+    const videoId = String(req.body?.videoId || "");
+    if (!source || !target) return res.status(404).json({ error: "Source or destination playlist not found." });
+    if (source.id === target.id) return res.status(400).json({ error: "Choose a different destination playlist." });
+    const video = source.items.find((item) => item.id === videoId);
+    if (!video) return res.status(404).json({ error: "Video not found in the source playlist." });
+    const alreadyPresent = target.items.some((item) => item.id === videoId);
+    if (!alreadyPresent && target.items.length >= 500) return res.status(409).json({ error: "The destination playlist is full." });
+    source.items = source.items.filter((item) => item.id !== videoId);
+    if (!alreadyPresent) target.items.push(video);
+    source.updatedAt = target.updatedAt = new Date().toISOString();
+    writePlaylists(playlists);
+    res.json({ source, target, alreadyPresent });
   });
 
   app.delete("/api/videos/playlists/:id", (req, res) => {
