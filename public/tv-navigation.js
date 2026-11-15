@@ -8,6 +8,7 @@
   const path = location.pathname;
   const isRadio = path === "/" || path.endsWith("index.html");
   const isMusic = path.endsWith("music.html");
+  const isVideo = path.endsWith("youtube.html");
   const pages = path.endsWith("help.html")
     ? { title: "Help", detail: "MyMusics guide", links: [["Radio", "/"], ["Management", "/manage.html"]] }
     : { title: "Management", detail: path.endsWith("music-manage.html") ? "Playlists" : "Stations and settings", links: [["Stations", "/manage.html#stations"], ["Playlists", "/manage.html#playlists"], ["Updates", "/manage.html#updates"], ["Help", "/help.html"]] };
@@ -20,8 +21,7 @@
     window.dispatchEvent(new Event("mymusics:tv-mode-change"));
   }
   function addToggle() {
-    const sidebar = document.querySelector(".sidebar");
-    if (!sidebar || document.querySelector("#tv-mode-toggle")) return;
+    if (document.querySelector("#tv-mode-toggle")) return;
     const button = document.createElement("button");
     button.id = "tv-mode-toggle";
     button.className = "tv-mode-toggle";
@@ -30,11 +30,11 @@
     button.setAttribute("aria-pressed", String(document.documentElement.classList.contains("tv-mode")));
     button.innerHTML = tvIcon;
     button.addEventListener("click", () => setTvMode(!document.documentElement.classList.contains("tv-mode")));
-    sidebar.append(button);
+    document.body.append(button);
   }
   function addContextHeader() {
     const main = document.querySelector("main");
-    if (!main || isRadio || isMusic || path.endsWith("manage.html") || path.endsWith("music-manage.html")) return;
+    if (!main || isRadio || isMusic || isVideo || path.endsWith("manage.html") || path.endsWith("music-manage.html")) return;
     const header = document.createElement("header");
     header.className = "design-topbar";
     header.innerHTML = `<div class="design-page-status"><span class="design-live-dot" aria-hidden="true"></span><div><p>${pages.detail}</p><span class="design-page-title">${pages.title}</span></div></div><nav aria-label="Screen shortcuts">${pages.links.map(([label, href]) => `<a href="${href}">${label}</a>`).join("")}</nav>`;

@@ -15,6 +15,7 @@ let hostVideoSession = "";
 let pageLeaving = false;
 let queueCleared = false;
 let loadedPlaylistId = "";
+let tvPlaylistPicker;
 const videoMetadata = new Map();
 
 async function request(path, options) {
@@ -26,6 +27,46 @@ async function request(path, options) {
 
 function say(message) { statusEl.textContent = message; }
 function playlistId() { return $("#saved-video-playlists").value; }
+
+function renderTvPlaylistPicker() {
+  const select = $("#saved-video-playlists");
+  const tvMode = document.documentElement.classList.contains("tv-mode");
+  if (!tvPlaylistPicker) {
+    tvPlaylistPicker = document.createElement("div");
+    tvPlaylistPicker.className = "tv-playlist-picker";
+    tvPlaylistPicker.innerHTML = '<button type="button" class="tv-playlist-current" aria-expanded="false">Choose playlist</button><div class="tv-playlist-options" aria-label="Choose a playlist" hidden></div>';
+    select.after(tvPlaylistPicker);
+    const currentButton = tvPlaylistPicker.querySelector(".tv-playlist-current");
+    const options = tvPlaylistPicker.querySelector(".tv-playlist-options");
+    currentButton.addEventListener("click", () => {
+      options.hidden = !options.hidden;
+      currentButton.setAttribute("aria-expanded", String(!options.hidden));
+      if (!options.hidden) (options.querySelector('[aria-pressed="true"]') || options.querySelector("button"))?.focus();
+    });
+  }
+  select.hidden = tvMode;
+  tvPlaylistPicker.hidden = !tvMode;
+  const currentButton = tvPlaylistPicker.querySelector(".tv-playlist-current");
+  const options = tvPlaylistPicker.querySelector(".tv-playlist-options");
+  const selected = select.selectedOptions[0];
+  currentButton.textContent = selected?.value ? selected.textContent : "Choose playlist";
+  currentButton.disabled = select.options.length < 2;
+  options.replaceChildren();
+  for (const option of [...select.options].slice(1)) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = option.textContent;
+    button.setAttribute("aria-pressed", String(option.value === select.value));
+    button.addEventListener("click", () => {
+      select.value = option.value;
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+      options.hidden = true;
+      currentButton.setAttribute("aria-expanded", "false");
+      currentButton.focus();
+    });
+    options.append(button);
+  }
+}
 
 function renderList(element, items, mode) {
   element.replaceChildren();
@@ -117,7 +158,8 @@ function iframeError(code) {
     5: "YouTube could not play this video in its embedded player.",
     100: "YouTube could not find this video or playlist.",
     101: "The video owner does not allow embedded playback.",
-    150: "The video owner does not allow embedded playback."
+    150: "The video owner does not allow embedded playback.",
+    153: "YouTube did not receive the MyMusics page address. Reload this page; the TV browser may be blocking embedded playback."
   };
   say(messages[code] || `YouTube player error ${code}.`);
 }
@@ -260,6 +302,7 @@ async function refreshPlaylists(selected = playlistId()) {
   for (const list of playlists) select.add(new Option(`${list.name} (${list.items.length})`, list.id));
   select.value = selected;
   $("#play-video-playlist").disabled = !select.value;
+  renderTvPlaylistPicker();
 }
 
 async function updateSelectedPlaylist(items, message) {
@@ -411,8 +454,11 @@ $("#video-load-playlist").addEventListener("submit", async (event) => {
 $("#saved-video-playlists").addEventListener("change", () => {
   const selected = playlists.find((item) => item.id === playlistId());
   $("#play-video-playlist").disabled = !selected;
+  renderTvPlaylistPicker();
   if (selected) loadSavedPlaylist(selected);
 });
+
+window.addEventListener("mymusics:tv-mode-change", renderTvPlaylistPicker);
 
 $("#play-video-playlist").addEventListener("click", () => {
   const selected = playlists.find((item) => item.id === playlistId());

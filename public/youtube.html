@@ -4,14 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0B0D14">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <script>{const ua=navigator.userAgent||'';const actualSilk=/\bSilk(?:\/|\b)/i.test(ua);let emulateSilk=false,saved=null;try{emulateSilk=localStorage.getItem('mymusics:silk-emulation')==='true';saved=localStorage.getItem('mymusics:tv-mode')}catch{}const detectedTv=actualSilk||emulateSilk||/\bAFT[A-Z0-9]*\b|\bKF[A-Z0-9]*\b|Fire TV|SmartTV/i.test(ua);const forceTv=new URLSearchParams(location.search).get('tv')==='1';document.documentElement.classList.toggle('silk-browser',actualSilk||emulateSilk);document.documentElement.classList.toggle('silk-emulated',emulateSilk&&!actualSilk);document.documentElement.classList.toggle('tv-mode',forceTv||emulateSilk||(saved===null?detectedTv:saved==='true'));if(forceTv)try{localStorage.setItem('mymusics:tv-mode','true')}catch{}}</script>
   <title>YouTube — MyMusics</title>
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/style.css?v=mode-switch-youtube-4">
-  <link rel="stylesheet" href="/app-theme.css?v=mode-switch-youtube-3">
+  <link rel="stylesheet" href="/app-theme.css?v=tv-toggle-fixed-1">
   <link rel="stylesheet" href="/silk-tv.css?v=silk-tv-7">
-  <link rel="stylesheet" href="/video-options.css?v=12">
+  <link rel="stylesheet" href="/video-options.css?v=14">
   <script defer src="/playback-target.js?v=host-playback-lease-1"></script>
+  <script defer src="/tv-navigation.js?v=tv-navigation-5"></script>
 </head>
 <body class="video-page">
   <div class="app-shell video-app-shell">
@@ -33,7 +35,7 @@
           <form id="video-search" class="video-search"><label for="video-query">Search songs or artists</label><div><input id="video-query" type="search" minlength="2" maxlength="120" placeholder="Artist, track or video" required><button type="submit">Search</button></div></form>
           <form id="video-playlist-search" class="video-search"><label for="video-playlist-query">Search YouTube playlists</label><div><input id="video-playlist-query" type="search" minlength="2" maxlength="120" placeholder="Playlist name or artist" required><button type="submit">Search playlists</button></div></form>
           <form id="video-load-playlist" class="video-search"><label for="video-playlist-url">Load YouTube video or playlist</label><div><input id="video-playlist-url" type="url" placeholder="Paste a YouTube link" required><button type="submit">Load</button></div></form>
-          <div class="saved-playlists"><label for="saved-video-playlists">Add tracks to</label><div><select id="saved-video-playlists"><option value="">Select playlist</option></select><button id="play-video-playlist" type="button" disabled>Play</button></div></div>
+          <div class="saved-playlists"><label for="saved-video-playlists">Choose playlist</label><div><select id="saved-video-playlists"><option value="">Select playlist</option></select><button id="play-video-playlist" type="button" disabled>Play</button></div></div>
           <div class="results-bar"><h3 id="results-heading" class="results-heading" hidden>Search results</h3><button id="clear-video-results" class="results-clear" type="button" hidden>Show playlist only</button></div>
           <ol id="video-results" class="video-queue search-results" aria-label="Search results"></ol>
           <div class="queue-heading"><h2 id="queue-heading">Queue</h2><span id="queue-count">0 videos</span><button id="clear-video-queue" type="button" disabled>Clear queue</button></div>
@@ -43,6 +45,6 @@
       <p class="footnote">YouTube search needs a Data API key. Host audio uses MPV; video stays in the browser.</p>
     </main>
   </div>
-  <script src="/video-options.js?v=19" defer></script>
+  <script src="/video-options.js?v=20" defer></script>
 </body>
 </html>
