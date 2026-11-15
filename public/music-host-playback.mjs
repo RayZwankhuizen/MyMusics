@@ -2,10 +2,11 @@ import { hostEqualizerSettings } from "./host-equalizer.mjs";
 export function createMusicHostPlayback({ state, deckState, resolveIncomingDeck, setNaturalFadeStartedTrack, getNaturalFadeStartedTrack, naturalFadeSeconds, isHostOutput, musicEqualizer, recordPlayedTrack, setStatus, refreshPlaybackAndQueue, renderDeckTime, syncJukeboxPlaying, next }) {
   let deckStatus = null;
   let deckStatusAt = 0;
+  let hostActiveType = "";
   let endedTrack = "";
 
   function getDeckStatus() {
-    if (!deckStatus) return null;
+    if (!deckStatus || hostActiveType !== "music") return null;
     const elapsed = (performance.now() - deckStatusAt) / 1000;
     return Object.fromEntries(Object.entries(deckStatus).map(([key, status]) => [key, {
       ...status,
@@ -42,6 +43,8 @@ export function createMusicHostPlayback({ state, deckState, resolveIncomingDeck,
       return;
     }
     window.MyMusicsPlayback?.setHostSession(result.sessionId);
+    hostActiveType = "music";
+    deckStatus = null;
     deckState.activeDeck = incomingKey;
     deckState.deckTracks[incomingKey] = track;
     state.current = track;
@@ -57,6 +60,7 @@ export function createMusicHostPlayback({ state, deckState, resolveIncomingDeck,
     if (!isHostOutput()) return;
     try {
       const status = await fetch("/api/host-player/status").then((response) => response.json());
+      hostActiveType = status.activeType || "";
       deckStatus = status.decks;
       deckStatusAt = performance.now();
       const active = status.decks[status.activeDeck];

@@ -184,6 +184,16 @@ module.exports = function registerHostPlayerRoutes(app, { hostPlayer, getStation
     }
   });
 
+  app.post("/api/host-player/radio/stop", async (req, res) => {
+    if (!req.is("application/json")) return res.status(415).json({ error: "Radio stop requests must use JSON." });
+    if (req.get("origin") !== `${req.protocol}://${req.get("host")}`) return res.status(403).json({ error: "Radio playback can only be stopped from this MyMusics page." });
+    if (!hostPlaybackSession || req.body?.sessionId !== hostPlaybackSession) return res.status(409).json({ error: "Radio playback session has ended." });
+    if (hostPlayer.activeType !== "radio") return res.json({ stopped: false });
+    clearHostPlaybackLease();
+    await hostPlayer.stop();
+    res.json({ stopped: true });
+  });
+
   app.post("/api/host-player/music", async (req, res) => {
     const id = String(req.body?.id || "");
     const deck = String(req.body?.deck || "");

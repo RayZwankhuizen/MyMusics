@@ -121,7 +121,7 @@ export function wireRadioPlayerBar({ getAudio, getBrowserMeterLevels, getStation
     const next = stations[(index + direction + stations.length) % stations.length];
     void playStation(next, getGenre());
   }
-  button.addEventListener("click", () => { void setHostPaused(!getAudio().paused); });
+  button.addEventListener("click", () => { void setHostPaused(); });
   volume.addEventListener("input", () => {
     volumeLevel = Number(volume.value) / 100;
     applyVolume();

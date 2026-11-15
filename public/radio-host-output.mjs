@@ -4,6 +4,8 @@ export function createRadioHostOutput({ getAudio, setStatus, isHostOutput }) {
   const toggle = document.querySelector("#host-radio-toggle");
   const status = document.querySelector("#host-radio-status");
   let currentUrl = "";
+  let currentSessionId = "";
+  let pageLeaving = false;
   let paused = false;
   let volumeTimer;
 
@@ -27,7 +29,9 @@ export function createRadioHostOutput({ getAudio, setStatus, isHostOutput }) {
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Host playback failed.");
-      window.MyMusicsPlayback?.setHostSession(result.sessionId);
+      currentSessionId = result.sessionId || "";
+      if (pageLeaving) return stopForNavigation();
+      window.MyMusicsPlayback?.setHostSession(currentSessionId);
       currentUrl = station.url;
       paused = false;
       toggle.textContent = "Pause";
@@ -43,6 +47,7 @@ export function createRadioHostOutput({ getAudio, setStatus, isHostOutput }) {
   async function stop() {
     window.MyMusicsPlayback?.setHostSession("");
     currentUrl = "";
+    currentSessionId = "";
     await fetch("/api/host-player/control", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -60,7 +65,24 @@ export function createRadioHostOutput({ getAudio, setStatus, isHostOutput }) {
     if (isHostOutput()) setStatus(paused ? "PAUSED" : "ON AIR", !paused);
   }
 
-  toggle?.addEventListener("click", () => { void setPaused(!paused); });
+  function togglePaused() { return setPaused(!paused); }
+
+  function stopForNavigation() {
+    pageLeaving = true;
+    const sessionId = currentSessionId;
+    currentSessionId = "";
+    currentUrl = "";
+    paused = true;
+    getAudio().pause();
+    window.MyMusicsPlayback?.setHostSession("");
+    if (!sessionId) return;
+    void fetch("/api/host-player/radio/stop", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionId }), keepalive: true
+    }).catch(() => {});
+  }
+
+  toggle?.addEventListener("click", () => { void togglePaused(); });
 
   async function setVolume(value) {
     const level = Math.max(0, Math.min(100, Math.round(Number(value) || 0)));
@@ -75,5 +97,7 @@ export function createRadioHostOutput({ getAudio, setStatus, isHostOutput }) {
     document.querySelector("#radio-player-volume").dispatchEvent(new Event("input", { bubbles: true }));
   });
 
-  return Object.freeze({ play, stop, setPaused, setVolume });
+  window.addEventListener("pageshow", () => { pageLeaving = false; });
+
+  return Object.freeze({ play, stop, setPaused, togglePaused, stopForNavigation, setVolume });
 }

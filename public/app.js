@@ -7,7 +7,7 @@ import { createRadioSuppressionStore, metadataBlockKey as buildMetadataBlockKey,
 import { fetchTrackMetadata } from "./radio-track-metadata-api.mjs";
 import { createRadioMetadataView } from "./radio-metadata-view.mjs";
 import { createRadioTrackDetailsView } from "./radio-track-details-view.mjs";
-import { createRadioHostOutput } from "./radio-host-output.mjs?v=radio-dual-output-1";
+import { createRadioHostOutput } from "./radio-host-output.mjs?v=radio-output-focus-1";
 import { createRadioNowPlaying } from "./radio-now-playing.mjs";
 import { createRadioEqualizerController } from "./radio-equalizer-controller.mjs?v=radio-dual-output-1";
 import { createRadioHlsPlayback } from "./radio-hls-playback.mjs";
@@ -18,10 +18,10 @@ import { wireRadioSpeechVolumeSettings } from "./radio-speech-volume-settings.mj
 import { createRadioStationCatalog } from "./radio-station-catalog.mjs";
 import { createRadioTrackUpdates } from "./radio-track-updates.mjs";
 import { createRadioSuppressionControls } from "./radio-suppression-controls.mjs";
-import { createRadioStationPlayback } from "./radio-station-playback.mjs?v=radio-dual-output-1";
+import { createRadioStationPlayback } from "./radio-station-playback.mjs?v=radio-output-focus-1";
 import { createRadioTrackLookup } from "./radio-track-lookup.mjs";
 import { createRadioAudioOutput } from "./radio-audio-output.mjs";
-import { wireRadioPlayerBar } from "./radio-player-bar.mjs?v=radio-dual-output-1";
+import { wireRadioPlayerBar } from "./radio-player-bar.mjs?v=radio-output-focus-1";
 
 let suppressionController;
 const radioAudioOutput = createRadioAudioOutput({ initialAudio: document.querySelector("#audio"), getSuppressionController: () => suppressionController });
@@ -147,7 +147,7 @@ wireRadioPlayerBar({
   isHostOutput: () => window.MyMusicsPlayback?.isHost === true,
   playStation,
   setHostVolume: hostPlayerOutput.setVolume,
-  setHostPaused: hostPlayerOutput.setPaused
+  setHostPaused: hostPlayerOutput.togglePaused
 });
 
 document.querySelectorAll("dialog").forEach(window.MyMusicsUI.closeOnBackdropClick);
@@ -313,6 +313,10 @@ const stationPlayback = createRadioStationPlayback({
     hideHostControls: () => { el("#host-radio-controls").hidden = true; },
     setHostControlsVisible: (visible) => { el("#host-radio-controls").hidden = !visible; }
   }
+});
+window.addEventListener("pagehide", () => {
+  stationPlayback.stopForNavigation();
+  hostPlayerOutput.stopForNavigation();
 });
 function appendMetadataBlock(data) { metadataView.append(data); }
 

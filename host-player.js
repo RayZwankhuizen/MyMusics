@@ -402,6 +402,7 @@ class HostPlayer {
     const decks = await Promise.all([this.decks.a.status(), this.decks.b.status()]);
     return {
       available: Boolean(this.decks.a.child || this.decks.b.child), activeDeck: this.activeDeck,
+      activeType: this.activeType,
       error: this.lastError || (this.activeDeck ? decks[this.activeDeck === "a" ? 0 : 1].error : ""),
       decks: { a: decks[0], b: decks[1] }
     };

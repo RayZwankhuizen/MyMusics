@@ -12,7 +12,7 @@ import { wireManageStationPreview } from "./manage-station-preview.mjs";
 import { wireManageBrowserInfo } from "./manage-browser-info.mjs";
 import { wireManageStationLogoBatch } from "./manage-station-logo-batch.mjs?v=temporary-logo-batch-1";
 import { wireManageAllStations } from "./manage-all-stations.mjs?v=temporary-all-stations-1";
-import { wireManageVideoPlaylists } from "./manage-video-playlists.mjs?v=2";
+import { wireManageVideoPlaylists } from "./manage-video-playlists.mjs?v=youtube-import-sources-2";
 
 const el = (selector) => document.querySelector(selector);
 const notice = (message, error = false) => {

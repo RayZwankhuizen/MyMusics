@@ -1,6 +1,6 @@
 import { wireMusicRefreshEvents } from "./music-refresh-events.mjs";
 import { createMusicSearch, wireMusicSearchEvents } from "./music-search.mjs";
-import { wirePlaybackLifecycleEvents, wireMusicPlaybackTargetChange, wireJukeboxPlayerEvents, wireDeckSeekEvents, wireDeckPlaybackControls, createDeckEndedHandler } from "./music-playback-events.mjs?v=music-controls-1";
+import { wirePlaybackLifecycleEvents, wireMusicPlaybackTargetChange, wireJukeboxPlayerEvents, wireDeckSeekEvents, wireDeckPlaybackControls, createDeckEndedHandler } from "./music-playback-events.mjs?v=player-layout-1";
 import { createMusicEqualizer } from "./music-equalizer.mjs?v=stereo-meter-1";
 import { createMusicInfoView, createMusicResultView } from "./music-library-views.mjs";
 import { createJukeboxRack, createJukeboxSearch } from "./jukebox-browser.mjs?v=tv-remote-1";
@@ -10,7 +10,7 @@ import { createMusicQueueView } from "./music-queue-view.mjs";
 import { createMusicQueueOperations } from "./music-queue-operations.mjs";
 import { createMusicInfoController } from "./music-info-controller.mjs";
 import { createMusicPlaybackNavigation } from "./music-playback-navigation.mjs";
-import { createMusicJukeboxDecks } from "./music-jukebox-decks.mjs?v=music-controls-2";
+import { createMusicJukeboxDecks } from "./music-jukebox-decks.mjs?v=player-controls-placement-1";
 import { createMusicDeckTransport } from "./music-deck-transport.mjs";
 import { createMusicHostPlayback } from "./music-host-playback.mjs";
 import { wireMusicGenrePulldown } from "./music-genre-pulldown.mjs";
@@ -22,7 +22,7 @@ import { createMusicSessionStorage } from "./music-session-storage.mjs";
 import { createMusicPlaylistActions } from "./music-playlist-actions.mjs";
 import { wireMusicVolume } from "./music-volume.mjs?v=host-volume-sync-1";
 import { createRadioLyricsController } from "./radio-lyrics-controller.mjs?v=shared-lyrics-2";
-import { wireMusicVuMeter } from "./music-vu-meter.mjs?v=stereo-vu-1";
+import { wireMusicVuMeter } from "./music-vu-meter.mjs?v=active-type-1";
 
 // Music mode: plays the Jellyfin library through this server and builds the
 // queue with the AutoDJ endpoint. Radio page logic stays in app.js.

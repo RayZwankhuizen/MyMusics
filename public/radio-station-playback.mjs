@@ -60,7 +60,16 @@ export function createRadioStationPlayback({ state, players, ui }) {
     applyOutputVolumes();
   }
 
+  function stopForNavigation() {
+    state.nextGeneration();
+    ui.stopSpeechDetection();
+    players.hls.stop();
+    players.nowPlaying.stop();
+    state.setStation(null, "");
+    window.dispatchEvent(new CustomEvent("mymusics:radio-station-change", { detail: null }));
+  }
+
   window.addEventListener("mymusics:playback-target-change", onPlaybackTargetChange);
   window.addEventListener("mymusics:radio-volume-change", applyOutputVolumes);
-  return Object.freeze({ play });
+  return Object.freeze({ play, stopForNavigation });
 }

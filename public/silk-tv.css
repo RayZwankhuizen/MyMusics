@@ -6,9 +6,8 @@ html.silk-browser.tv-mode .sidebar{position:sticky;inset:auto;width:auto;height:
 html.silk-browser.tv-mode .brand{grid-column:1;grid-row:1;font-size:22px}
 html.silk-browser.tv-mode .mode-switch{grid-column:2;grid-row:1;margin:0}
 html.silk-browser.tv-mode .mode-switch .mode{min-width:112px;min-height:58px;font-size:20px}
-html.silk-browser.tv-mode .playback-target-setting,html.silk-browser.tv-mode .music-volume-setting{justify-self:end;max-width:260px;font-size:18px}
+html.silk-browser.tv-mode .playback-target-setting{justify-self:end;max-width:260px;font-size:18px}
 html.silk-browser.tv-mode .playback-target-setting{grid-column:3;grid-row:1}
-html.silk-browser.tv-mode .music-volume-setting{grid-column:4;grid-row:1}
 html.silk-browser.tv-mode .side-label{grid-column:1;grid-row:2;margin:0;font-size:16px!important}
 html.silk-browser.tv-mode .genre-nav{grid-column:2/6;grid-row:2;display:flex;gap:8px;max-width:100%;max-height:76px;overflow:auto hidden;padding:4px;scrollbar-width:none}
 html.silk-browser.tv-mode .genre-nav button{width:auto;min-width:max-content;min-height:56px;padding:10px 18px;border:1px solid #eef0f522;border-radius:10px;background:#11141c;color:#eef0f5;font-size:18px!important}
@@ -69,9 +68,6 @@ html.silk-browser.tv-mode body.music-page #jb-search-dialog .jb-rack-list{max-he
   html.silk-browser.tv-mode .playback-target-setting .tv-playback-picker{position:relative;width:100%}
   html.silk-browser.tv-mode .playback-target-setting .tv-playback-current{width:100%;min-height:48px;padding:8px 12px;font-size:16px!important;white-space:nowrap}
   html.silk-browser.tv-mode body.music-page .playback-target-setting{grid-column:1/4;grid-row:2;width:100%}
-  html.silk-browser.tv-mode body.music-page .music-volume-setting{display:flex;align-items:center;gap:8px;grid-column:4;grid-row:2;justify-self:end;width:188px;min-height:48px;margin:0;padding:6px 10px;font-size:14px!important}
-  html.silk-browser.tv-mode body.music-page .music-volume-setting span{flex:1;white-space:nowrap;font-size:14px!important}
-  html.silk-browser.tv-mode body.music-page .music-volume-setting input{width:72px;min-width:48px}
   html.silk-browser.tv-mode body.radio-page .playback-target-setting{grid-column:3;grid-row:1;width:100%}
   html.silk-browser.tv-mode .side-label{grid-column:1;grid-row:2;align-self:center;margin:0}
   html.silk-browser.tv-mode .genre-nav{grid-column:2/-1;grid-row:2;min-width:0;max-height:60px;overflow:auto hidden}
@@ -120,3 +116,17 @@ html.silk-browser.tv-mode .radio-page .player-bar{width:auto}
 /* Listening screens omit management links on TVs and Firestick/Silk. */
 html:is(.tv-mode,.silk-browser):not(.silk-emulated) :is(.radio-page,.music-page) .sidebar-manage,
 html:is(.tv-mode,.silk-browser):not(.silk-emulated) :is(.radio-page,.music-page) a[href^="/manage.html"]{display:none!important}
+
+html.silk-browser.tv-mode body.music-page main{padding-bottom:90px}
+html.silk-browser.tv-mode body.music-page .music-dock{inset:auto 4vw calc(1vh + env(safe-area-inset-bottom));left:4vw;display:grid;min-height:0;padding:8px 16px;border:1px solid #eef0f533;border-radius:16px;background:#07080df5}
+html.silk-browser.tv-mode body.music-page .music-dock-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+html.silk-browser.tv-mode body.music-page .music-dock-actions .jb-key{width:100%;min-width:0;height:56px;min-height:56px;padding:0 8px;font-size:18px!important}
+html.silk-browser.tv-mode body.music-page .music-tile-controls{grid-template-columns:minmax(140px,1fr) minmax(180px,1fr) auto;gap:20px}
+html.silk-browser.tv-mode body.music-page .music-tile-controls .music-vu-label,html.silk-browser.tv-mode body.music-page .music-tile-controls .music-vu-channel>span{font-size:16px!important}
+html.silk-browser.tv-mode body.music-page .music-tile-controls .music-sound-settings{height:56px;min-height:56px;font-size:18px!important}
+html.silk-browser.tv-mode body.music-page .jukebox.jb-vintage .jb-deck.is-active{grid-template-columns:150px minmax(0,1fr);grid-template-rows:auto auto minmax(20px,auto) auto;min-height:0;padding:8px 12px}
+html.silk-browser.tv-mode body.music-page .jukebox.jb-vintage .jb-deck.is-active .jb-title{grid-column:2;grid-row:1;text-align:left}
+html.silk-browser.tv-mode body.music-page .jukebox.jb-vintage .jb-deck.is-active .jb-deck-artist{grid-column:2;grid-row:2}
+html.silk-browser.tv-mode body.music-page .jukebox.jb-vintage .jb-deck.is-active .jb-progress{grid-column:2;grid-row:3}
+html.silk-browser.tv-mode body.music-page .jukebox.jb-vintage .jb-deck.is-active .jb-time{grid-column:2;grid-row:4;text-align:left}
+html.silk-browser.tv-mode body.music-page .jukebox.jb-vintage .jb-deck.is-active .jb-turntable{grid-column:1;grid-row:1/5;width:150px}

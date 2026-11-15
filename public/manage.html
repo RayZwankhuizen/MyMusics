@@ -163,6 +163,14 @@
         <header class="playlist-management-heading"><div><p class="eyebrow">YouTube videos</p><h2 id="video-playlist-heading">Video playlists</h2><p>Create and organize your saved YouTube playlists. Search for videos on the player page and add them directly to a selected playlist.</p></div><a class="station-edit-button" href="/youtube.html">Find videos</a></header>
         <form id="video-playlist-create-form" class="station-filter"><div class="playlist-create-row"><input id="video-playlist-name" maxlength="100" placeholder="New video playlist" autocomplete="off" required><button class="station-edit-button" type="submit">Create playlist</button></div></form>
         <label class="video-playlist-picker-label" for="video-playlist-picker">Select playlist</label><select id="video-playlist-picker"><option value="">Loading playlists…</option></select>
+        <form id="video-playlist-import-form" class="video-playlist-import">
+          <label for="video-playlist-import-input">Import YouTube video IDs or URLs</label>
+          <textarea id="video-playlist-import-input" rows="5" placeholder="Paste video IDs or YouTube URLs, one per line"></textarea>
+          <p class="form-hint">Paste YouTube video or playlist URLs, or a MyMusics <code>/api/videos/playlist-items?id=…</code> URL. You can also paste or load its JSON response. URL imports need the YouTube Data API key above; JSON imports use the included video details.</p>
+          <label class="video-playlist-file-label" for="video-playlist-import-file">Or load a Chrome HTML, JSON, text, or CSV bookmarks file from this device</label>
+          <input id="video-playlist-import-file" type="file" accept=".html,.htm,.json,.txt,.csv,text/html,application/json,text/plain,text/csv">
+          <button id="video-playlist-import-submit" class="station-edit-button" type="submit" disabled>Import to selected playlist</button>
+        </form>
         <p id="video-playlist-status" class="lookup-status" role="status" aria-live="polite"></p>
         <div id="video-playlist-list" class="station-list"></div>
         <div id="video-playlist-tracks" class="playlist-tracks" hidden></div>

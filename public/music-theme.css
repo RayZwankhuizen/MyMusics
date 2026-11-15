@@ -7,10 +7,6 @@ body.music-page .jukebox.jb-vintage::before,body.music-page .jukebox.jb-vintage:
 body.music-page .jb-toolbar{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:18px;padding-bottom:14px;border-bottom:1px solid #76552e}
 body.music-page .jb-toolbar>div:first-child{display:grid;gap:4px}.music-eyebrow{margin:0;color:#aeb5c8;font:600 10px var(--mono);letter-spacing:1.4px}.jb-toolbar h2{margin:0;color:#f8f3e9;font-size:clamp(20px,2vw,30px);letter-spacing:-.7px}
 body.music-page .music-toolbar-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
-body.music-page .music-refresh-feedback{display:grid;justify-items:end;gap:4px;min-width:0}
-body.music-page #music-toolbar-status{margin:0;color:#a9b6ce;font-size:12px;text-align:right}
-body.music-page #music-toolbar-status:empty{display:none}
-body.music-page #music-refresh-progress{width:clamp(80px,10vw,140px);height:8px;accent-color:#ffcf78}
 body.music-page .jb-key{min-height:42px;padding:0 14px;border:1px solid #685536;border-radius:10px;background:#242633;color:#f2e8d4;font-size:13px;letter-spacing:0;text-transform:none;white-space:normal}
 body.music-page .jb-key-main{border-color:#ffcf78;background:linear-gradient(180deg,#f4c26d,#c87932);color:#24160c;font-weight:750}
 body.music-page .jb-decks{position:relative;z-index:1;gap:clamp(12px,1.8vw,28px)}
@@ -344,18 +340,17 @@ body.music-page #jukebox .jb-deck.is-active .jb-turntable::before{position:absol
 body.music-page #jukebox .jb-deck.is-active .jb-vinyl{inset:15%;z-index:1}
 body.music-page #jukebox .jb-deck.is-active .jb-arm{top:15%;right:18%;transform:scale(.7) rotate(-18deg)}
 body.music-page #jukebox .jb-deck.is-active .jb-arm.is-playing{transform:scale(.7) rotate(2deg)}
-body.music-page .music-dock .music-vu{display:grid;width:142px;gap:3px;color:#c0c9d6}
+body.music-page .music-tile-controls .music-vu{display:grid;gap:3px;color:#c0c9d6}
 body.music-page .music-vu-label{margin-bottom:2px;color:#b8c5d4;font:9px var(--mono);letter-spacing:2px}
 body.music-page .music-vu-channel{display:flex;align-items:center;gap:8px}
 body.music-page .music-vu-channel>span{width:9px;flex:none;color:#a7b3c4;font:9px var(--mono)}
 body.music-page .music-vu-track{position:relative;flex:1;height:7px;overflow:hidden;border-radius:2px;background:linear-gradient(90deg,#68d6a1 0 65%,#efb65f 65% 85%,#f47b6b 85% 100%)}
 body.music-page .music-vu-track>i{position:absolute;inset:0;display:block;width:100%;height:100%;transform:scaleX(1);transform-origin:right;background:#29313d}
 body.music-page .music-vu-track::after{position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 7px,#151c28 7px 10px);content:""}
-body.music-page .music-dock .music-volume-setting{display:flex;align-items:center;gap:8px;width:155px;margin:0;padding:0;border:0;color:var(--muted);font:11px var(--mono)}
-body.music-page .music-dock .music-volume-setting span{display:flex;flex:none;gap:4px;color:var(--muted)}
-body.music-page .music-dock .music-volume-setting output{color:var(--ink)}
-body.music-page .music-dock .music-volume-setting input{width:78px;min-width:0;margin:0;accent-color:var(--accent)}
-@media(max-width:760px){body.music-page main{padding-bottom:180px}body.music-page .music-dock{row-gap:8px}body.music-page .music-dock .music-vu,body.music-page .music-dock .music-volume-setting{flex:1 1 130px}html.tv-mode body.music-page .music-vu-label,html.tv-mode body.music-page .music-vu-channel>span{font-size:11px!important}}
+body.music-page .music-tile-controls .music-volume-setting{color:var(--muted);font:11px var(--mono)}
+body.music-page .music-tile-controls .music-volume-setting span{display:flex;gap:8px;color:var(--muted)}
+body.music-page .music-tile-controls .music-volume-setting output{color:var(--ink)}
+body.music-page .music-tile-controls .music-volume-setting input{min-width:0;margin:0;accent-color:var(--accent)}
 
 /* Keep the jukebox cabinet; place the active deck and next track directly inside it. */
 body.music-page #jukebox .jb-deck,body.music-page #jukebox .jb-deck.is-active{min-height:0;padding:0;overflow:visible;border:0;border-radius:0;background:transparent;box-shadow:none}
@@ -372,3 +367,40 @@ body.music-page #jukebox .jb-center-card .jb-info.is-active{display:block}
 body.music-page #jukebox .jb-center-card .jb-info.is-active>:not(.jb-natural-fade){display:none!important}
 body.music-page #jukebox .jb-center-card .jb-info.is-active>.jb-natural-fade{display:flex!important}
 body.music-page #jukebox .jb-deck .jb-progress{box-sizing:border-box;width:clamp(180px,70%,320px);max-width:100%;min-width:0;justify-self:center}
+
+body.music-page #jukebox{min-height:0;padding:18px}
+body.music-page #jukebox .jb-deck.is-active{grid-template-columns:clamp(112px,14vw,160px) minmax(0,1fr);grid-template-rows:auto auto minmax(20px,auto) auto;gap:4px 18px;justify-items:stretch;align-items:center;padding:8px 12px 14px}
+body.music-page #jukebox .jb-deck.is-active .jb-title{grid-column:2;grid-row:1;text-align:left}
+body.music-page #jukebox .jb-deck.is-active .jb-deck-artist{grid-column:2;grid-row:2;justify-self:start}
+body.music-page #jukebox .jb-deck.is-active .jb-progress{grid-column:2;grid-row:3;width:100%;justify-self:stretch}
+body.music-page #jukebox .jb-deck.is-active .jb-time{grid-column:2;grid-row:4;text-align:left}
+body.music-page #jukebox .jb-deck.is-active .jb-turntable{grid-column:1;grid-row:1/5;width:clamp(112px,14vw,160px);max-width:100%}
+body.music-page .music-tile-controls{display:grid;grid-template-columns:minmax(130px,1fr) minmax(160px,1fr) auto;align-items:center;gap:clamp(12px,2vw,24px);margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+body.music-page .music-tile-controls .music-vu{width:100%;min-width:0}
+body.music-page .music-tile-controls .music-volume-setting{display:grid;width:auto;gap:3px;margin:0;padding:0;border:0}
+body.music-page .music-tile-controls .music-volume-setting span{justify-content:space-between}
+body.music-page .music-tile-controls .music-volume-setting input{width:100%}
+body.music-page .music-sound-settings{height:40px;min-height:40px;padding-inline:12px;white-space:nowrap}
+body.music-page .music-dock{display:grid;grid-template-columns:minmax(0,1fr);min-height:0;padding:10px 18px 12px;border-top:1px solid var(--line);background:#07080df5;box-shadow:0 -10px 32px #0005}
+body.music-page .music-dock-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;width:100%}
+body.music-page .music-dock-actions .jb-key{width:100%;min-width:0;height:44px;min-height:44px;padding:0 10px;font-size:13px;line-height:1.1;white-space:nowrap}
+body.music-page .music-dock-actions .jb-key:disabled{opacity:.5;cursor:default}
+body.music-page .music-sidebar-maintenance{display:grid;gap:4px;margin-top:8px}
+body.music-page .music-sidebar-maintenance .jb-key{min-height:38px}
+body.music-page .music-sidebar-maintenance progress{width:100%;height:7px;accent-color:var(--accent)}
+body.music-page #music-toolbar-status{margin:0;color:var(--muted);font-size:11px;line-height:1.35}
+body.music-page #music-toolbar-status:empty{display:none}
+body.music-page .music-sidebar-maintenance #music-refresh{width:100%}
+@media(max-width:760px){
+  body.music-page main{padding-bottom:92px}
+  body.music-page #jukebox .jb-deck.is-active{grid-template-columns:clamp(88px,25vw,120px) minmax(0,1fr);gap:4px 12px;padding:8px 4px 12px}
+  body.music-page #jukebox .jb-deck.is-active .jb-turntable{width:clamp(88px,25vw,120px)}
+  body.music-page .music-dock{inset:auto 0 0;gap:7px;padding:8px 10px calc(8px + env(safe-area-inset-bottom))}
+  body.music-page .music-tile-controls{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+  body.music-page .music-tile-controls .music-sound-settings{grid-column:1/-1;width:100%}
+  body.music-page .music-tile-controls .music-volume-setting{grid-template-columns:auto minmax(0,1fr);align-items:center;gap:8px}
+  body.music-page .music-tile-controls .music-volume-setting span{justify-content:flex-start;white-space:nowrap}
+  body.music-page .music-vu-label{font-size:8px;letter-spacing:1px}
+  body.music-page .music-dock-actions{gap:5px}
+  body.music-page .music-dock-actions .jb-key{height:40px;min-height:40px;padding:0 4px;font-size:10px}
+}
