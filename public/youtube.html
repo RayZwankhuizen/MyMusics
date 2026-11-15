@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="/style.css?v=mode-switch-youtube-4">
   <link rel="stylesheet" href="/app-theme.css?v=mode-switch-youtube-3">
   <link rel="stylesheet" href="/silk-tv.css?v=silk-tv-7">
-  <link rel="stylesheet" href="/video-options.css?v=9">
+  <link rel="stylesheet" href="/video-options.css?v=12">
   <script defer src="/playback-target.js?v=host-playback-lease-1"></script>
 </head>
 <body class="video-page">
@@ -23,17 +23,16 @@
       <div class="sidebar-foot"><span class="live-dot"></span> Independent radio, everywhere</div>
     </aside>
     <main class="video-main-content">
-      <header class="intro"><p class="eyebrow"><span></span> YOUTUBE</p><h1>Music videos.<br><em>Your queue.</em></h1><p class="lede">Search for a song or artist, find YouTube playlists, and play videos. Add a found track directly to a saved playlist.</p></header>
       <section class="video-workspace" aria-label="Video player and playlist">
         <div class="video-main">
           <div class="player-frame"><div id="youtube-player" title="YouTube video player"></div></div>
-          <div class="video-now"><div><p class="eyebrow">NOW PLAYING</p><h2 id="video-title">Choose a video</h2><p id="video-author"></p></div><div class="transport"><button id="previous-video" type="button" aria-label="Previous video">Previous</button><button id="next-video" type="button">Next</button></div></div>
+          <div class="video-now"><div><p class="eyebrow">Now playing</p><h2 id="video-title">Choose a video</h2><p id="video-author"></p></div><div class="transport"><button id="previous-video" type="button" aria-label="Previous video">Previous</button><button id="next-video" type="button">Next</button></div></div>
           <p id="video-status" class="video-status" role="status">Playback follows the selected audio output.</p>
         </div>
         <aside class="video-side">
           <form id="video-search" class="video-search"><label for="video-query">Search songs or artists</label><div><input id="video-query" type="search" minlength="2" maxlength="120" placeholder="Artist, track or video" required><button type="submit">Search</button></div></form>
           <form id="video-playlist-search" class="video-search"><label for="video-playlist-query">Search YouTube playlists</label><div><input id="video-playlist-query" type="search" minlength="2" maxlength="120" placeholder="Playlist name or artist" required><button type="submit">Search playlists</button></div></form>
-          <form id="video-load-playlist" class="video-search"><label for="video-playlist-url">Load a YouTube video or playlist link</label><div><input id="video-playlist-url" type="url" placeholder="Paste a YouTube link" required><button type="submit">Load</button></div></form>
+          <form id="video-load-playlist" class="video-search"><label for="video-playlist-url">Load YouTube video or playlist</label><div><input id="video-playlist-url" type="url" placeholder="Paste a YouTube link" required><button type="submit">Load</button></div></form>
           <div class="saved-playlists"><label for="saved-video-playlists">Add tracks to</label><div><select id="saved-video-playlists"><option value="">Select playlist</option></select><button id="play-video-playlist" type="button" disabled>Play</button></div></div>
           <div class="results-bar"><h3 id="results-heading" class="results-heading" hidden>Search results</h3><button id="clear-video-results" class="results-clear" type="button" hidden>Show playlist only</button></div>
           <ol id="video-results" class="video-queue search-results" aria-label="Search results"></ol>
@@ -41,9 +40,9 @@
           <ol id="video-queue" class="video-queue"></ol>
         </aside>
       </section>
-      <p class="footnote">Search and playlist details require a YouTube Data API key in the MyMusics server’s <code>.env</code>. Host audio uses MPV; video remains visible in the browser.</p>
+      <p class="footnote">YouTube search needs a Data API key. Host audio uses MPV; video stays in the browser.</p>
     </main>
   </div>
-  <script src="/video-options.js?v=18" defer></script>
+  <script src="/video-options.js?v=19" defer></script>
 </body>
 </html>

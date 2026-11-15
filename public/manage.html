@@ -9,9 +9,9 @@
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/style.css?v=mode-switch-youtube-4">
   <link rel="stylesheet" href="/manage.css">
-  <script type="module" src="/manage.js?v=playlist-station-export-2"></script>
+  <script type="module" src="/manage.js?v=youtube-unslop-1"></script>
   <link rel="stylesheet" href="/app-theme.css?v=mode-switch-youtube-3">
-  <link rel="stylesheet" href="/management-theme.css?v=playlist-station-export-2">
+  <link rel="stylesheet" href="/management-theme.css?v=youtube-unslop-1">
   <link rel="stylesheet" href="/manage-settings.css?v=youtube-api-settings-1">
 </head>
 <body class="management-page">
@@ -161,13 +161,13 @@
         <div id="playlist-tracks" class="playlist-tracks" hidden></div>
       </section>
       <section id="video-playlists" class="video-playlist-management panel" aria-labelledby="video-playlist-heading">
-        <header class="playlist-management-heading"><div><p class="eyebrow">YouTube videos</p><h2 id="video-playlist-heading">Video playlists</h2><p>Create playlists, edit track details, preview videos, and move tracks between playlists.</p></div><a class="station-edit-button" href="/youtube.html">Find videos</a></header>
+        <header class="playlist-management-heading"><div><p class="eyebrow">YouTube videos</p><h2 id="video-playlist-heading">Video playlists</h2><p>Create, edit, preview and move YouTube tracks</p></div><a class="station-edit-button" href="/youtube.html">Find videos</a></header>
         <form id="video-playlist-create-form" class="station-filter"><div class="playlist-create-row"><input id="video-playlist-name" maxlength="100" placeholder="New video playlist" autocomplete="off" required><button class="station-edit-button" type="submit">Create playlist</button></div></form>
         <label class="video-playlist-picker-label" for="video-playlist-picker">Manage playlist</label><select id="video-playlist-picker"><option value="">Loading playlists…</option></select>
         <div class="video-playlist-import">
           <label for="video-playlist-import-input">Import YouTube video IDs or URLs</label>
           <textarea id="video-playlist-import-input" rows="5" placeholder="Paste video IDs or YouTube URLs, one per line"></textarea>
-          <p class="form-hint">Only individual YouTube and Vevo video bookmarks are included; other bookmarks are ignored. Chrome files may not contain artist data. Playlist-only bookmarks need a video-list JSON response.</p>
+          <p class="form-hint">Imports individual YouTube and Vevo videos only. Chrome bookmarks may omit artist details; playlist bookmarks need video-list JSON.</p>
           <label class="video-playlist-file-label" for="video-playlist-import-file">Or load a Chrome HTML, JSON, text, or CSV bookmarks file from this device</label>
           <input id="video-playlist-import-file" type="file" accept=".html,.htm,.json,.txt,.csv,text/html,application/json,text/plain,text/csv">
           <button id="video-playlist-preview-button" class="station-edit-button" type="button">Preview videos</button>

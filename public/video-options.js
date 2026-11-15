@@ -38,7 +38,7 @@ function renderList(element, items, mode) {
     const copy = document.createElement("div");
     const kind = document.createElement("span");
     kind.className = "item-kind";
-    kind.textContent = mode === "playlist-results" ? "PLAYLIST" : "VIDEO";
+    kind.textContent = mode === "playlist-results" ? "Playlist" : "Video";
     const title = document.createElement("div");
     title.className = "item-title";
     title.textContent = item.title;

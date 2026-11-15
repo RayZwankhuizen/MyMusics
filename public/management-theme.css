@@ -181,3 +181,22 @@ html.tv-mode .management-page .video-track-edit-form input{min-height:50px;font-
 @media(max-width:700px){.management-page .video-playlist-management .video-track-row{grid-template-columns:76px minmax(0,1fr)}.management-page .video-track-thumbnail{width:76px}.management-page .video-track-edit-form{grid-template-columns:1fr}.management-page .video-track-edit-form button{width:100%}.management-page .video-track-info{grid-template-columns:1fr}.management-page .video-track-info iframe{max-width:420px}}
 .management-page .manage-export{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px 16px;margin:8px 0 18px;padding:16px 18px}.management-page .manage-export strong{color:var(--ink);font-size:15px}.management-page .manage-export p{margin:4px 0 0;color:var(--muted);font-size:13px}.management-page .manage-export #export-saved-data-status:empty{display:none}.management-page .manage-export #export-saved-data-status{grid-column:1/-1}.management-page .manage-export button:disabled{cursor:wait;opacity:.65}
 @media(max-width:600px){.management-page .manage-export{grid-template-columns:1fr}.management-page .manage-export button{width:100%}}
+
+/* YouTube management uses the same restrained accent and surface steps as its player. */
+.management-page .video-playlist-management{gap:16px;padding:24px}
+.management-page .video-playlist-management .eyebrow{color:var(--muted);font-size:12px;letter-spacing:0;text-transform:none}
+.management-page .video-playlist-management .station-row.selected{border-color:var(--line);background:#171b25;box-shadow:inset 3px 0 var(--accent)}
+.management-page .video-playlist-import{gap:12px;padding:20px;background:#101826}
+.management-page .video-playlist-import textarea,.management-page .video-playlist-management input:not([type=file]),.management-page #video-playlist-picker{background:#0a0f1f}
+.management-page .video-playlist-import textarea:focus-visible,.management-page .video-playlist-import input:focus-visible,.management-page .video-playlist-management input:focus-visible,.management-page #video-playlist-picker:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.management-page .video-import-item{gap:12px;padding:12px;background:#101826}
+.management-page .video-import-item:has(input:checked){border-color:var(--line);background:#171b25;box-shadow:inset 3px 0 var(--accent)}
+.management-page .video-import-item input{accent-color:var(--accent)}
+.management-page .video-playlist-preview-list,.management-page .video-track-list{gap:8px}
+.management-page .video-track-edit summary{color:var(--accent)}
+.management-page .video-playlist-management :focus-visible{outline:2px solid var(--accent)!important;outline-offset:2px}
+.management-page .video-import-details code{color:var(--muted);font-family:var(--mono)}
+.management-page .video-playlist-management .station-details strong{font-weight:500}
+.management-page .video-track-info,.management-page .video-track-edit{background:#101826}
+.management-page .video-move-dialog{border-radius:16px;box-shadow:0 8px 24px #0006}
+@media(max-width:700px){.management-page .video-playlist-management{padding:16px}.management-page .video-playlist-import{padding:16px}.management-page .video-track-edit-form,.management-page .video-track-info{grid-template-columns:1fr}}
