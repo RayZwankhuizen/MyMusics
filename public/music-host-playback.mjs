@@ -41,6 +41,7 @@ export function createMusicHostPlayback({ state, deckState, resolveIncomingDeck,
       window.dispatchEvent(new Event("mymusics:host-status-needed"));
       return;
     }
+    window.MyMusicsPlayback?.setHostSession(result.sessionId);
     deckState.activeDeck = incomingKey;
     deckState.deckTracks[incomingKey] = track;
     state.current = track;

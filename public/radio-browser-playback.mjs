@@ -1,4 +1,4 @@
-export function createRadioBrowserPlayback({ getAudio, setStatus, streamUrl, hlsPlayback, equalizerReady, speechSuppressionDisabled, startSpeechDetection }) {
+export function createRadioBrowserPlayback({ getAudio, setStatus, streamUrl, hlsPlayback, speechSuppressionDisabled, startSpeechDetection }) {
   async function play(station, isHls) {
     const audio = getAudio();
     try {
@@ -12,7 +12,7 @@ export function createRadioBrowserPlayback({ getAudio, setStatus, streamUrl, hls
       if (isHls) {
         await hlsPlayback.play(station);
       } else {
-        audio.src = equalizerReady() ? streamUrl(station.url) : station.url;
+        audio.src = streamUrl(station.url);
         await audio.play();
         if (!speechSuppressionDisabled(station.url)) startSpeechDetection(station);
       }

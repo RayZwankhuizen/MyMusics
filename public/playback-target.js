@@ -5,6 +5,24 @@
   let target = read();
   let hostAvailable = false;
   let picker;
+  let hostSessionId = "";
+  let hostHeartbeat;
+
+  function setHostSession(sessionId) {
+    hostSessionId = sessionId || "";
+    clearInterval(hostHeartbeat);
+    try {
+      if (hostSessionId) sessionStorage.setItem("mymusics:host-session", hostSessionId);
+      else sessionStorage.removeItem("mymusics:host-session");
+    } catch {}
+    if (!hostSessionId) return;
+    const heartbeat = () => fetch("/api/host-player/heartbeat", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionId: hostSessionId })
+    }).then((response) => { if (response.status === 409) setHostSession(""); }).catch(() => {});
+    void heartbeat();
+    hostHeartbeat = setInterval(heartbeat, 4_000);
+  }
   const tvMode = () => document.documentElement.classList.contains("tv-mode");
   const renderPicker = () => {
     if (!select) return;
@@ -71,7 +89,15 @@
   }
   renderPicker();
   window.addEventListener("mymusics:tv-mode-change", renderPicker);
-  window.MyMusicsPlayback = { get target() { return target; }, get isHost() { return target === "host" && hostAvailable; } };
+  window.MyMusicsPlayback = {
+    get target() { return target; },
+    get isHost() { return target === "host" && hostAvailable; },
+    setHostSession
+  };
+  try {
+    const sessionId = sessionStorage.getItem("mymusics:host-session");
+    if (sessionId && target === "host") setHostSession(sessionId);
+  } catch {}
   refreshHostAvailability();
   window.addEventListener("focus", refreshHostAvailability);
   window.addEventListener("storage", (event) => {

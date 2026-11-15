@@ -1,35 +1,48 @@
 import { hostEqualizerSettings } from "./host-equalizer.mjs";
-export function createRadioHostOutput({ getAudio, setStatus }) {
+export function createRadioHostOutput({ getAudio, setStatus, isHostOutput }) {
   const controls = document.querySelector("#host-radio-controls");
   const toggle = document.querySelector("#host-radio-toggle");
   const status = document.querySelector("#host-radio-status");
+  let currentUrl = "";
+  let paused = false;
+  let volumeTimer;
 
-  async function play(station) {
-    const audio = getAudio();
-    audio.pause();
-    audio.removeAttribute("src");
-    audio.load();
-    controls.hidden = false;
-    document.querySelector("#equalizer-status").textContent = "Host equalizer · MPV audio processing";
-    setStatus("CONNECTING TO MYMUSICS HOST");
+  async function control(action, value) {
+    const state = await fetch("/api/host-player/status").then((response) => response.json()).catch(() => null);
+    return fetch("/api/host-player/control", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ deck: state?.activeDeck || "a", action, ...(value === undefined ? {} : { value }) })
+    });
+  }
+
+  async function play(station, volume = 0) {
+    controls.hidden = !isHostOutput();
+    if (isHostOutput()) document.querySelector("#equalizer-status").textContent = "Host equalizer · MPV audio processing";
+    if (!currentUrl && isHostOutput()) setStatus("CONNECTING TO MYMUSICS HOST");
     try {
       const response = await fetch("/api/host-player/radio", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: station.url, equalizer: hostEqualizerSettings() })
+        body: JSON.stringify({ url: station.url, volume, equalizer: hostEqualizerSettings() })
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Host playback failed.");
+      window.MyMusicsPlayback?.setHostSession(result.sessionId);
+      currentUrl = station.url;
+      paused = false;
       toggle.textContent = "Pause";
       status.textContent = "Playing through MyMusics host";
-      setStatus("ON AIR", true);
+      await setVolume(isHostOutput() ? Number(document.querySelector("#radio-player-volume").value) : 0);
+      if (isHostOutput()) setStatus("ON AIR", true);
     } catch (error) {
       status.textContent = error.message;
-      setStatus("HOST AUDIO UNAVAILABLE");
+      if (isHostOutput()) setStatus("HOST AUDIO UNAVAILABLE");
     }
   }
 
   async function stop() {
+    window.MyMusicsPlayback?.setHostSession("");
+    currentUrl = "";
     await fetch("/api/host-player/control", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -37,30 +50,30 @@ export function createRadioHostOutput({ getAudio, setStatus }) {
     }).catch(() => {});
   }
 
-  toggle?.addEventListener("click", async () => {
-    const paused = toggle.textContent === "Resume";
-    const state = await fetch("/api/host-player/status").then((response) => response.json()).catch(() => null);
-    const response = await fetch("/api/host-player/control", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ deck: state?.activeDeck || "a", action: paused ? "resume" : "pause" })
-    });
-    if (response.ok) {
-      toggle.textContent = paused ? "Pause" : "Resume";
-      setStatus(paused ? "ON AIR" : "PAUSED", paused);
-    }
-  });
+  async function setPaused(value) {
+    paused = Boolean(value);
+    if (paused) getAudio().pause();
+    else getAudio().play().catch(() => {});
+    const response = await control(paused ? "pause" : "resume").catch(() => null);
+    if (!response?.ok) return;
+    toggle.textContent = paused ? "Resume" : "Pause";
+    if (isHostOutput()) setStatus(paused ? "PAUSED" : "ON AIR", !paused);
+  }
+
+  toggle?.addEventListener("click", () => { void setPaused(!paused); });
+
+  async function setVolume(value) {
+    const level = Math.max(0, Math.min(100, Math.round(Number(value) || 0)));
+    const slider = document.querySelector("#host-radio-volume");
+    if (slider) slider.value = String(level);
+    clearTimeout(volumeTimer);
+    if (currentUrl) volumeTimer = setTimeout(() => { void control("volume", level).catch(() => {}); }, 60);
+  }
 
   document.querySelector("#host-radio-volume")?.addEventListener("input", (event) => {
-    fetch("/api/host-player/status")
-      .then((response) => response.json())
-      .then((state) => fetch("/api/host-player/control", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ deck: state.activeDeck || "a", action: "volume", value: event.target.value })
-      }))
-      .catch(() => {});
+    document.querySelector("#radio-player-volume").value = event.target.value;
+    document.querySelector("#radio-player-volume").dispatchEvent(new Event("input", { bubbles: true }));
   });
 
-  return Object.freeze({ play, stop });
+  return Object.freeze({ play, stop, setPaused, setVolume });
 }

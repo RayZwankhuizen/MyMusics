@@ -11,6 +11,8 @@ let metadataAvailable = null;
 let iframeQueueKey = "";
 let queueSync = 0;
 let hostVideoId = "";
+let hostVideoSession = "";
+let pageLeaving = false;
 let queueCleared = false;
 const videoMetadata = new Map();
 
@@ -141,26 +143,31 @@ function syncIframeQueue() {
   }
 }
 
-async function startHostVideo(videoId) {
+async function startHostVideo(videoId, startSeconds = 0) {
   if (hostVideoId === videoId) return hostControl("resume");
   try {
-    await request("/api/host-player/video", {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ videoId })
+    const { sessionId } = await request("/api/host-player/video", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ videoId, startSeconds })
     });
     hostVideoId = videoId;
+    hostVideoSession = sessionId;
+    window.MyMusicsPlayback?.setHostSession(sessionId);
+    if (pageLeaving || !window.MyMusicsPlayback?.isHost) return stopHostVideo();
     say("YouTube video audio is playing on the MyMusics host; video is shown here.");
   } catch (error) { hostVideoId = ""; say(`Host audio failed: ${error.message}`); }
 }
 
-function hostControl(action) {
+function hostControl(action, keepalive = false) {
   return request("/api/host-player/control", {
-    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, deck: "a" })
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, deck: "a" }), keepalive
   }).catch((error) => say(`Host audio control failed: ${error.message}`));
 }
 
 async function stopHostVideo() {
   if (!hostVideoId) return;
   hostVideoId = "";
+  hostVideoSession = "";
+  window.MyMusicsPlayback?.setHostSession("");
   await hostControl("stop");
 }
 
@@ -214,7 +221,7 @@ function ensureIframePlayer() {
               const id = queue[current]?.id;
               if (window.MyMusicsPlayback?.isHost && id) {
                 iframePlayer.mute();
-                void startHostVideo(id);
+                void startHostVideo(id, iframePlayer.getCurrentTime?.() || 0);
               }
               else say("Playing in YouTube’s player.");
             }
@@ -404,10 +411,21 @@ window.addEventListener("mymusics:playback-target-change", async () => {
   if (window.MyMusicsPlayback?.isHost) {
     embed.mute();
     const item = queue[current];
-    if (item) await startHostVideo(item.id);
+    if (item) await startHostVideo(item.id, embed.getCurrentTime?.() || 0);
   } else {
     await stopHostVideo();
     embed.unMute();
+  }
+});
+
+window.addEventListener("pagehide", () => {
+  pageLeaving = true;
+  iframePlayer?.stopVideo?.();
+  if (hostVideoId || hostVideoSession) {
+    hostVideoId = "";
+    hostVideoSession = "";
+    window.MyMusicsPlayback?.setHostSession("");
+    void hostControl("stop", true);
   }
 });
 

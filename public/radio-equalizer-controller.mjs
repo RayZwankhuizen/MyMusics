@@ -70,8 +70,8 @@ export function createRadioEqualizerController({ getAudio, getStation, getStatio
     canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
   }
 
-  async function enable({ autoplay = true } = {}) {
-    if (isHostOutput()) {
+  async function enable({ autoplay = true, forceBrowser = false } = {}) {
+    if (isHostOutput() && !forceBrowser) {
       hostEqualizer.refresh();
       return true;
     }

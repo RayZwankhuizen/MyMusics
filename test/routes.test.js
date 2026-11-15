@@ -334,7 +334,8 @@ test("host-player APIs validate inputs and pass playback commands to the host", 
   assert.deepEqual(calls[0], ["audio-test", "alsa/plughw:1,0"]);
   assert.equal((await request(base, "/api/host-player/radio", { method: "POST", body: { url: "https://unknown.test/stream" } })).status, 400);
   assert.equal((await request(base, "/api/host-player/radio", { method: "POST", body: { url: "https://radio.example/stream" } })).status, 200);
-  assert.deepEqual(calls[1], ["radio", "https://radio.example/stream"]);
+  const proxiedStream = `http://127.0.0.1:${Number(process.env.PORT) || 6565}/api/radio-stream?url=${encodeURIComponent("https://radio.example/stream")}`;
+  assert.deepEqual(calls[1], ["radio", proxiedStream]);
 
   assert.equal((await request(base, "/api/host-player/music", { method: "POST", body: { id: "bad", deck: "a" } })).status, 400);
   assert.equal((await request(base, "/api/host-player/music", {

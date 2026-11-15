@@ -1,4 +1,4 @@
-export function wireMusicVolume({ deckState, isHostOutput }) {
+export function wireMusicVolume({ deckState }) {
   const slider = document.querySelector("#music-volume");
   const value = document.querySelector("#music-volume-value");
   const key = "mymusics:music-volume";
@@ -23,7 +23,6 @@ export function wireMusicVolume({ deckState, isHostOutput }) {
   function applyHostVolume() {
     clearTimeout(timer);
     timer = setTimeout(() => {
-      if (!isHostOutput()) return;
       fetch("/api/host-player/music-volume", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ volume })
@@ -32,8 +31,8 @@ export function wireMusicVolume({ deckState, isHostOutput }) {
   }
 
   function apply() {
-    if (isHostOutput()) applyHostVolume();
-    else applyBrowserVolume();
+    applyBrowserVolume();
+    applyHostVolume();
   }
 
   slider.addEventListener("input", () => {

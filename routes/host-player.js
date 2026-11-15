@@ -1,6 +1,7 @@
 const { validateEqualizer } = require("../host-equalizer");
 const fs = require("node:fs");
 const { promisify } = require("node:util");
+const { randomUUID } = require("node:crypto");
 const execFile = promisify(require("node:child_process").execFile);
 
 module.exports = function registerHostPlayerRoutes(app, { hostPlayer, getStations, storage }) {
@@ -8,6 +9,30 @@ module.exports = function registerHostPlayerRoutes(app, { hostPlayer, getStation
   const validDeck = (value) => value === "a" || value === "b";
   const allStations = () => Object.values(getStations()).flat();
   let mpvInstallQueued = false;
+  let hostPlaybackSession = "";
+  let hostPlaybackLease;
+
+  function clearHostPlaybackLease() {
+    clearTimeout(hostPlaybackLease);
+    hostPlaybackLease = null;
+    hostPlaybackSession = "";
+  }
+
+  function renewHostPlaybackLease(sessionId) {
+    clearTimeout(hostPlaybackLease);
+    hostPlaybackLease = setTimeout(async () => {
+      if (hostPlaybackSession !== sessionId) return;
+      clearHostPlaybackLease();
+      await hostPlayer.stop();
+    }, 15_000);
+    hostPlaybackLease.unref?.();
+  }
+
+  function startHostPlaybackLease() {
+    hostPlaybackSession ||= randomUUID();
+    renewHostPlaybackLease(hostPlaybackSession);
+    return hostPlaybackSession;
+  }
 
   function canInstallMpv() {
     return process.env.MYMUSICS_MPV_INSTALL_ENABLED === "true"
@@ -59,12 +84,22 @@ module.exports = function registerHostPlayerRoutes(app, { hostPlayer, getStation
     if (req.get("origin") !== `${req.protocol}://${req.get("host")}`) return res.status(403).json({ error: "Video playback can only be started from this MyMusics page." });
     const videoId = String(req.body?.videoId || "");
     if (!/^[\w-]{11}$/.test(videoId)) return res.status(400).json({ error: "Choose a valid YouTube video." });
+    const startSeconds = Number(req.body?.startSeconds ?? 0);
+    if (!Number.isFinite(startSeconds) || startSeconds < 0 || startSeconds > 86_400) return res.status(400).json({ error: "Choose a valid video position." });
     try {
-      await hostPlayer.playVideo(videoId);
-      res.json({ ok: true });
+      await hostPlayer.playVideo(videoId, startSeconds);
+      res.json({ ok: true, sessionId: startHostPlaybackLease() });
     } catch (error) {
       res.status(503).json({ error: error.message || "Host MPV could not play this YouTube video." });
     }
+  });
+
+  app.post("/api/host-player/heartbeat", (req, res) => {
+    if (!req.is("application/json")) return res.status(415).json({ error: "Host playback heartbeat must use JSON." });
+    if (req.get("origin") !== `${req.protocol}://${req.get("host")}`) return res.status(403).json({ error: "Host playback heartbeat must come from this MyMusics page." });
+    if (!hostPlaybackSession || req.body?.sessionId !== hostPlaybackSession) return res.status(409).json({ error: "Host playback session has ended." });
+    renewHostPlaybackLease(hostPlaybackSession);
+    res.json({ ok: true });
   });
 
   app.get("/api/host-player/radio-level", async (_req, res) => {
@@ -132,13 +167,18 @@ module.exports = function registerHostPlayerRoutes(app, { hostPlayer, getStation
 
   app.post("/api/host-player/radio", async (req, res) => {
     const url = String(req.body?.url || "");
-    if (!allStations().some((station) => station.url === url)) return res.status(400).json({ error: "Choose a saved radio station." });
+    const station = allStations().find((item) => item.url === url);
+    if (!station) return res.status(400).json({ error: "Choose a saved radio station." });
+    const volume = Number(req.body?.volume ?? 100);
+    if (!Number.isInteger(volume) || volume < 0 || volume > 100) return res.status(400).json({ error: "Radio volume must be a whole percentage from 0 to 100." });
     let equalizer;
     try { if (req.body?.equalizer !== undefined) equalizer = validateEqualizer(req.body.equalizer); }
     catch (error) { return res.status(400).json({ error: error.message }); }
     try {
-      await hostPlayer.playRadio(url, 100, equalizer);
-      res.json({ ok: true });
+      const isHls = station.type === "hls" || /\.m3u8(?:$|[?#])/i.test(url);
+      const streamUrl = isHls ? url : `http://127.0.0.1:${port}/api/radio-stream?url=${encodeURIComponent(url)}`;
+      await hostPlayer.playRadio(streamUrl, volume, equalizer);
+      res.json({ ok: true, sessionId: startHostPlaybackLease() });
     } catch (error) {
       res.status(503).json({ error: error.message || "Could not start host audio." });
     }
@@ -164,7 +204,7 @@ module.exports = function registerHostPlayerRoutes(app, { hostPlayer, getStation
         naturalFadeIn: req.body?.naturalFadeIn === true,
         ...(volume === undefined ? {} : { volume })
       });
-      res.json({ ok: true });
+      res.json({ ok: true, sessionId: startHostPlaybackLease() });
     } catch (error) {
       res.status(503).json({ error: error.message || "Could not start host audio." });
     }
@@ -186,6 +226,7 @@ module.exports = function registerHostPlayerRoutes(app, { hostPlayer, getStation
   app.post("/api/host-player/control", async (req, res) => {
     const deck = String(req.body?.deck || "");
     if (req.body?.action === "stop") {
+      clearHostPlaybackLease();
       await hostPlayer.stop();
       return res.json({ ok: true });
     }

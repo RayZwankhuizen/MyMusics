@@ -1,4 +1,4 @@
-export function wireRadioPlayerBar({ getAudio, getBrowserMeterLevels, getStation, getGenre, getStations, isHostOutput, playStation }) {
+export function wireRadioPlayerBar({ getAudio, getBrowserMeterLevels, getStation, getGenre, getStations, isHostOutput, playStation, setHostVolume, setHostPaused }) {
   const button = document.querySelector("#radio-player-toggle");
   const volume = document.querySelector("#radio-player-volume");
   const stationText = document.querySelector("#radio-player-station");
@@ -9,6 +9,16 @@ export function wireRadioPlayerBar({ getAudio, getBrowserMeterLevels, getStation
   const meterBars = [...document.querySelectorAll(".receiver-vu-track > i")];
   let status = "READY";
   let meterTimer;
+  let volumeLevel = Number(volume.value) / 100;
+
+  function applyVolume() {
+    const host = isHostOutput();
+    getAudio().volume = host ? 0 : volumeLevel;
+    const hostVolume = host ? Math.round(volumeLevel * 100) : 0;
+    const hostSlider = document.querySelector("#host-radio-volume");
+    if (hostSlider) hostSlider.value = String(hostVolume);
+    void setHostVolume(hostVolume);
+  }
 
   function showMeter(levels = []) {
     const active = status === "ON AIR";
@@ -100,7 +110,7 @@ export function wireRadioPlayerBar({ getAudio, getBrowserMeterLevels, getStation
     audio.addEventListener("waiting", () => setStatus({ message: "BUFFERING" }));
     audio.addEventListener("error", () => setStatus({ message: "STREAM UNAVAILABLE" }));
     audio.addEventListener("volumechange", updateButton);
-    volume.value = String(Math.round(audio.volume * 100));
+    applyVolume();
     updateButton();
   }
   function skipStation(direction) {
@@ -111,17 +121,10 @@ export function wireRadioPlayerBar({ getAudio, getBrowserMeterLevels, getStation
     const next = stations[(index + direction + stations.length) % stations.length];
     void playStation(next, getGenre());
   }
-  button.addEventListener("click", () => {
-    if (isHostOutput()) document.querySelector("#host-radio-toggle")?.click();
-    else if (getAudio().paused) void getAudio().play().catch(() => {});
-    else getAudio().pause();
-  });
+  button.addEventListener("click", () => { void setHostPaused(!getAudio().paused); });
   volume.addEventListener("input", () => {
-    if (isHostOutput()) {
-      const hostVolume = document.querySelector("#host-radio-volume");
-      hostVolume.value = volume.value;
-      hostVolume.dispatchEvent(new Event("input", { bubbles: true }));
-    } else getAudio().volume = Number(volume.value) / 100;
+    volumeLevel = Number(volume.value) / 100;
+    applyVolume();
   });
   window.addEventListener("mymusics:radio-audio-replaced", bindAudio);
   window.addEventListener("mymusics:radio-status", (event) => setStatus(event.detail));

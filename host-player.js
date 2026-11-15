@@ -284,7 +284,7 @@ class HostPlayer {
     this.lastError = "";
   }
 
-  async playVideo(videoId) {
+  async playVideo(videoId, startSeconds = 0) {
     try {
       await execFile("yt-dlp", ["--version"], { timeout: 5000, maxBuffer: 4096 });
     } catch {
@@ -295,6 +295,7 @@ class HostPlayer {
     this.activeDeck = null;
     this.activeType = "";
     await this.decks.a.load(`https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`, 100);
+    if (startSeconds > 0) await this.decks.a.command(["seek", startSeconds, "absolute+exact"]);
     this.activeDeck = "a";
     this.activeType = "video";
     this.lastError = "";

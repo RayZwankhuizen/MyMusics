@@ -20,7 +20,7 @@ import { emptyRow, textButton, markAdded, formatMusicDuration, createMusicTrackR
 import { wireMusicAutoDj } from "./music-autodj.mjs?v=source-picker-2";
 import { createMusicSessionStorage } from "./music-session-storage.mjs";
 import { createMusicPlaylistActions } from "./music-playlist-actions.mjs";
-import { wireMusicVolume } from "./music-volume.mjs";
+import { wireMusicVolume } from "./music-volume.mjs?v=host-volume-sync-1";
 import { createRadioLyricsController } from "./radio-lyrics-controller.mjs?v=shared-lyrics-2";
 import { wireMusicVuMeter } from "./music-vu-meter.mjs?v=stereo-vu-1";
 

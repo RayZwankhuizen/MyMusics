@@ -1,10 +1,16 @@
 export function createRadioStationPlayback({ state, players, ui }) {
+  function applyOutputVolumes() {
+    const host = state.isHostOutput();
+    const volume = state.getVolume();
+    state.getAudio().volume = host ? 0 : volume;
+    void players.hostOutput.setVolume(host ? Math.round(volume * 100) : 0);
+    ui.setHostControlsVisible(host);
+  }
+
   async function play(station, genre) {
     const generation = state.nextGeneration();
     const useHostOutput = state.isHostOutput();
-    const audio = state.getAudio();
-    audio.hidden = Boolean(useHostOutput);
-    if (!useHostOutput && players.equalizer.ready) {
+    if (players.equalizer.ready) {
       const compatible = station.type !== "hls" && !/\.m3u8(?:$|[?#])/i.test(station.url);
       if (!compatible) {
         players.equalizer.closeContext();
@@ -15,18 +21,18 @@ export function createRadioStationPlayback({ state, players, ui }) {
     const isHls = station.type === "hls" || /\.m3u8(?:$|[?#])/i.test(station.url);
     if (!prepare(station, genre, generation, isHls)) return;
 
-    if (useHostOutput) {
-      await players.hostOutput.play(station);
-      return;
-    }
-    ui.hideHostControls();
-    if (!isHls) await players.equalizer.enable({ autoplay: false });
+    if (!isHls) await players.equalizer.enable({ autoplay: false, forceBrowser: true });
     if (!state.isCurrentGeneration(generation)) return;
-    const played = await players.browser.play(station, isHls);
+    applyOutputVolumes();
+    const [, played] = await Promise.all([
+      players.hostOutput.play(station, useHostOutput ? Math.round(state.getVolume() * 100) : 0),
+      players.browser.play(station, isHls)
+    ]);
     if (played === false && players.equalizer.ready && state.isCurrentGeneration(generation)) {
       players.equalizer.closeContext();
       ui.replaceAudio();
       ui.showEqualizerUnavailable();
+      applyOutputVolumes();
       await players.browser.play(station, isHls);
     }
   }
@@ -50,14 +56,11 @@ export function createRadioStationPlayback({ state, players, ui }) {
   }
 
   async function onPlaybackTargetChange() {
-    const useHostOutput = state.isHostOutput();
-    players.equalizer.setHostOutput(useHostOutput);
-    const station = state.getStation();
-    if (!station) return;
-    if (!useHostOutput) await players.hostOutput.stop();
-    void play(station, state.getGenre());
+    players.equalizer.setHostOutput(state.isHostOutput());
+    applyOutputVolumes();
   }
 
   window.addEventListener("mymusics:playback-target-change", onPlaybackTargetChange);
+  window.addEventListener("mymusics:radio-volume-change", applyOutputVolumes);
   return Object.freeze({ play });
 }

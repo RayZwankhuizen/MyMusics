@@ -7,21 +7,21 @@ import { createRadioSuppressionStore, metadataBlockKey as buildMetadataBlockKey,
 import { fetchTrackMetadata } from "./radio-track-metadata-api.mjs";
 import { createRadioMetadataView } from "./radio-metadata-view.mjs";
 import { createRadioTrackDetailsView } from "./radio-track-details-view.mjs";
-import { createRadioHostOutput } from "./radio-host-output.mjs";
+import { createRadioHostOutput } from "./radio-host-output.mjs?v=radio-dual-output-1";
 import { createRadioNowPlaying } from "./radio-now-playing.mjs";
-import { createRadioEqualizerController } from "./radio-equalizer-controller.mjs";
+import { createRadioEqualizerController } from "./radio-equalizer-controller.mjs?v=radio-dual-output-1";
 import { createRadioHlsPlayback } from "./radio-hls-playback.mjs";
-import { createRadioBrowserPlayback } from "./radio-browser-playback.mjs";
+import { createRadioBrowserPlayback } from "./radio-browser-playback.mjs?v=radio-dual-output-1";
 import { createRadioLyricsController } from "./radio-lyrics-controller.mjs?v=shared-lyrics-2";
 import { createRadioSuppressionController } from "./radio-suppression-controller.mjs?v=manual-track-suppression-2";
 import { wireRadioSpeechVolumeSettings } from "./radio-speech-volume-settings.mjs";
 import { createRadioStationCatalog } from "./radio-station-catalog.mjs";
 import { createRadioTrackUpdates } from "./radio-track-updates.mjs";
 import { createRadioSuppressionControls } from "./radio-suppression-controls.mjs";
-import { createRadioStationPlayback } from "./radio-station-playback.mjs";
+import { createRadioStationPlayback } from "./radio-station-playback.mjs?v=radio-dual-output-1";
 import { createRadioTrackLookup } from "./radio-track-lookup.mjs";
 import { createRadioAudioOutput } from "./radio-audio-output.mjs";
-import { wireRadioPlayerBar } from "./radio-player-bar.mjs";
+import { wireRadioPlayerBar } from "./radio-player-bar.mjs?v=radio-dual-output-1";
 
 let suppressionController;
 const radioAudioOutput = createRadioAudioOutput({ initialAudio: document.querySelector("#audio"), getSuppressionController: () => suppressionController });
@@ -136,7 +136,7 @@ stationCatalog = createRadioStationCatalog({
   onChange: () => { renderGenreNav(); renderStations(); },
   onFavoriteStatus: (message) => { el("#favorite-status").textContent = message; }
 });
-const hostPlayerOutput = createRadioHostOutput({ getAudio: radioAudioOutput.getAudio, setStatus });
+const hostPlayerOutput = createRadioHostOutput({ getAudio: radioAudioOutput.getAudio, setStatus, isHostOutput: () => window.MyMusicsPlayback?.isHost === true });
 function playStation(station, genre) { return stationPlayback.play(station, genre); }
 wireRadioPlayerBar({
   getAudio: radioAudioOutput.getAudio,
@@ -145,7 +145,9 @@ wireRadioPlayerBar({
   getGenre: () => activeStationGenre,
   getStations: () => stationCatalog.stations,
   isHostOutput: () => window.MyMusicsPlayback?.isHost === true,
-  playStation
+  playStation,
+  setHostVolume: hostPlayerOutput.setVolume,
+  setHostPaused: hostPlayerOutput.setPaused
 });
 
 document.querySelectorAll("dialog").forEach(window.MyMusicsUI.closeOnBackdropClick);
@@ -282,6 +284,7 @@ const stationPlayback = createRadioStationPlayback({
     getStation: () => activeStation,
     getGenre: () => activeStationGenre,
     isHostOutput: () => window.MyMusicsPlayback?.isHost,
+    getVolume: () => Number(el("#radio-player-volume").value) / 100,
     nextGeneration: () => ++audioPlaybackGeneration,
     isCurrentGeneration: (generation) => generation === audioPlaybackGeneration,
     setStation: (station, genre) => { activeStation = station; activeStationGenre = genre; }
@@ -307,7 +310,8 @@ const stationPlayback = createRadioStationPlayback({
     },
     resetMetadataMonitor,
     showPollingMetadata: () => { el("#metadata-summary-status").textContent = "Polling HLS metadata"; },
-    hideHostControls: () => { el("#host-radio-controls").hidden = true; }
+    hideHostControls: () => { el("#host-radio-controls").hidden = true; },
+    setHostControlsVisible: (visible) => { el("#host-radio-controls").hidden = !visible; }
   }
 });
 function appendMetadataBlock(data) { metadataView.append(data); }
