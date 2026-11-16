@@ -3,6 +3,11 @@ const fetch = require("node-fetch");
 
 const videoIdPattern = /^[\w-]{11}$/;
 
+function durationSeconds(value = "") {
+  const match = value.match(/^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/);
+  return match ? Number(match[1] || 0) * 3600 + Number(match[2] || 0) * 60 + Number(match[3] || 0) : null;
+}
+
 function validPlaylist(value) {
   return Array.isArray(value) && value.every((item) => item && typeof item.id === "string"
     && /^[a-f\d-]{36}$/.test(item.id) && typeof item.name === "string" && Array.isArray(item.items)
@@ -102,7 +107,7 @@ module.exports = function registerVideoRoutes(app, { storage }) {
     if (!apiKey) return res.status(503).json({ error: "Configure a YouTube API key in Manage → Jellyfin/YouTube." });
     try {
       const url = new URL("https://www.googleapis.com/youtube/v3/videos");
-      url.search = new URLSearchParams({ part: "snippet", id: ids.join(","), key: apiKey });
+      url.search = new URLSearchParams({ part: "snippet,contentDetails", id: ids.join(","), key: apiKey });
       const response = await fetch(url.toString());
       const data = await response.json();
       if (!response.ok) return res.status(502).json({ error: `YouTube video details failed: ${data.error?.message || response.statusText}` });
@@ -110,7 +115,8 @@ module.exports = function registerVideoRoutes(app, { storage }) {
         id: item.id,
         title: String(item.snippet?.title || "Video title unavailable").slice(0, 300),
         artist: String(item.snippet?.channelTitle || "Artist unavailable").slice(0, 160),
-        thumbnail: item.snippet?.thumbnails?.medium?.url || item.snippet?.thumbnails?.default?.url || null
+        thumbnail: item.snippet?.thumbnails?.medium?.url || item.snippet?.thumbnails?.default?.url || null,
+        durationSeconds: durationSeconds(item.contentDetails?.duration)
       })) });
     } catch (error) { res.status(502).json({ error: `YouTube video details are unavailable: ${error.message}` }); }
   });

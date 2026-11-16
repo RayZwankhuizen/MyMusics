@@ -27,6 +27,24 @@ async function request(path, options) {
 
 function say(message) { statusEl.textContent = message; }
 function playlistId() { return $("#saved-video-playlists").value; }
+function formatDuration(seconds) {
+  if (!Number.isFinite(seconds)) return "";
+  const total = Math.floor(seconds);
+  return total >= 3600
+    ? `${Math.floor(total / 3600)}:${String(Math.floor(total / 60) % 60).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`
+    : `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
+}
+
+async function addDurations(items) {
+  const ids = [...new Set(items.filter((item) => !Number.isFinite(item.durationSeconds) && !videoMetadata.has(item.id)).map((item) => item.id))];
+  for (let offset = 0; offset < ids.length; offset += 50) {
+    try {
+      const data = await request(`/api/videos/details?ids=${encodeURIComponent(ids.slice(offset, offset + 50).join(","))}`);
+      data.videos.forEach((video) => videoMetadata.set(video.id, video));
+    } catch { break; }
+  }
+  return items.map((item) => ({ ...item, durationSeconds: item.durationSeconds ?? videoMetadata.get(item.id)?.durationSeconds }));
+}
 
 function renderTvPlaylistPicker() {
   const select = $("#saved-video-playlists");
@@ -86,7 +104,10 @@ function renderList(element, items, mode) {
     const author = document.createElement("div");
     author.className = "item-author";
     author.textContent = item.artist || item.author || "Artist unavailable";
-    copy.append(kind, title, author);
+    const duration = document.createElement("div");
+    duration.className = "item-duration";
+    duration.textContent = formatDuration(item.durationSeconds);
+    copy.append(kind, title, author, duration);
     const actions = document.createElement("div");
     actions.className = "item-actions";
     const action = (label, callback, aria) => {
@@ -365,7 +386,7 @@ async function showYoutubePlaylist(list, title) {
   try {
     say(`Loading songs from “${title}”…`);
     const data = await request(`/api/videos/playlist-items?id=${encodeURIComponent(list)}`);
-    queue = data.items;
+    queue = await addDurations(data.items);
     current = -1;
     iframeQueueKey = "";
     $("#queue-heading").textContent = title;
@@ -382,7 +403,7 @@ async function loadSavedPlaylist(selected, play = false) {
   iframePlayer?.clearVideo?.();
   await stopHostVideo();
   current = -1;
-  queue = selected.items.map((item) => ({ ...item }));
+  queue = await addDurations(selected.items.map((item) => ({ ...item })));
   loadedPlaylistId = selected.id;
   queueCleared = false;
   clearSearchResults();
@@ -403,7 +424,7 @@ $("#video-search").addEventListener("submit", async (event) => {
   try {
     say("Searching YouTube…");
     const data = await request(`/api/videos/search?q=${encodeURIComponent(query)}`);
-    renderList(resultsEl, data.results, "results");
+    renderList(resultsEl, await addDurations(data.results), "results");
     $("#results-heading").textContent = `Search results (${data.results.length})`;
     $("#results-heading").hidden = false;
     $("#clear-video-results").hidden = false;
@@ -455,7 +476,7 @@ $("#saved-video-playlists").addEventListener("change", () => {
   const selected = playlists.find((item) => item.id === playlistId());
   $("#play-video-playlist").disabled = !selected;
   renderTvPlaylistPicker();
-  if (selected) loadSavedPlaylist(selected);
+  if (selected) void loadSavedPlaylist(selected);
 });
 
 window.addEventListener("mymusics:tv-mode-change", renderTvPlaylistPicker);
@@ -463,7 +484,7 @@ window.addEventListener("mymusics:tv-mode-change", renderTvPlaylistPicker);
 $("#play-video-playlist").addEventListener("click", () => {
   const selected = playlists.find((item) => item.id === playlistId());
   if (!selected) return say("Choose a saved playlist first.");
-  loadSavedPlaylist(selected, true);
+  void loadSavedPlaylist(selected, true);
 });
 
 $("#clear-video-queue").addEventListener("click", async () => {
