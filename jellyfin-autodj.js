@@ -1,7 +1,7 @@
 const normalize = (value) => String(value || "").trim().toLocaleLowerCase();
 
-module.exports = function createAutoDj({ getTrack, randomTracksByArtist, albumTracks, tracksByGenre, instantMix, randomTracks }) {
-  return async function nextTracks({ seed = "", mode = "", excludeIds = [], excludeArtists = [], limit = 8 } = {}) {
+module.exports = function createAutoDj({ getTrack, randomTracksByArtist, similarArtists, albumTracks, tracksByGenre, instantMix, randomTracks }) {
+  return async function nextTracks({ seed = "", artistId = "", similar = false, mode = "", excludeIds = [], excludeArtists = [], limit = 8 } = {}) {
     const want = Math.min(Math.max(Number(limit) || 8, 1), 25);
     const seen = new Set();
     const blockedIds = new Set(excludeIds);
@@ -28,8 +28,16 @@ module.exports = function createAutoDj({ getTrack, randomTracksByArtist, albumTr
     };
 
     if (seedTrack && mode === "artist") {
-      if (!seedTrack.artistId) throw new Error("The selected track has no linked Jellyfin artist.");
-      take(await attempt(() => randomTracksByArtist(seedTrack.artistId, want * 4), []));
+      const selectedArtistId = artistId || seedTrack.artistId;
+      if (!selectedArtistId) throw new Error("The selected track has no linked Jellyfin artist.");
+      if (similar) {
+        const artists = await attempt(() => similarArtists(selectedArtistId, 12), []);
+        const batches = await Promise.all(artists.map((artist) => attempt(() => randomTracksByArtist(artist.id, want), [])));
+        for (const tracks of batches) {
+          take(tracks);
+          if (picked.length >= want) break;
+        }
+      } else take(await attempt(() => randomTracksByArtist(selectedArtistId, want * 4), []));
     } else if (seedTrack && mode === "album") {
       if (!seedTrack.albumId || seedTrack.albumId === seedTrack.id) throw new Error("The selected track has no linked Jellyfin album.");
       take(await attempt(() => albumTracks(seedTrack.albumId, 300), []));

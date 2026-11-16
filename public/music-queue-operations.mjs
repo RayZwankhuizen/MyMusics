@@ -150,6 +150,8 @@ export function createMusicQueueOperations({ state, deckState, el, renderQueue, 
     try {
       const params = new URLSearchParams({
         seed: autoDj.seed.id,
+        artistId: autoDj.mode === "artist" ? autoDj.seed.artistId || "" : "",
+        similar: autoDj.mode === "artist" && autoDj.similar ? "1" : "",
         mode: autoDj.mode,
         exclude: [...new Set([autoDj.seed.id, ...state.recent, ...state.queue.map((track) => track.id)])].join(","),
         artists: recentArtists().join(","),

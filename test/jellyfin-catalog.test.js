@@ -86,7 +86,7 @@ test("track search maps Jellyfin metadata and sends the expected query", async (
     assert.equal(requests[0].searchParams.get("Recursive"), "true");
     assert.equal(requests[0].searchParams.get("SortBy"), "SortName");
     assert.equal(requests[0].searchParams.get("Limit"), "7");
-    assert.equal(requests[0].searchParams.get("Fields"), "Genres,AlbumArtist,Artists,AlbumId,RunTimeTicks,ProductionYear,Container");
+    assert.equal(requests[0].searchParams.get("Fields"), "Genres,AlbumArtist,ArtistItems,Artists,AlbumId,RunTimeTicks,ProductionYear,Container");
   });
 });
 

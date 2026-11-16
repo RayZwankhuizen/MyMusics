@@ -254,6 +254,7 @@ body.music-page .autodj-options legend{padding:0 6px;color:#ffd27e;font-size:13p
 body.music-page .autodj-options label{display:grid;grid-template-columns:20px 64px minmax(0,1fr);align-items:center;gap:8px;min-height:42px;color:#f2e8d4;cursor:pointer}
 body.music-page .autodj-options label strong{overflow:hidden;color:#c2c7d1;font-size:13px;font-weight:400;text-overflow:ellipsis;white-space:nowrap}
 body.music-page .autodj-options input{accent-color:#ffc76d}
+body.music-page .autodj-artist-scope label{grid-template-columns:20px minmax(0,1fr)}
 body.music-page .autodj-options input:disabled{opacity:.55}
 body.music-page #autodj-start{min-height:44px;border:1px solid #ffcf78;border-radius:9px;background:linear-gradient(180deg,#f4c26d,#c87932);color:#24160c;font-weight:700}
 body.music-page #autodj-start:disabled{cursor:not-allowed;opacity:.55}

@@ -175,6 +175,11 @@
                 <p id="autodj-source-status" role="status" aria-live="polite"></p>
                 <div id="autodj-source-results" class="autodj-source-results"></div>
               </div>
+              <fieldset id="autodj-artist-scope" class="autodj-options autodj-artist-scope" hidden>
+                <legend>Artist mix</legend>
+                <label><input type="radio" name="autodj-artist-scope" value="artist" checked><span>Only the selected artist</span></label>
+                <label><input type="radio" name="autodj-artist-scope" value="similar"><span>Similar artists from Jellyfin</span></label>
+              </fieldset>
               <fieldset id="autodj-current-options" class="autodj-options" hidden>
                 <legend>Use the current track's</legend>
                 <label><input type="radio" name="autodj-mode" value="artist"><span>Artist</span><strong data-autodj-label="artist"></strong></label>

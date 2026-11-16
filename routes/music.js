@@ -1,6 +1,7 @@
 const registerMusicPlaylistRoutes = require("./music-playlists");
 const registerMusicMediaRoutes = require("./music-media");
 const registerMusicGenreRoutes = require("./music-genres");
+const registerMusicManagementRoutes = require("./music-management");
 
 module.exports = function registerMusicRoutes(app, { jellyfin, playlists, musicGenres = require("../music-genres") }) {
 
@@ -175,9 +176,13 @@ module.exports = function registerMusicRoutes(app, { jellyfin, playlists, musicG
   app.get("/api/autodj/next", async (req, res) => {
     if (!jellyfin.configured()) return res.status(503).json({ error: "Set JELLYFIN_URL and JELLYFIN_API_KEY to start the DJ." });
     const seed = String(req.query.seed || "").trim();
+    const artistId = String(req.query.artistId || "").trim();
+    const similar = req.query.similar === "1";
     if (seed && !/^[0-9a-z]{8,64}$/i.test(seed)) return res.status(400).json({ error: "Choose a valid seed track." });
+    if (artistId && !/^[0-9a-z]{8,64}$/i.test(artistId)) return res.status(400).json({ error: "Choose a valid artist." });
     const mode = String(req.query.mode || "").trim().toLowerCase();
     if (mode && !["artist", "album", "genre"].includes(mode)) return res.status(400).json({ error: "Choose artist, album, or genre AutoDJ." });
+    if (similar && mode !== "artist") return res.status(400).json({ error: "Similar-artist AutoDJ requires artist mode." });
     const list = (value) => String(value || "").split(",").map((entry) => entry.trim()).filter(Boolean).slice(0, 100);
     try {
       const options = {
@@ -186,6 +191,8 @@ module.exports = function registerMusicRoutes(app, { jellyfin, playlists, musicG
         excludeArtists: list(req.query.artists),
         limit: Number(req.query.limit) || 8
       };
+      if (artistId) options.artistId = artistId;
+      if (similar) options.similar = true;
       if (mode) options.mode = mode;
       const result = await jellyfin.nextTracks(options);
       if (!result.tracks.length) return res.status(404).json({ error: "No tracks matched. Try another seed or add music to Jellyfin." });
@@ -196,6 +203,7 @@ module.exports = function registerMusicRoutes(app, { jellyfin, playlists, musicG
   });
 
 
+  registerMusicManagementRoutes(app, { jellyfin });
   registerMusicMediaRoutes(app, { jellyfin });
 };
 

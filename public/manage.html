@@ -9,9 +9,9 @@
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/style.css?v=mode-switch-youtube-4">
   <link rel="stylesheet" href="/manage.css">
-  <script type="module" src="/manage.js?v=youtube-unslop-1"></script>
+  <script type="module" src="/manage.js?v=bulk-delete-select-1"></script>
   <link rel="stylesheet" href="/app-theme.css?v=tv-toggle-fixed-1">
-  <link rel="stylesheet" href="/management-theme.css?v=youtube-unslop-1">
+  <link rel="stylesheet" href="/management-theme.css?v=bulk-delete-select-1">
   <link rel="stylesheet" href="/manage-settings.css?v=youtube-api-settings-1">
 </head>
 <body class="management-page">
@@ -26,7 +26,8 @@
         <a class="mode" href="/youtube.html">YouTube</a>
         <a class="mode" href="/music.html">Music</a>
       </nav>
-      <div class="side-label">General</div>
+      <details class="manage-nav-group" open>
+      <summary>General</summary>
       <nav class="sidebar-actions" aria-label="General settings">
         <a class="sidebar-page" data-manage-section="general" href="/manage.html#general">General</a>
         <a class="sidebar-page" data-manage-section="jellyfin-settings" href="/manage.html#jellyfin-settings">Jellyfin/YouTube</a>
@@ -35,21 +36,27 @@
         <a class="sidebar-page" data-manage-section="updates" href="/manage.html#updates">Updates</a>
         <a class="sidebar-page" href="/help.html">Help</a>
       </nav>
-      <div class="side-label">Radio</div>
+      </details>
+      <details class="manage-nav-group">
+      <summary>Radio</summary>
       <nav class="sidebar-actions" aria-label="Radio management">
         <a class="sidebar-page" data-manage-section="stations" href="/manage.html#stations">Stations &amp; genres</a>
       </nav>
-      <div class="side-label">Music</div>
+      </details>
+      <details class="manage-nav-group">
+      <summary>Music</summary>
       <nav class="sidebar-actions" aria-label="Music management">
         <a class="sidebar-page" data-manage-section="playlists" href="/manage.html#playlists">Playlists</a>
+        <a class="sidebar-page" data-manage-section="media-management" href="/manage.html#media-management">Media</a>
         <a class="sidebar-page" data-manage-section="video-playlists" href="/manage.html#video-playlists">Video playlists</a>
         <a class="sidebar-page" data-manage-section="music-genres" href="/manage.html#music-genres">Genres</a>
       </nav>
+      </details>
       <div class="sidebar-foot"><span class="live-dot"></span> Independent radio, everywhere</div>
     </aside>
 
     <main>
-      <header class="manage-page-heading"><p class="kicker">MyMusics</p><h1>Management</h1><p>Configure Jellyfin and YouTube, and maintain your radio stations, genres, and music playlists.</p></header>
+      <header class="manage-page-heading"><p class="kicker">MyMusics</p><h1>Management</h1><p>Configure Jellyfin and YouTube, maintain your radio stations, and manage music files, genres, and playlists.</p></header>
       <section class="manage-export panel" aria-label="Export saved data"><div><strong>Export playlists and radio stations</strong><p>Download local Music playlists, YouTube playlists, and radio stations as a JSON file.</p></div><button id="export-saved-data" class="station-edit-button" type="button">Export JSON</button><p id="export-saved-data-status" role="status" aria-live="polite"></p></section>
       <aside id="tv-manage-notice" class="tv-manage-notice" role="status">Editing stations is easier from a phone or computer. Open this page there to make changes.</aside>
       <p id="notice" class="notice" role="status" aria-live="polite"></p>
@@ -181,6 +188,14 @@
         <div id="video-playlist-list" class="station-list"></div>
         <div id="video-playlist-tracks" class="playlist-tracks" hidden></div>
       </section>
+      <section id="media-management" class="media-management panel" aria-labelledby="media-management-heading">
+        <header class="playlist-management-heading"><div><p class="eyebrow">Jellyfin library</p><h2 id="media-management-heading">Media management</h2><p>Find tracks with matching title, artist, and duration. Review each file location and choose which copy to keep.</p></div></header>
+        <p class="media-delete-warning">Deleting a duplicate removes its file from disk and its item from Jellyfin.</p>
+        <button id="media-duplicate-scan" class="station-edit-button" type="button">Scan for duplicate tracks</button>
+        <div class="media-bulk-actions"><button id="media-delete-selected" class="delete-genre-button" type="button" disabled>Delete selected copies</button><p id="media-delete-selection-status" role="status" aria-live="polite">Select copies to delete. At least one located copy must remain in every group.</p></div>
+        <p id="media-duplicate-status" class="lookup-status" role="status" aria-live="polite">Scan the Jellyfin library to find matching tracks.</p>
+        <div id="media-duplicate-list" class="media-duplicate-list"></div>
+      </section>
       <section id="music-genres" class="music-genre-management panel" aria-labelledby="music-genre-heading">
         <header class="playlist-management-heading"><div><p class="eyebrow">Jellyfin library</p><h2 id="music-genre-heading">Music genres</h2><p>Group noisy Jellyfin labels under a clear name. These display corrections stay in MyMusics and do not edit Jellyfin metadata.</p></div></header>
         <p id="music-genre-status" class="lookup-status" role="status" aria-live="polite">Loading Jellyfin genres…</p>
@@ -188,6 +203,7 @@
       </section>
       <details id="updates" class="about-updates panel"><summary><span><span class="eyebrow">About</span><strong>Version and updates</strong></span></summary><section class="update-card" aria-label="MyMusics version and updates"><div class="update-card-copy"><strong id="app-version">Version check pending</strong><p id="update-message" role="status" aria-live="polite">Checking for updates…</p><details id="update-details" class="update-details" hidden><summary>Technical details</summary><pre id="update-error"></pre></details></div><div class="update-card-actions"><button id="check-update" class="text-button" type="button">Check for updates</button><button id="install-update" class="save-button" type="button" hidden>Install and restart</button></div></section></details>
       <dialog id="video-move-dialog" class="video-move-dialog" aria-labelledby="video-move-title"><form id="video-move-form"><h2 id="video-move-title">Move video</h2><p id="video-move-description"></p><label for="video-move-target">Destination playlist</label><select id="video-move-target" required><option value="">Select playlist</option></select><div><button id="video-move-cancel" class="text-button" type="button" autofocus>Cancel</button><button class="station-edit-button" type="submit" disabled>Move</button></div></form></dialog>
+      <dialog id="media-delete-dialog" class="media-delete-dialog" aria-labelledby="media-delete-heading"><form id="media-delete-form"><h2 id="media-delete-heading">Delete selected duplicate files?</h2><p id="media-delete-description">The listed files will be deleted from disk and removed from Jellyfin. The unselected copies will stay.</p><p id="media-delete-selected-summary"></p><strong>Files to delete</strong><ul id="media-delete-paths"></ul><strong>Copies to keep</strong><ul id="media-keep-paths"></ul><label for="media-delete-confirm-text">Type DELETE to confirm</label><input id="media-delete-confirm-text" autocomplete="off"><p id="media-delete-confirm-status" role="status" aria-live="polite">Type DELETE exactly to enable Delete files.</p><div><button id="media-delete-cancel" class="text-button" type="button" autofocus>Cancel</button><button id="media-delete-confirm" class="delete-genre-button" type="button" disabled>Delete files</button></div></form></dialog>
       <dialog id="genre-delete-dialog" class="genre-delete-dialog" aria-labelledby="genre-delete-title"><form id="genre-delete-form"><h2 id="genre-delete-title">Delete genre</h2><p id="genre-delete-description"></p><label for="genre-delete-confirm-name">Type the genre name to confirm</label><input id="genre-delete-confirm-name" autocomplete="off"><div><button id="genre-delete-cancel" class="text-button" type="button" autofocus>Cancel</button><button id="genre-delete-confirm" class="delete-genre-button" type="submit" disabled>Delete genre</button></div></form></dialog>
     </main>
   </div>

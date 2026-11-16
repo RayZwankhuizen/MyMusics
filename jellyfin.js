@@ -188,6 +188,17 @@ async function image(id, size = 480) {
   });
 }
 
+async function deleteItem(id) {
+  const { url } = config();
+  const response = await fetch(`${url}/Items/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+    timeout: requestTimeout
+  });
+  if (!response.ok) throw new Error(`Jellyfin refused to delete the file (HTTP ${response.status}).`);
+  return true;
+}
+
 module.exports = {
   configured,
   serverUrl,
@@ -198,6 +209,7 @@ module.exports = {
   nextTracks,
   streamAudio,
   image,
+  deleteItem,
   clearCache,
   refreshLibrary,
   libraryRefreshStatus

@@ -1,6 +1,7 @@
 import { wireManageUpdates } from "./manage-updates.mjs";
 import { wireManagePlaylists } from "./manage-playlists.mjs";
 import { wireManageMusicGenres } from "./manage-music-genres.mjs";
+import { wireManageMedia } from "./manage-media.mjs?v=bulk-delete-select-1";
 import { wireManageJellyfinSettings } from "./manage-jellyfin-settings.mjs?v=host-ytdlp-1";
 import { wireManageYouTubeSettings } from "./manage-youtube-settings.mjs";
 import { request } from "./manage-api.mjs";
@@ -58,6 +59,7 @@ wireManageAllStations({ el, catalog, request });
 wireManagePlaylists({ el, initialPlaylistId: new URLSearchParams(location.search).get("playlist") || "" });
 wireManageVideoPlaylists({ el, request });
 wireManageMusicGenres({ el, request });
+wireManageMedia({ el, request });
 wireManageJellyfinSettings({ el, request });
 wireManageYouTubeSettings({ el, request });
 wireManageBrowserInfo();
@@ -72,7 +74,7 @@ wireStationSearch({
 
 catalog.refresh().catch((error) => notice(error.message, true));
 wireManageUpdates({ request, el }).checkForUpdates();
-const manageSectionIds = ["general", "jellyfin-settings", "host-audio-test", "browser-info", "updates", "stations", "playlists", "video-playlists", "music-genres"];
+const manageSectionIds = ["general", "jellyfin-settings", "host-audio-test", "browser-info", "updates", "stations", "playlists", "media-management", "video-playlists", "music-genres"];
 const manageTiles = new Map();
 for (const id of manageSectionIds) {
   const panel = el(`#${id}`);
@@ -101,6 +103,9 @@ function updateTileSummary(id, tile) {
   summary.setAttribute("aria-label", `${tile.open ? "Collapse" : "Open"} ${label}`);
 }
 function selectManageLink(section) {
+  const selectedLink = document.querySelector(`[data-manage-section="${section}"]`);
+  const selectedGroup = selectedLink?.closest(".manage-nav-group");
+  if (selectedGroup) document.querySelectorAll(".manage-nav-group").forEach((group) => { group.open = group === selectedGroup; });
   document.querySelectorAll("[data-manage-section]").forEach((link) => {
     const selected = link.dataset.manageSection === section;
     link.classList.toggle("selected", selected);

@@ -1,4 +1,5 @@
-const itemFields = "Genres,AlbumArtist,Artists,AlbumId,RunTimeTicks,ProductionYear,Container";
+const itemFields = "Genres,AlbumArtist,ArtistItems,Artists,AlbumId,RunTimeTicks,ProductionYear,Container";
+const managementFields = "Path,MediaSources,Tags,Album,Genres,ArtistItems,Artists,AlbumArtist,RunTimeTicks,Container";
 
 module.exports = function createJellyfinCatalog({ getJson }) {
   const genreCountCache = new Map();
@@ -42,6 +43,17 @@ module.exports = function createJellyfinCatalog({ getJson }) {
       id: item?.Id,
       title: item?.Name || "Unknown artist",
       albumCount: Number(item?.AlbumCount) || Number(item?.ChildCount) || null
+    };
+  }
+
+  function toManagementTrack(item) {
+    const track = toTrack(item);
+    const source = item?.MediaSources?.[0];
+    return {
+      ...track,
+      path: item?.Path || source?.Path || "",
+      size: Number(source?.Size) || 0,
+      tags: Array.isArray(item?.Tags) ? item.Tags : []
     };
   }
 
@@ -239,6 +251,12 @@ module.exports = function createJellyfinCatalog({ getJson }) {
     return toTracks(result);
   }
 
+  async function similarArtists(artistId, limit = 12) {
+    const result = await getJson(`/Artists/${encodeURIComponent(artistId)}/Similar`, { Limit: String(limit) });
+    const items = Array.isArray(result?.Items) ? result.Items : Array.isArray(result) ? result : [];
+    return items.map(toArtist).filter((artist) => artist.id && artist.id !== artistId);
+  }
+
   async function randomTracksByArtist(artistId, limit = 30) {
     return toTracks(await getJson("/Items", {
       ArtistIds: artistId,
@@ -366,6 +384,26 @@ module.exports = function createJellyfinCatalog({ getJson }) {
     return track.id ? track : null;
   }
 
+  async function managementTracks(startIndex = 0, limit = 500) {
+    const result = await getJson("/Items", {
+      IncludeItemTypes: "Audio",
+      Recursive: "true",
+      SortBy: "SortName",
+      Fields: managementFields,
+      StartIndex: String(startIndex),
+      Limit: String(limit)
+    });
+    return {
+      tracks: (result?.Items || []).map(toManagementTrack).filter((track) => track.id),
+      totalRecordCount: Number(result?.TotalRecordCount) || 0
+    };
+  }
+
+  async function managementTrack(id) {
+    const item = await getJson(`/Items/${encodeURIComponent(id)}`, { Fields: managementFields });
+    return item?.Id ? toManagementTrack(item) : null;
+  }
+
   async function instantMix(id, limit = 30) {
     return toTracks(await getJson(`/Items/${encodeURIComponent(id)}/InstantMix`, {
       Fields: itemFields,
@@ -379,8 +417,9 @@ module.exports = function createJellyfinCatalog({ getJson }) {
       search, searchAll, searchTracks, searchAlbums, searchArtists, searchGenres,
       allGenres, listGenres: genreItems, allArtists, allAlbums, itemInfo, countByGenre, countAlbumsByGenre,
       albumsByGenre, countByArtist, countAlbumsByArtist, artistAlbums, artistTracks,
-      tracksByGenre, albumTracks, randomTrackByArtist, randomTrackByGenre, randomTracks, getTrack
+      tracksByGenre, albumTracks, randomTrackByArtist, randomTrackByGenre, randomTracks, getTrack,
+      managementTracks, managementTrack
     },
-    autoDj: { getTrack, randomTracksByArtist, albumTracks, tracksByGenre, instantMix, randomTracks }
+    autoDj: { getTrack, randomTracksByArtist, similarArtists, albumTracks, tracksByGenre, instantMix, randomTracks }
   };
 };

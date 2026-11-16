@@ -7,7 +7,7 @@ import { createJukeboxRack, createJukeboxSearch } from "./jukebox-browser.mjs?v=
 import { createMusicDeckState, createMusicDeckPreload, createMusicDeckTransition } from "./music-decks.mjs";
 import { createMusicTrackPlayback } from "./music-track-playback.mjs";
 import { createMusicQueueView } from "./music-queue-view.mjs";
-import { createMusicQueueOperations } from "./music-queue-operations.mjs";
+import { createMusicQueueOperations } from "./music-queue-operations.mjs?v=artist-similarity-1";
 import { createMusicInfoController } from "./music-info-controller.mjs";
 import { createMusicPlaybackNavigation } from "./music-playback-navigation.mjs";
 import { createMusicJukeboxDecks } from "./music-jukebox-decks.mjs?v=player-controls-placement-1";
@@ -17,7 +17,7 @@ import { wireMusicGenrePulldown } from "./music-genre-pulldown.mjs";
 import { wireMusicDialogEvents } from "./music-dialog-events.mjs";
 import { createMusicAudioSource } from "./music-audio-source.mjs";
 import { emptyRow, textButton, markAdded, formatMusicDuration, createMusicTrackRow, scrollMusicText, jukeboxEmpty as jbEmpty, genreCountSummary, createJukeboxStrip } from "./music-ui-elements.mjs?v=rock-ola-scroll-2";
-import { wireMusicAutoDj } from "./music-autodj.mjs?v=source-picker-2";
+import { wireMusicAutoDj } from "./music-autodj.mjs?v=artist-similarity-1";
 import { createMusicSessionStorage } from "./music-session-storage.mjs";
 import { createMusicPlaylistActions } from "./music-playlist-actions.mjs";
 import { wireMusicVolume } from "./music-volume.mjs?v=host-volume-sync-1";

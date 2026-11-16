@@ -9,6 +9,7 @@ export function wireMusicAutoDj({ el, state, fillQueue, renderQueue, setStatus }
   const sourceStatus = el("#autodj-source-status");
   const sourceResults = el("#autodj-source-results");
   const currentOptions = el("#autodj-current-options");
+  const artistScope = el("#autodj-artist-scope");
   let selectedTrack = null;
   let currentTrack = null;
   let selectedSource = null;
@@ -20,12 +21,13 @@ export function wireMusicAutoDj({ el, state, fillQueue, renderQueue, setStatus }
     selectedTrack = currentTrack;
     selectedSource = null;
     el("#autodj-start").disabled = false;
+    artistScope.hidden = event.target.value !== "artist";
   });
 
   function renderButton() {
     button.setAttribute("aria-pressed", String(Boolean(state.autoDj)));
     button.setAttribute("aria-expanded", String(dialog.open));
-    const mode = state.autoDj?.label
+    const mode = state.autoDj?.similar ? "Similar artists" : state.autoDj?.label
       ? `${state.autoDj.label[0].toUpperCase()}${state.autoDj.label.slice(1)}`
       : state.autoDj?.mode ? `${state.autoDj.mode[0].toUpperCase()}${state.autoDj.mode.slice(1)}` : "Mix";
     button.textContent = state.autoDj ? `AutoDJ: ${mode}` : "AutoDJ: OFF";
@@ -62,6 +64,7 @@ export function wireMusicAutoDj({ el, state, fillQueue, renderQueue, setStatus }
     const request = ++sourceSelection;
     selectedTrack = null;
     selectedSource = null;
+    artistScope.hidden = true;
     el("#autodj-start").disabled = true;
     sourceStatus.textContent = `Loading ${item.title || item.name}…`;
     try {
@@ -78,6 +81,7 @@ export function wireMusicAutoDj({ el, state, fillQueue, renderQueue, setStatus }
       if (item.kind === "artist") seed.artistId ||= item.id;
       if (item.kind === "album") seed.albumId ||= item.id;
       selectedSource = { kind: item.kind, title: item.title || item.name, tracks, seed };
+      artistScope.hidden = item.kind !== "artist";
       sourceStatus.textContent = `Selected ${selectedSource.title} · ${tracks.length} tracks`;
       el("#autodj-start").disabled = false;
     } catch (error) {
@@ -99,6 +103,8 @@ export function wireMusicAutoDj({ el, state, fillQueue, renderQueue, setStatus }
     selectedSource = null;
     currentTrack = track?.id ? track : null;
     selectedTrack = currentTrack;
+    artistScope.hidden = true;
+    dialog.querySelector('[name="autodj-artist-scope"][value="artist"]').checked = true;
     sourcePicker.hidden = false;
     currentOptions.hidden = !selectedTrack;
     description.textContent = selectedTrack
@@ -117,6 +123,7 @@ export function wireMusicAutoDj({ el, state, fillQueue, renderQueue, setStatus }
         label.textContent = value || `${mode[0].toUpperCase()}${mode.slice(1)} unavailable for this track`;
       }
       el("#autodj-start").disabled = !selected;
+      artistScope.hidden = !dialog.querySelector('[name="autodj-mode"][value="artist"]').checked;
     }
     sourceStatus.textContent = "";
     sourceQuery.value = "";
@@ -127,6 +134,7 @@ export function wireMusicAutoDj({ el, state, fillQueue, renderQueue, setStatus }
 
   sourceKind.addEventListener("change", () => {
     selectedSource = null;
+    artistScope.hidden = true;
     el("#autodj-start").disabled = true;
     void searchSources();
   });
@@ -141,7 +149,8 @@ export function wireMusicAutoDj({ el, state, fillQueue, renderQueue, setStatus }
     if (selectedTrack?.id) {
       const mode = dialog.querySelector('[name="autodj-mode"]:checked')?.value;
       if (!mode) return;
-      state.autoDj = { mode, seed: selectedTrack };
+      const similar = mode === "artist" && dialog.querySelector('[name="autodj-artist-scope"]:checked')?.value === "similar";
+      state.autoDj = { mode, similar, seed: selectedTrack };
     } else if (selectedSource) {
       const { kind, tracks, seed } = selectedSource;
       if (kind === "playlist") {
@@ -149,11 +158,12 @@ export function wireMusicAutoDj({ el, state, fillQueue, renderQueue, setStatus }
         state.queue = [...tracks.filter((track) => !queued.has(track.id) && queued.add(track.id)), ...state.queue];
         renderQueue();
       }
-      state.autoDj = { mode: kind === "playlist" ? "" : kind, label: kind, seed };
+      const similar = kind === "artist" && dialog.querySelector('[name="autodj-artist-scope"]:checked')?.value === "similar";
+      state.autoDj = { mode: kind === "playlist" ? "" : kind, similar, label: similar ? "Similar artists" : kind, seed };
     } else return;
     renderButton();
     dialog.close();
-    setStatus(`AUTODJ · LOADING ${state.autoDj.label || state.autoDj.mode.toUpperCase()} TRACKS`);
+    setStatus(`AUTODJ · LOADING ${state.autoDj.similar ? "SIMILAR ARTISTS" : state.autoDj.label || state.autoDj.mode.toUpperCase()} TRACKS`);
     void fillQueue(true);
   });
 
