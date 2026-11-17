@@ -10,7 +10,7 @@ import { detectBrowser } from "./browser-info.mjs";
   const version = footer.querySelector("[data-version]");
   const date = footer.querySelector("time");
   footer.querySelector("[data-browser]").textContent = `Browser: ${detectBrowser(navigator.userAgent || "").name}`;
-  sidebar.append(footer);
+  (sidebar.querySelector(".listening-sidebar-footer") || sidebar).append(footer);
 
   fetch("/app-info.json", { cache: "no-store" }).then((response) => response.ok ? response.json() : null).then((info) => {
     if (!info) return removeBuildInfo();

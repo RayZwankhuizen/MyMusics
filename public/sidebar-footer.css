@@ -1,0 +1,9 @@
+/* Shared footer for the three listening screens. */
+body:is(.radio-page,.music-page,.video-page) .sidebar{padding-bottom:24px}
+.listening-sidebar-footer{flex:none;display:grid;gap:12px;margin-top:auto;padding-top:16px}
+body:is(.radio-page,.music-page,.video-page) .listening-sidebar-footer .sidebar-manage{display:flex!important;align-items:center;min-height:44px;margin:0;padding:10px 12px;border:0;border-top:1px solid #2a3552;border-radius:0;color:#a9b6ce;font-size:14px;font-weight:400;line-height:20px;text-decoration:none}
+body:is(.radio-page,.music-page,.video-page) .listening-sidebar-footer .sidebar-version{display:grid;gap:4px;min-height:66px;margin:0;padding:8px 12px 0;border-top:1px solid #2a3552;color:#8190ab;font:10px/1.4 var(--mono)}
+html.tv-mode body:is(.radio-page,.music-page,.video-page) .listening-sidebar-footer .sidebar-version :is(span,time){font-size:14px!important;line-height:20px}
+html.tv-mode .listening-sidebar-footer .sidebar-manage{min-height:64px;font-size:24px;line-height:32px}
+html.silk-browser.tv-mode .listening-sidebar-footer{grid-column:1/-1;width:100%}
+@media(max-width:1000px){.listening-sidebar-footer{margin-top:16px}}

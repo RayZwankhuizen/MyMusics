@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="/app-theme.css?v=tv-toggle-fixed-1">
   <link rel="stylesheet" href="/music-theme.css?v=player-controls-placement-1">
   <link rel="stylesheet" href="/silk-tv.css?v=tv-face-on-1">
+  <link rel="stylesheet" href="/sidebar-footer.css?v=1">
 </head>
 <body class="music-page">
   <div class="app-shell">
@@ -45,8 +46,9 @@
         </div>
         <div class="music-sidebar-maintenance"><button id="music-refresh" class="jb-key" type="button">Refresh library</button><progress id="music-refresh-progress" max="100" hidden aria-label="Jellyfin library refresh progress"></progress><p id="music-toolbar-status" role="status" aria-live="polite"></p></div>
       </section>
-      <a class="sidebar-manage sidebar-page" href="/manage.html#playlists">Manage</a>
-      <div class="sidebar-foot"><span class="live-dot"></span> Endless play from your own library</div>
+      <div class="listening-sidebar-footer">
+        <a class="sidebar-manage sidebar-page" href="/manage.html#playlists">Manage</a>
+      </div>
     </aside>
 
     <main>
@@ -269,6 +271,6 @@ JELLYFIN_USER_ID=your-user-id</pre>
     <div id="music-results" class="station-list" aria-live="polite"></div>
   </dialog>
       <script defer src="/tv-navigation.js?v=tv-navigation-5"></script>
-  <script type="module" src="/app-meta.js?v=browser-meta-2"></script>
+  <script type="module" src="/app-meta.js?v=sidebar-footer-1"></script>
 </body>
 </html>

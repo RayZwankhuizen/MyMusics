@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="/video-options.css?v=video-dialogs-duration-2">
   <script defer src="/playback-target.js?v=host-playback-lease-1"></script>
   <script defer src="/tv-navigation.js?v=tv-navigation-5"></script>
+  <link rel="stylesheet" href="/sidebar-footer.css?v=1">
 </head>
 <body class="video-page">
   <div class="app-shell video-app-shell">
@@ -21,8 +22,9 @@
       <a class="brand mode-brand" href="/" aria-label="MyMusics home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>my<span class="brand-light">musics</span></span></a>
       <nav class="mode-switch mode-switch-three" aria-label="Modes"><a class="mode" href="/">Radio</a><a class="mode" href="/youtube.html" aria-current="page">YouTube</a><a class="mode" href="/music.html">Music</a></nav>
       <label class="playback-target-setting" for="playback-target">Audio output<select id="playback-target"><option value="browser">This browser</option><option value="host">MyMusics host</option></select></label>
-      <a class="sidebar-manage sidebar-page" href="/manage.html#video-playlists">Manage</a>
-      <div class="sidebar-foot"><span class="live-dot"></span> Independent radio, everywhere</div>
+      <div class="listening-sidebar-footer">
+        <a class="sidebar-manage sidebar-page" href="/manage.html#video-playlists">Manage</a>
+      </div>
     </aside>
     <main class="video-main-content">
       <section class="video-workspace" aria-label="Video player and playlist">
@@ -62,5 +64,6 @@
     <div class="video-dialog-body" id="video-queue-dialog-body"></div>
   </dialog>
   <script type="module" src="/video-options.js?v=video-dialogs-sync-duration-2"></script>
+  <script type="module" src="/app-meta.js?v=sidebar-footer-1"></script>
 </body>
 </html>
