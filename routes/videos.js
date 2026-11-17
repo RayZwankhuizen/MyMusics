@@ -1,5 +1,5 @@
 const crypto = require("node:crypto");
-const fetch = require("node-fetch");
+const fetch = globalThis.fetch;
 
 const videoIdPattern = /^[\w-]{11}$/;
 
@@ -27,13 +27,16 @@ module.exports = function registerVideoRoutes(app, { storage }) {
 
   app.get("/api/videos/search", async (req, res) => {
     const query = String(req.query.q || "").trim().slice(0, 120);
+    const pageToken = String(req.query.pageToken || "");
+    if (pageToken && !/^[A-Za-z0-9_+/=-]{1,512}$/.test(pageToken)) return res.status(400).json({ error: "Invalid search page." });
     if (query.length < 2) return res.status(400).json({ error: "Enter at least two characters to search." });
     const apiKey = getApiKey();
     if (!apiKey) return res.status(503).json({ error: "Configure a YouTube API key in Manage → Jellyfin/YouTube." });
     try {
       const url = new URL("https://www.googleapis.com/youtube/v3/search");
       url.search = new URLSearchParams({ part: "snippet", type: "video", videoEmbeddable: "true", maxResults: "10", q: query, key: apiKey });
-      const response = await fetch(url.toString());
+      if (pageToken) url.searchParams.set("pageToken", pageToken);
+      const response = await fetch(url.toString(), { signal: AbortSignal.timeout(8000) });
       const data = await response.json();
       if (!response.ok) return res.status(502).json({ error: `YouTube search failed: ${data.error?.message || response.statusText}` });
       const results = (data.items || []).flatMap((item) => {
@@ -46,19 +49,22 @@ module.exports = function registerVideoRoutes(app, { storage }) {
           thumbnail: item.snippet?.thumbnails?.medium?.url || item.snippet?.thumbnails?.default?.url || null
         }];
       });
-      res.json({ results });
+      res.json({ results, nextPageToken: typeof data.nextPageToken === "string" ? data.nextPageToken : null });
     } catch (error) { res.status(502).json({ error: `YouTube search is unavailable: ${error.message}` }); }
   });
 
   app.get("/api/videos/search-playlists", async (req, res) => {
     const query = String(req.query.q || "").trim().slice(0, 120);
+    const pageToken = String(req.query.pageToken || "");
+    if (pageToken && !/^[A-Za-z0-9_+/=-]{1,512}$/.test(pageToken)) return res.status(400).json({ error: "Invalid search page." });
     if (query.length < 2) return res.status(400).json({ error: "Enter at least two characters to search." });
     const apiKey = getApiKey();
     if (!apiKey) return res.status(503).json({ error: "Configure a YouTube API key in Manage → Jellyfin/YouTube." });
     try {
       const url = new URL("https://www.googleapis.com/youtube/v3/search");
       url.search = new URLSearchParams({ part: "snippet", type: "playlist", maxResults: "10", q: query, key: apiKey });
-      const response = await fetch(url.toString());
+      if (pageToken) url.searchParams.set("pageToken", pageToken);
+      const response = await fetch(url.toString(), { signal: AbortSignal.timeout(8000) });
       const data = await response.json();
       if (!response.ok) return res.status(502).json({ error: `YouTube playlist search failed: ${data.error?.message || response.statusText}` });
       const results = (data.items || []).flatMap((item) => {
@@ -66,7 +72,7 @@ module.exports = function registerVideoRoutes(app, { storage }) {
         if (typeof id !== "string") return [];
         return [{ id, title: String(item.snippet?.title || "Untitled playlist").slice(0, 300), artist: String(item.snippet?.channelTitle || "").slice(0, 160), thumbnail: item.snippet?.thumbnails?.medium?.url || item.snippet?.thumbnails?.default?.url || null }];
       });
-      res.json({ results });
+      res.json({ results, nextPageToken: typeof data.nextPageToken === "string" ? data.nextPageToken : null });
     } catch (error) { res.status(502).json({ error: `YouTube playlist search is unavailable: ${error.message}` }); }
   });
 

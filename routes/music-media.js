@@ -1,3 +1,5 @@
+const { Readable } = require("node:stream");
+
 module.exports = function registerMusicMediaRoutes(app, { jellyfin }) {
   app.get("/library/audio/:id", async (req, res) => {
     if (!jellyfin.configured()) return res.status(503).json({ error: "Set JELLYFIN_URL and JELLYFIN_API_KEY to stream your music library." });
@@ -14,9 +16,10 @@ module.exports = function registerMusicMediaRoutes(app, { jellyfin }) {
       }
       if (!res.get("Content-Type")) res.set("Content-Type", "audio/mpeg");
       res.set("Cache-Control", "no-store");
-      upstream.body.on("error", () => res.destroy());
-      req.on("close", () => upstream.body.destroy());
-      upstream.body.pipe(res);
+      const body = Readable.fromWeb(upstream.body);
+      body.on("error", () => res.destroy());
+      res.on("close", () => body.destroy());
+      body.pipe(res);
     } catch (error) {
       res.status(502).json({ error: `Could not stream this track: ${error.message}` });
     }
@@ -28,12 +31,18 @@ module.exports = function registerMusicMediaRoutes(app, { jellyfin }) {
     if (!/^[0-9a-z]{8,64}$/i.test(req.params.id)) return res.status(400).json({ error: "Unknown artwork id." });
     try {
       const upstream = await jellyfin.image(req.params.id);
-      if (!upstream.ok) return res.status(404).json({ error: "Artwork not found." });
+      if (!upstream.ok) {
+        await upstream.body?.cancel();
+        return res.status(404).json({ error: "Artwork not found." });
+      }
       res.set({
         "Content-Type": upstream.headers.get("content-type") || "image/jpeg",
         "Cache-Control": "public, max-age=86400"
       });
-      upstream.body.pipe(res);
+      const body = Readable.fromWeb(upstream.body);
+      body.on("error", () => res.destroy());
+      res.on("close", () => body.destroy());
+      body.pipe(res);
     } catch {
       res.status(502).json({ error: "Could not load artwork." });
     }

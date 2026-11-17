@@ -1,4 +1,4 @@
-const fetch = require("node-fetch");
+const fetch = globalThis.fetch;
 const storage = require("./storage");
 const createAutoDj = require("./jellyfin-autodj");
 const createJellyfinCatalog = require("./jellyfin-catalog");
@@ -32,7 +32,7 @@ async function refreshLibrary() {
   const response = await fetch(`${url}/Library/Refresh`, {
     method: "POST",
     headers: { ...authHeaders() },
-    timeout: requestTimeout
+    signal: AbortSignal.timeout(requestTimeout)
   });
   if (!response.ok) throw new Error(`Jellyfin refresh failed (${response.status}).`);
   return true;
@@ -43,7 +43,7 @@ async function libraryRefreshStatus() {
   if (!url) throw new Error("Jellyfin is not configured.");
   const response = await fetch(`${url}/ScheduledTasks`, {
     headers: { ...authHeaders(), Accept: "application/json", "Cache-Control": "no-cache" },
-    timeout: requestTimeout
+    signal: AbortSignal.timeout(requestTimeout)
   });
   if (!response.ok) throw new Error(`Could not read Jellyfin task status (${response.status}).`);
   const tasks = await response.json();
@@ -97,7 +97,7 @@ function saveSettings({ url, apiKey, userId }) {
 async function testConnection() {
   const { url } = config();
   if (!configured()) throw new Error("Save the Jellyfin URL and API key first.");
-  const response = await fetch(`${url}/Users`, { headers: authHeaders(), timeout: requestTimeout });
+  const response = await fetch(`${url}/Users`, { headers: authHeaders(), signal: AbortSignal.timeout(requestTimeout) });
   if (!response.ok) throw new Error(`Jellyfin returned HTTP ${response.status}. Check the URL and API key.`);
   return true;
 }
@@ -138,7 +138,7 @@ async function getJson(pathname, params = {}, { withUser = true } = {}) {
   }
   const response = await fetch(`${url}${pathname}?${search}`, {
     headers: { ...authHeaders(), Accept: "application/json", "Cache-Control": "no-cache" },
-    timeout: requestTimeout
+    signal: AbortSignal.timeout(requestTimeout)
   });
   if (response.status === 401 || response.status === 403) throw new Error("Jellyfin rejected the API key. Check JELLYFIN_API_KEY.");
   if (!response.ok) throw new Error(`Jellyfin returned HTTP ${response.status}.`);
@@ -169,13 +169,18 @@ async function streamAudio(id, range, { transcode = false } = {}) {
     // A converted stream has no stable byte offsets, so a range request only
     // makes sense against the original file.
     if (range && mode === "static") headers.Range = range;
-    return fetch(`${url}/Audio/${encodeURIComponent(id)}/stream?${params}`, { headers, timeout: 20000 });
+    // Only bound connection setup: a playing track may last longer than 20s.
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 20000);
+    try {
+      return await fetch(`${url}/Audio/${encodeURIComponent(id)}/stream?${params}`, { headers, signal: controller.signal });
+    } finally { clearTimeout(timer); }
   };
 
   if (transcode) return request("transcode");
   const original = await request("static");
   if (original.ok) return original;
-  original.body?.destroy();
+  await original.body?.cancel();
   return request("transcode");
 }
 
@@ -184,7 +189,7 @@ async function image(id, size = 480) {
   const params = new URLSearchParams({ maxHeight: String(size), quality: "88" });
   return fetch(`${url}/Items/${encodeURIComponent(id)}/Images/Primary?${params}`, {
     headers: authHeaders(),
-    timeout: requestTimeout
+    signal: AbortSignal.timeout(requestTimeout)
   });
 }
 
@@ -193,7 +198,7 @@ async function deleteItem(id) {
   const response = await fetch(`${url}/Items/${encodeURIComponent(id)}`, {
     method: "DELETE",
     headers: authHeaders(),
-    timeout: requestTimeout
+    signal: AbortSignal.timeout(requestTimeout)
   });
   if (!response.ok) throw new Error(`Jellyfin refused to delete the file (HTTP ${response.status}).`);
   return true;

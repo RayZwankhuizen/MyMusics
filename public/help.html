@@ -26,6 +26,7 @@
       <nav class="sidebar-actions help-sidebar-actions" aria-label="Pages">
         <a class="sidebar-page" href="/">Radio</a>
         <a class="sidebar-page" href="/music.html">Music</a>
+        <a class="sidebar-page" href="/youtube.html">YouTube</a>
         <a class="sidebar-page" href="/manage.html">Management</a>
         <a class="sidebar-page selected" href="/help.html" aria-current="page">Help</a>
       </nav>
@@ -36,11 +37,12 @@
       <header class="help-intro">
         <p class="kicker">MYMUSICS GUIDE</p>
         <h1>How to use MyMusics</h1>
-        <p>Step-by-step help for playback, lyrics, volume controls, stations, and genres.</p>
+        <p>Help for Radio, Music, YouTube, audio output, playlists, and library management.</p>
       </header>
 
       <nav class="help-toc" aria-label="Help topics">
         <a href="#listen">Listen</a><a href="#favorites">Favorites</a><a href="#lyrics">Lyrics</a>
+        <a href="#music">Music</a><a href="#youtube">YouTube</a><a href="#output">Audio output &amp; TV</a><a href="#playlists">Playlists &amp; export</a>
         <a href="#audio-tools">Audio tools</a><a href="#stations">Stations</a><a href="#genres">Genres</a><a href="#updates">Updates</a>
       </nav>
 
@@ -50,17 +52,17 @@
           <h2>Listen to a station</h2>
           <ol>
             <li>Choose a genre in the sidebar, or choose <strong>Favorites</strong>.</li>
-            <li>Select the play button beside a station. Use the browser audio controls to pause, resume, seek when supported, or adjust playback volume.</li>
+            <li>Select the play button beside a station. Use the play/pause button and Volume slider below the track details to control playback.</li>
             <li>Track details, artwork, and lyrics appear below the player when the stream and lookup services provide them.</li>
           </ol>
-          <p>Use <strong>Search stations</strong> above the list to filter the selected genre or Favorites by station name.</p>
-          <p>Use <strong>Hide controls</strong> to collapse the extra player tools. Select <strong>Show controls</strong> to open them again.</p>
+          <p>Select <strong>Search</strong> above the player to search all saved radio stations, across genres. Select a result to play it.</p>
+          <p>Select <strong>Sound settings</strong> to show the equalizer and speech/ad controls, and <strong>Close sound settings</strong> to hide them.</p>
         </section>
 
         <section id="favorites" class="help-card">
           <p class="help-eyebrow">02 · YOUR SHORTLIST</p>
           <h2>Manage Favorites</h2>
-          <p>Select the star beside a station on Listen or the <strong>Favorite</strong> button on Manage to add it to Favorites; select it again to remove it. Open <strong>Favorites</strong> in the Listen sidebar to see the shortlist. A favorite remains in its regular genre too.</p>
+          <p>Select the star beside a station on Radio or the <strong>Favorite</strong> button in Management to add it to Favorites; select it again to remove it. Open <strong>Favorites</strong> in the Radio sidebar to see the shortlist. A favorite remains in its regular genre too.</p>
         </section>
 
         <section id="lyrics" class="help-card">
@@ -69,7 +71,7 @@
           <ul>
             <li>Lyrics load automatically when a track is identified and a match is available. Plain lyrics are shown as text; synchronized lyrics highlight and scroll with the song.</li>
             <li>For synchronized lyrics, select a lyric line to align the lyric highlight from that point. This does not seek or change the audio.</li>
-            <li>Use <strong>−</strong> to show lines later and <strong>+</strong> to show them earlier. Each click adjusts timing by 250 ms, within a range of 0 to 3 seconds; the value between the buttons shows the current delay. The initial delay is 300 ms.</li>
+            <li>Use <strong>−</strong> to show lines later and <strong>+</strong> to show them earlier. Each click adjusts timing by 50 ms, within a range of 0 to 3 seconds; the value between the buttons shows the current delay. The initial delay is 300 ms.</li>
             <li>The indicator beside <strong>Lyrics</strong> is green when the stream sends a track start time and red when it does not. Without a start time, synchronization uses when MyMusics began playback.</li>
           </ul>
           <p>Lyrics and timing data depend on third-party matches. Some tracks have no lyrics or only unsynchronized lyrics.</p>
@@ -80,19 +82,19 @@
           <h2>Equalizer and automatic volume</h2>
           <h3>Equalizer</h3>
           <ol>
-            <li>Start a station, open the player tools, and select <strong>Equalizer</strong>.</li>
-            <li>Choose a preset or adjust the frequency sliders. Select <strong>EQ On</strong> to apply the settings; use <strong>Reset</strong> to return to Flat.</li>
+            <li>Start a station, open <strong>Sound settings</strong>, and select <strong>Equalizer</strong>.</li>
+            <li>Choose a preset or adjust the frequency sliders. Select the <strong>EQ Off</strong> power button to enable the equalizer; it changes to <strong>EQ On</strong>; use <strong>Reset</strong> to return to Flat.</li>
           </ol>
           <p>Some streams block browser audio analysis. The equalizer may be unavailable for those streams, but playback continues normally.</p>
           <h3>Suppress ads / speech</h3>
-          <p>On compatible MP3 streams, speech detection starts automatically during playback unless you have turned it off for that station. MyMusics gradually lowers the station volume to its configured target when it detects speech, then gradually restores the playback volume. Select <strong>Keep normal volume for this track</strong> when a song contains speech that should not be suppressed. That exception is saved in this browser for the artist and title. Use <strong>Suppress ads / speech</strong> to turn detection off or back on for a station. HLS streams do not support speech detection; some MP3 providers also block the audio analysis it needs.</p>
+          <p>On compatible MP3 streams, speech detection starts automatically during playback unless you have turned it off for that station. MyMusics gradually lowers the station volume to its configured target when it detects speech, then gradually restores the playback volume. Identified songs normally keep their volume unless you enable <strong>Suppress this track</strong>. Select <strong>Stop suppressing this track</strong> to undo that choice. When feedback appears, use <strong>Yes, suppress</strong> or <strong>No, keep volume</strong>. Track choices are saved in this browser for the artist and title. Use <strong>Suppress ads / speech</strong> to turn detection off or back on for a station. HLS streams do not support speech detection; some MP3 providers also block the audio analysis it needs.</p>
           <p>Set the target percentage with the <strong>Speech / ad volume</strong> field when adding or editing a station in Manage, or use the percentage button in the player tools while it is playing. The setting is saved for that station.</p>
         </section>
 
         <section id="stations" class="help-card">
           <p class="help-eyebrow">05 · STATION LIBRARY</p>
           <h2>Add and edit stations</h2>
-          <h3>Quick edit from Listen</h3>
+          <h3>Quick edit from Radio</h3>
           <ol>
             <li>Select <strong>Edit</strong> above the station list. An <strong>Edit</strong> button appears on each station.</li>
             <li>Open a station to change its name, stream URL, stream type, or genre, then select <strong>Save changes</strong>. Choose <strong>Delete station</strong> to remove it after confirming.</li>
@@ -101,29 +103,70 @@
           <h3>Add or fully edit from Manage</h3>
           <ol>
             <li>Open <strong>Manage</strong> in the sidebar and select a genre.</li>
-            <li>Select <strong>Add station</strong>, enter a name and stream URL, and choose MP3 or HLS. Filter the station list by name, or use <strong>Find and preview streams</strong> beside the URL to search by station name, listen to up to 10 candidates, and fill in the chosen stream. HLS URLs must end in `.m3u8`. If you omit `https://` or `http://`, MyMusics adds HTTPS.</li>
+            <li>Select <strong>New station</strong> to open the editor, enter a name and stream URL, and choose MP3 or HLS. Filter the station list by name, or use <strong>Search and preview streams</strong> beside the URL to search by station name, listen to up to 10 candidates, and fill in the chosen stream. HLS URLs must end in `.m3u8`. If you omit `https://` or `http://`, MyMusics adds HTTPS.</li>
             <li>Set the speech/ad target volume if desired, then save. Use each station's <strong>Edit</strong> action to change its URL, type, name, genre, or target volume.</li>
-            <li>Optionally upload a PNG, JPEG, or WebP station logo (up to 2 MB). The image is stored locally and removed automatically when no station uses it.</li>
+            <li>Upload a PNG, JPEG, or WebP logo, select <strong>Find logo automatically</strong>, or enter a logo URL and select <strong>Use image URL</strong>. Logos are optimized to WebP (up to 512 pixels) and copied to this server. Save the station to keep the logo. Use <strong>Fetch missing logos</strong> in the genre view to find logos for multiple stations.</li>
           </ol>
           <h3>Find stations by music and country</h3>
           <p>In Manage, optionally enter a two-letter country code such as <strong>NL</strong>, <strong>US</strong>, <strong>GB</strong>, or <strong>ES</strong>. Leave it blank to search worldwide by music tag or station name (for example, <strong>golden oldies</strong>). With a country selected, leave the style blank or enter <strong>all</strong> to search every style there. Results are added to the matching genre. Results may include streams that later become unavailable.</p>
-          <p>Station changes are stored in `stations.json` and survive a server restart.</p>
+          <p>Saved stations and logos survive a server restart.</p>
         </section>
 
         <section id="genres" class="help-card">
           <p class="help-eyebrow">06 · ORGANIZATION</p>
           <h2>Create, rename, or delete genres</h2>
           <ol>
-            <li>Open <strong>Manage</strong>. Use <strong>New genre name</strong> and the plus button to add a genre.</li>
+            <li>Open <strong>Manage</strong>. Use the <strong>Add genre</strong> field and the plus button to add a genre.</li>
             <li>Select a genre in the sidebar or the genre picker. Edit its name and select <strong>Save name</strong>.</li>
-            <li>Select <strong>Delete genre</strong> and confirm to delete it. Deleting a genre also deletes all stations in it.</li>
+            <li>Open <strong>Danger zone</strong>, select <strong>Delete genre</strong>, and type the genre name to confirm. Deleting a genre also deletes all stations in it.</li>
           </ol>
         </section>
 
         <section id="updates" class="help-card">
           <p class="help-eyebrow">07 · APP UPDATES</p>
           <h2>Check and install an update</h2>
-          <p>Open <strong>Manage</strong> to see the installed version and code build date. MyMusics checks GitHub for a newer release when the page opens; select <strong>Check</strong> to check again. On a server with the updater service installed, select <strong>Install and restart</strong> to download the release. The app restarts and radio playback may stop briefly. Station settings and logos remain in persistent storage.</p>
+          <p>Open <strong>Manage</strong> to see the installed version and code build date. MyMusics checks GitHub for a newer release when the page opens; open <strong>Version and updates</strong> and select <strong>Check for updates</strong> to check again. On a server with the updater service installed, select <strong>Install and restart</strong> to download the release. The app restarts and radio playback may stop briefly. Station settings and logos remain in persistent storage.</p>
+        </section>
+
+        <section id="music" class="help-card">
+          <p class="help-eyebrow">08 · MUSIC LIBRARY</p>
+          <h2>Play music from Jellyfin</h2>
+          <ol>
+            <li>In <a href="/manage.html#jellyfin-settings">Management · API connections</a>, enter your Jellyfin server URL and API key, optionally a user ID, then select <strong>Save settings</strong> and <strong>Test connection</strong>.</li>
+            <li>Open <strong>Music</strong>. Use <strong>Refresh library</strong> to update the library after changes in Jellyfin.</li>
+            <li>Select <strong>Browse music</strong> to search artists, albums, tracks, genres, or playlists and add music to the queue.</li>
+            <li>Use <strong>Play</strong>, <strong>Pause</strong>, and <strong>Play next</strong> below the player. The deck sliders seek within loaded tracks; the Volume slider controls music volume.</li>
+          </ol>
+          <p>Use <strong>AutoDJ</strong> to choose an artist, album, or genre as a source for continued playback. Crossfade controls the overlap between automatic track transitions; Natural outro saves a fade-out duration for a track where that control is available.</p>
+          <p>Music also provides lyrics and <strong>Sound settings</strong>. In Management, <strong>Music genres</strong> groups library labels under display names without changing Jellyfin metadata.</p>
+        </section>
+
+        <section id="youtube" class="help-card">
+          <p class="help-eyebrow">09 · VIDEO</p>
+          <h2>Watch and queue YouTube videos</h2>
+          <ol>
+            <li>Open <strong>YouTube</strong> and paste a video link into <strong>Load YouTube video or playlist</strong>, then select <strong>Load</strong>.</li>
+            <li>For video search, playlist search, and playlist details, configure a <strong>YouTube Data API v3</strong> key in <a href="/manage.html#jellyfin-settings">Management · API connections</a>. Select <strong>Save YouTube key</strong> and <strong>Test key</strong>. A direct video link does not need this key.</li>
+            <li>Search songs or artists, search YouTube playlists, or choose a saved playlist and select <strong>Play</strong>. Use <strong>Previous</strong> and <strong>Next</strong> beside the player to navigate.</li>
+          </ol>
+          <p>Use <strong>Search</strong> and <strong>Show queue</strong> below the video to open larger views with bigger images, text, and buttons. In search, select <strong>Search more</strong> to add the next page of video or playlist results. Close the view with <strong>Close</strong> or Escape. Search results and the playback queue are separate. <strong>Show playlist only</strong> hides search results; <strong>Clear queue</strong> empties the playback queue. Some videos cannot play embedded because of YouTube or owner restrictions.</p>
+        </section>
+
+        <section id="output" class="help-card">
+          <p class="help-eyebrow">10 · OUTPUT AND TV</p>
+          <h2>Choose where sound plays</h2>
+          <p>On Radio, Music, or YouTube, choose <strong>This browser</strong> or <strong>MyMusics host</strong> under <strong>Audio output</strong>. This browser uses the device showing the page; MyMusics host uses the audio device attached to the server.</p>
+          <p>If host output is unavailable, open <a href="/manage.html#host-audio-test">Management · Test audio output</a>. Select <strong>Check host audio tools</strong> and, if needed, <strong>Install or repair MPV and yt-dlp</strong>. Choose an output device, select <strong>Play test tone</strong>, then <strong>I heard it; use this output</strong>. YouTube host playback needs yt-dlp as well as MPV; its video remains visible in the browser while sound plays on the host. During startup, image and audio prepare together and wait for the host to be ready. Host audio follows browser pause, buffering, seeking, and playback speed; the app periodically corrects timing differences.</p>
+          <p>Use the <strong>TV mode</strong> control for the TV layout and remote navigation. In Management · Browser information, <strong>Emulate Silk</strong> lets you preview the TV layout on a computer.</p>
+        </section>
+
+        <section id="playlists" class="help-card">
+          <p class="help-eyebrow">11 · SAVED COLLECTIONS</p>
+          <h2>Manage playlists and export saved data</h2>
+          <p>Create local music playlists in <a href="/manage.html#playlists">Management · Playlists</a>. Use <strong>Add to playlist</strong> on a music track to choose a destination.</p>
+          <p>In <a href="/manage.html#video-playlists">Management · Video playlists</a>, create or choose a playlist, view its tracks, edit title, artist and genre, move videos to another playlist, or remove entries.</p>
+          <p>To import videos, paste individual YouTube video IDs or links, or choose a Chrome HTML, JSON, text, or CSV bookmarks file. Select <strong>Preview videos</strong>, check the entries to keep, then select <strong>Inlezen</strong>. A playlist bookmark alone does not supply its videos; use video-list JSON or load the YouTube playlist in the player.</p>
+          <p>Select <strong>Export JSON</strong> at the top of Management to download local Music playlists, YouTube playlists, and radio stations together.</p>
         </section>
 
         <section class="help-card help-note">

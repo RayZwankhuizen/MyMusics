@@ -186,10 +186,12 @@ class MpvDeck {
     return { promise, cancel: () => { clearTimeout(timer); this.loadWaiters.delete(waiter); } };
   }
 
-  async load(url, volume = 100) {
+  async load(url, volume = 100, { paused = false } = {}) {
     this.playbackError = "";
     this.lastEnd = null;
+    await this.set("pause", paused);
     await this.set("volume", volume);
+    await this.set("speed", 1);
     const load = this.waitForFileLoaded();
     try { await this.command(["loadfile", url, "replace"]); }
     catch (error) { load.cancel(); throw error; }
@@ -276,6 +278,8 @@ class HostPlayer {
 
   async playRadio(url, volume = 100, equalizer) {
     this.fadeGeneration++;
+    this.activeType = "";
+    this.activeDeck = null;
     await Promise.all([this.decks.a.stop(), this.decks.b.stop()]);
     await this.decks.a.set("af", this.radioFilter(equalizer || { enabled: false, gains: [0, 0, 0, 0, 0] }));
     await this.decks.a.load(url, volume);
@@ -284,7 +288,7 @@ class HostPlayer {
     this.lastError = "";
   }
 
-  async playVideo(videoId, startSeconds = 0) {
+  async playVideo(videoId, startSeconds = 0, { paused = false } = {}) {
     try {
       await execFile("yt-dlp", ["--version"], { timeout: 5000, maxBuffer: 4096 });
     } catch {
@@ -294,10 +298,12 @@ class HostPlayer {
     await Promise.all([this.decks.a.stop(), this.decks.b.stop()]);
     this.activeDeck = null;
     this.activeType = "";
-    await this.decks.a.load(`https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`, 100);
+    await this.decks.a.load(`https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`, 100, { paused: true });
     if (startSeconds > 0) await this.decks.a.command(["seek", startSeconds, "absolute+exact"]);
     this.activeDeck = "a";
     this.activeType = "video";
+    this.videoId = videoId;
+    if (!paused) await this.decks.a.set("pause", false);
     this.lastError = "";
   }
 
@@ -306,6 +312,7 @@ class HostPlayer {
     const incoming = this.decks[deck];
     const outgoingKey = this.activeDeck;
     const previousType = this.activeType;
+    if (previousType === "video") this.activeType = "";
     const outgoing = previousType === "music" && outgoingKey && outgoingKey !== deck ? this.decks[outgoingKey] : null;
     const url = `http://127.0.0.1:${port}/library/audio/${encodeURIComponent(id)}`;
     await this.applyEqualizer(deck, equalizer || { enabled: false, gains: [0, 0, 0, 0, 0] });
@@ -387,6 +394,11 @@ class HostPlayer {
     else if (action === "resume") await player.set("pause", false);
     else if (action === "stop") await player.stop();
     else if (action === "volume") await player.set("volume", Math.min(100, Math.max(0, Number(value) || 0)));
+    else if (action === "speed") {
+      const speed = Number(value);
+      if (!Number.isFinite(speed) || speed < 0.25 || speed > 4) throw new Error("Playback speed must be between 0.25 and 4.");
+      await player.set("speed", speed);
+    }
     else if (action === "seek") await player.command(["seek", Math.max(0, Number(value) || 0), "absolute+exact"]);
     else throw new Error("Unknown playback action.");
   }
@@ -403,6 +415,7 @@ class HostPlayer {
     return {
       available: Boolean(this.decks.a.child || this.decks.b.child), activeDeck: this.activeDeck,
       activeType: this.activeType,
+      videoId: this.activeType === "video" ? this.videoId : "",
       error: this.lastError || (this.activeDeck ? decks[this.activeDeck === "a" ? 0 : 1].error : ""),
       decks: { a: decks[0], b: decks[1] }
     };

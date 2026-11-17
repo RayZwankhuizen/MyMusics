@@ -1,4 +1,4 @@
-const fetch = require("node-fetch");
+const fetch = globalThis.fetch;
 const fs = require("node:fs");
 const { promisify } = require("node:util");
 const execFile = promisify(require("node:child_process").execFile);
@@ -17,7 +17,7 @@ module.exports = function registerUpdateRoutes(app, { storage, appVersion, appBu
       headers: {
         Accept: "application/vnd.github+json", "User-Agent": "MyMusics",
         ...(process.env.GITHUB_ACCESS_TOKEN ? { Authorization: `Bearer ${process.env.GITHUB_ACCESS_TOKEN}` } : {})
-      }, timeout: 10000
+      }, signal: AbortSignal.timeout(10000)
     });
     if (!response.ok) throw new Error(`GitHub returned HTTP ${response.status}.`);
     const release = await response.json();

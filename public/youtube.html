@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="/style.css?v=mode-switch-youtube-4">
   <link rel="stylesheet" href="/app-theme.css?v=tv-toggle-fixed-1">
   <link rel="stylesheet" href="/silk-tv.css?v=silk-tv-7">
-  <link rel="stylesheet" href="/video-options.css?v=16">
+  <link rel="stylesheet" href="/video-options.css?v=video-dialogs-duration-2">
   <script defer src="/playback-target.js?v=host-playback-lease-1"></script>
   <script defer src="/tv-navigation.js?v=tv-navigation-5"></script>
 </head>
@@ -29,22 +29,38 @@
         <div class="video-main">
           <div class="player-frame"><div id="youtube-player" title="YouTube video player"></div></div>
           <div class="video-now"><div><p class="eyebrow">Now playing</p><h2 id="video-title">Choose a video</h2><p id="video-author"></p></div><div class="transport"><button id="previous-video" type="button" aria-label="Previous video">Previous</button><button id="next-video" type="button">Next</button></div></div>
+          <div class="video-dialog-shortcuts"><button id="open-video-search" type="button" aria-haspopup="dialog" aria-controls="video-search-dialog">Search</button><button id="open-video-queue" type="button" aria-haspopup="dialog" aria-controls="video-queue-dialog">Show queue</button></div>
           <p id="video-status" class="video-status" role="status">Playback follows the selected audio output.</p>
         </div>
         <aside class="video-side">
+          <div id="video-search-home"><div id="video-search-controls">
           <form id="video-search" class="video-search"><label for="video-query">Search songs or artists</label><div><input id="video-query" type="search" minlength="2" maxlength="120" placeholder="Artist, track or video" required><button type="submit">Search</button></div></form>
           <form id="video-playlist-search" class="video-search"><label for="video-playlist-query">Search YouTube playlists</label><div><input id="video-playlist-query" type="search" minlength="2" maxlength="120" placeholder="Playlist name or artist" required><button type="submit">Search playlists</button></div></form>
+          </div></div>
           <form id="video-load-playlist" class="video-search"><label for="video-playlist-url">Load YouTube video or playlist</label><div><input id="video-playlist-url" type="url" placeholder="Paste a YouTube link" required><button type="submit">Load</button></div></form>
           <div class="saved-playlists"><label for="saved-video-playlists">Choose playlist</label><div><select id="saved-video-playlists"><option value="">Select playlist</option></select><button id="play-video-playlist" type="button" disabled>Play</button></div></div>
+          <div id="video-results-home"><div id="video-results-content">
           <div class="results-bar"><h3 id="results-heading" class="results-heading" hidden>Search results</h3><button id="clear-video-results" class="results-clear" type="button" hidden>Show playlist only</button></div>
           <ol id="video-results" class="video-queue search-results" aria-label="Search results"></ol>
+          <button id="video-search-more" type="button" hidden>Search more</button>
+          </div></div>
+          <div id="video-queue-home"><div id="video-queue-content">
           <div class="queue-heading"><h2 id="queue-heading">Queue</h2><span id="queue-count">0 videos</span><button id="clear-video-queue" type="button" disabled>Clear queue</button></div>
           <ol id="video-queue" class="video-queue"></ol>
+          </div></div>
         </aside>
       </section>
       <p class="footnote">YouTube search needs a Data API key. Host audio uses MPV; video stays in the browser.</p>
     </main>
   </div>
-  <script src="/video-options.js?v=21" defer></script>
+  <dialog id="video-search-dialog" class="video-dialog video-workspace" aria-labelledby="video-search-dialog-title">
+    <header class="video-dialog-heading"><h2 id="video-search-dialog-title">Search YouTube</h2><button type="button" data-close-video-dialog>Close</button></header>
+    <div class="video-dialog-body" id="video-search-dialog-body"><p id="video-search-status" role="status" aria-live="polite">Search for videos or playlists.</p></div>
+  </dialog>
+  <dialog id="video-queue-dialog" class="video-dialog video-workspace" aria-labelledby="video-queue-dialog-title">
+    <header class="video-dialog-heading"><h2 id="video-queue-dialog-title">YouTube queue</h2><button type="button" data-close-video-dialog>Close</button></header>
+    <div class="video-dialog-body" id="video-queue-dialog-body"></div>
+  </dialog>
+  <script type="module" src="/video-options.js?v=video-dialogs-sync-duration-2"></script>
 </body>
 </html>

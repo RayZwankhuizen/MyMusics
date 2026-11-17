@@ -8,9 +8,17 @@ branch=$(git branch --show-current)
 current=$(node -p "require('./package.json').version")
 [[ "$current" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]] || { echo "Expected a numeric x.y.z package version." >&2; exit 1; }
 suggested="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.$((BASH_REMATCH[3] + 1))"
-default_message="Add similar-artist AutoDJ and bulk Jellyfin deduplication"
-read -rp "Commit message [$default_message]: " message
-message=${message:-$default_message}
+default_message=""
+if [[ -f .release-message ]]; then
+  default_message=$(cat .release-message)
+fi
+if [[ -n "$default_message" ]]; then
+  read -rp "Commit message [$default_message]: " message
+  message=${message:-$default_message}
+else
+  read -rp "Commit message: " message
+fi
+[[ "$message" =~ [^[:space:]] ]] || { echo "Commit message is required." >&2; exit 1; }
 read -rp "Version [$suggested]: " version
 version=${version:-$suggested}
 version=${version#v}
@@ -34,3 +42,6 @@ git add -A
 git commit -m "$message"
 git tag "v$version"
 git push origin "$branch" "refs/tags/v$version"
+if [[ -f .release-message ]]; then
+  : > .release-message
+fi

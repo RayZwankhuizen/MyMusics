@@ -1,3 +1,5 @@
+import { createYoutubeHostSync } from "./youtube-host-sync.mjs";
+
 const $ = (selector) => document.querySelector(selector);
 const queueEl = $("#video-queue");
 const resultsEl = $("#video-results");
@@ -10,23 +12,32 @@ let iframePromise;
 let metadataAvailable = null;
 let iframeQueueKey = "";
 let queueSync = 0;
-let hostVideoId = "";
-let hostVideoSession = "";
+let hostSyncBlocked = true;
+let preparingVideoId = "";
+let resumeAfterPrepare = false;
+let preparationPausePending = false;
 let pageLeaving = false;
 let queueCleared = false;
 let loadedPlaylistId = "";
 let tvPlaylistPicker;
+let searchGeneration = 0;
+let activeSearch = null;
+let searchingMore = false;
 const videoMetadata = new Map();
 
 async function request(path, options) {
   const response = await fetch(path, options);
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error || `Request failed (${response.status})`);
+  if (!response.ok) throw Object.assign(new Error(data.error || `Request failed (${response.status})`), { status: response.status });
   return data;
 }
 
-function say(message) { statusEl.textContent = message; }
+function say(message) {
+  statusEl.textContent = message;
+  if ($("#video-search-dialog")?.open) $("#video-search-status").textContent = message;
+}
 function playlistId() { return $("#saved-video-playlists").value; }
+
 function formatDuration(seconds) {
   if (!Number.isFinite(seconds)) return "";
   const total = Math.floor(seconds);
@@ -40,7 +51,7 @@ async function addDurations(items) {
   for (let offset = 0; offset < ids.length; offset += 50) {
     try {
       const data = await request(`/api/videos/details?ids=${encodeURIComponent(ids.slice(offset, offset + 50).join(","))}`);
-      data.videos.forEach((video) => videoMetadata.set(video.id, video));
+      data.videos.forEach((video) => { videoMetadata.set(video.id, video); });
     } catch { break; }
   }
   return items.map((item) => ({ ...item, durationSeconds: item.durationSeconds ?? videoMetadata.get(item.id)?.durationSeconds }));
@@ -160,15 +171,20 @@ async function playAt(index) {
   try {
     const embed = await ensureIframePlayer();
     const ids = embed.getPlaylist?.() || [];
+    await stopHostVideo();
     if (window.MyMusicsPlayback?.isHost) {
       embed.mute();
-      await startHostVideo(item.id);
+      preparingVideoId = item.id;
+      resumeAfterPrepare = true;
+      hostSyncBlocked = false;
+      // Cue the image while MPV prepares the audio, rather than loading them sequentially.
+      embed.cueVideoById(item.id);
+      embed.playVideo();
     } else {
-      await stopHostVideo();
       embed.unMute();
+      if (ids[index] === item.id) embed.playVideoAt(index);
+      else embed.loadVideoById(item.id);
     }
-    if (ids[index] === item.id) embed.playVideoAt(index);
-    else embed.loadVideoById(item.id);
     say(`Loaded “${item.title}” in the YouTube player.`);
   } catch (error) { say(error.message); }
 }
@@ -207,32 +223,55 @@ function syncIframeQueue() {
   }
 }
 
-async function startHostVideo(videoId, startSeconds = 0) {
-  if (hostVideoId === videoId) return hostControl("resume");
-  try {
-    const { sessionId } = await request("/api/host-player/video", {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ videoId, startSeconds })
-    });
-    hostVideoId = videoId;
-    hostVideoSession = sessionId;
-    window.MyMusicsPlayback?.setHostSession(sessionId);
-    if (pageLeaving || !window.MyMusicsPlayback?.isHost) return stopHostVideo();
-    say("YouTube video audio is playing on the MyMusics host; video is shown here.");
-  } catch (error) { hostVideoId = ""; say(`Host audio failed: ${error.message}`); }
+function videoSnapshot() {
+  const videoId = iframePlayer?.getVideoData?.().video_id;
+  const state = iframePlayer?.getPlayerState?.();
+  const states = { 1: "playing", 2: "paused", 3: "buffering", 5: "cued" };
+  return {
+    active: Boolean(!pageLeaving && !hostSyncBlocked && !queueCleared && window.MyMusicsPlayback?.isHost
+      && videoId && queue[current]?.id === videoId && states[state]),
+    videoId, state: states[state], time: Math.max(0, Number(iframePlayer?.getCurrentTime?.()) || 0),
+    rate: iframePlayer?.getPlaybackRate?.() || 1
+  };
 }
 
-function hostControl(action, keepalive = false) {
-  return request("/api/host-player/control", {
-    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, deck: "a" }), keepalive
-  }).catch((error) => say(`Host audio control failed: ${error.message}`));
+const hostSync = createYoutubeHostSync({
+  snapshot: videoSnapshot, request,
+  onSession: (sessionId) => window.MyMusicsPlayback?.setHostSession(sessionId),
+  onPrepared: (videoId) => {
+    if (preparingVideoId !== videoId) return;
+    preparingVideoId = "";
+    if (resumeAfterPrepare && window.MyMusicsPlayback?.isHost && !pageLeaving) iframePlayer?.playVideo();
+    resumeAfterPrepare = false;
+  },
+  onError: (error) => {
+    if (error.status === 409) hostSyncBlocked = true;
+    say(`Host audio synchronization failed: ${error.message}`);
+  }
+});
+const hostSyncTimer = setInterval(() => { void hostSync.sync(); }, 500);
+
+function startHostVideo() {
+  hostSyncBlocked = false;
+  return hostSync.sync();
 }
 
-async function stopHostVideo() {
-  if (!hostVideoId) return;
-  hostVideoId = "";
-  hostVideoSession = "";
-  window.MyMusicsPlayback?.setHostSession("");
-  await hostControl("stop");
+function stopHostVideo(keepalive = false) {
+  hostSyncBlocked = true;
+  preparingVideoId = "";
+  resumeAfterPrepare = false;
+  return hostSync.sync({ keepalive });
+}
+
+function prepareHostVideo(videoId, resume) {
+  preparingVideoId = videoId;
+  resumeAfterPrepare = resume;
+  hostSyncBlocked = false;
+  if (iframePlayer.getPlayerState?.() === YT.PlayerState.PLAYING) {
+    preparationPausePending = true;
+    iframePlayer.pauseVideo();
+  }
+  void hostSync.sync();
 }
 
 function showCurrentVideo() {
@@ -280,19 +319,27 @@ function ensureIframePlayer() {
         events: {
           onReady: (event) => { clearTimeout(timer); resolve(event.target); },
           onStateChange: (event) => {
+            if (pageLeaving) return;
             if (event.data === YT.PlayerState.PLAYING || event.data === YT.PlayerState.CUED) syncIframeQueue();
-            if (event.data === YT.PlayerState.PLAYING) {
-              const id = queue[current]?.id;
-              if (window.MyMusicsPlayback?.isHost && id) {
-                iframePlayer.mute();
-                void startHostVideo(id, iframePlayer.getCurrentTime?.() || 0);
-              }
-              else say("Playing in YouTube’s player.");
+            if (event.data === YT.PlayerState.CUED && resumeAfterPrepare && !preparingVideoId) {
+              preparingVideoId = iframePlayer.getVideoData?.().video_id || "";
             }
-            if (event.data === YT.PlayerState.PAUSED && window.MyMusicsPlayback?.isHost && hostVideoId) void hostControl("pause");
-            if (event.data === YT.PlayerState.ENDED && current + 1 < queue.length) playAt(current + 1);
+            if (window.MyMusicsPlayback?.isHost) {
+              iframePlayer.mute();
+              const id = iframePlayer.getVideoData?.().video_id;
+              if (event.data === YT.PlayerState.PLAYING && id && (hostSync.videoId !== id || !hostSync.ready)) {
+                prepareHostVideo(id, true);
+              } else if (event.data === YT.PlayerState.PAUSED) {
+                if (preparationPausePending) preparationPausePending = false;
+                else if (preparingVideoId === id) resumeAfterPrepare = false;
+              }
+              if ([YT.PlayerState.PLAYING, YT.PlayerState.CUED].includes(event.data)) hostSyncBlocked = false;
+              void hostSync.sync();
+            } else if (event.data === YT.PlayerState.PLAYING) say("Playing in YouTube’s player.");
+            if (event.data === YT.PlayerState.ENDED && !queueCleared && current + 1 < queue.length) playAt(current + 1);
           },
-          onError: (event) => iframeError(event.data),
+          onPlaybackRateChange: () => { void hostSync.sync(); },
+          onError: (event) => { void stopHostVideo(); iframeError(event.data); },
           onAutoplayBlocked: () => say("Autoplay was blocked. Press Play in YouTube’s player.")
         }
       });
@@ -353,6 +400,10 @@ async function addToSelectedPlaylist(item) {
 }
 
 function clearSearchResults() {
+  searchGeneration++;
+  activeSearch = null;
+  searchingMore = false;
+  $("#video-search-more").hidden = true;
   resultsEl.replaceChildren();
   $("#results-heading").hidden = true;
   $("#clear-video-results").hidden = true;
@@ -370,9 +421,18 @@ async function loadYoutubePlaylist(list) {
     clearSearchResults();
     renderQueue();
     const embed = await ensureIframePlayer();
-    if (window.MyMusicsPlayback?.isHost) embed.mute();
-    else { await stopHostVideo(); embed.unMute(); }
-    embed.loadPlaylist({ listType: "playlist", list, index: 0 });
+    await stopHostVideo();
+    if (window.MyMusicsPlayback?.isHost) {
+      embed.mute();
+      hostSyncBlocked = false;
+      // Playlist IDs become available when YouTube sends its CUED event.
+      resumeAfterPrepare = true;
+      embed.cuePlaylist({ listType: "playlist", list, index: 0 });
+      embed.playVideo();
+    } else {
+      embed.unMute();
+      embed.loadPlaylist({ listType: "playlist", list, index: 0 });
+    }
     say("Loading the YouTube playlist in the player…");
   } catch (error) { say(error.message); }
 }
@@ -416,38 +476,74 @@ async function loadSavedPlaylist(selected, play = false) {
   if (play) playAt(0);
 }
 
-$("#video-search").addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const query = $("#video-query").value.trim();
-  event.submitter.disabled = true;
-  event.submitter.textContent = "Searching…";
-  try {
-    say("Searching YouTube…");
-    const data = await request(`/api/videos/search?q=${encodeURIComponent(query)}`);
-    renderList(resultsEl, await addDurations(data.results), "results");
-    $("#results-heading").textContent = `Search results (${data.results.length})`;
-    $("#results-heading").hidden = false;
-    $("#clear-video-results").hidden = false;
-    say(`Found ${data.results.length} videos.`);
-  } catch (error) { say(error.message); }
-  finally { event.submitter.disabled = false; event.submitter.textContent = "Search"; }
-});
+function wireVideoDialog(buttonId, dialogId, sections, focusSelector) {
+  const button = $(buttonId);
+  const dialog = $(dialogId);
+  const body = dialog.querySelector(".video-dialog-body");
+  button.addEventListener("click", () => {
+    for (const other of document.querySelectorAll(".video-dialog[open]")) other.close();
+    for (const [contentId] of sections) body.append($(contentId));
+    dialog.showModal();
+    (dialog.querySelector(focusSelector) || dialog.querySelector("button"))?.focus();
+  });
+  dialog.querySelector("[data-close-video-dialog]").addEventListener("click", () => dialog.close());
+  dialog.addEventListener("close", () => {
+    for (const [contentId, homeId] of sections) $(homeId).append($(contentId));
+    button.focus();
+  });
+}
+wireVideoDialog("#open-video-search", "#video-search-dialog", [
+  ["#video-search-controls", "#video-search-home"], ["#video-results-content", "#video-results-home"]
+], "#video-query");
+wireVideoDialog("#open-video-queue", "#video-queue-dialog", [["#video-queue-content", "#video-queue-home"]], "#video-queue button");
 
-$("#video-playlist-search").addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const query = $("#video-playlist-query").value.trim();
-  event.submitter.disabled = true;
-  event.submitter.textContent = "Searching…";
+async function searchVideos(mode, query, append = false) {
+  if (append && (searchingMore || !activeSearch?.nextPageToken)) return;
+  const generation = append ? searchGeneration : ++searchGeneration;
+  const previous = append ? activeSearch.items : [];
+  const token = append ? activeSearch.nextPageToken : "";
+  if (!append) activeSearch = { mode, query, items: [], nextPageToken: "" };
+  searchingMore = true;
+  const more = $("#video-search-more");
+  more.disabled = true;
+  if (!append) more.hidden = true;
+  more.textContent = "Searching…";
   try {
-    say("Searching YouTube playlists…");
-    const data = await request(`/api/videos/search-playlists?q=${encodeURIComponent(query)}`);
-    renderList(resultsEl, data.results, "playlist-results");
-    $("#results-heading").textContent = `YouTube playlists (${data.results.length})`;
+    say(append ? "Loading more results…" : "Searching YouTube…");
+    const params = new URLSearchParams({ q: query, ...(token ? { pageToken: token } : {}) });
+    const data = await request(`/api/videos/${mode === "playlist-results" ? "search-playlists" : "search"}?${params}`);
+    if (mode === "results") data.results = await addDurations(data.results);
+    if (generation !== searchGeneration) return;
+    const items = [...new Map([...previous, ...data.results].map((item) => [item.id, item])).values()];
+    activeSearch = { mode, query, items, nextPageToken: data.nextPageToken || "" };
+    renderList(resultsEl, items, mode);
+    $("#results-heading").textContent = `${mode === "playlist-results" ? "YouTube playlists" : "Search results"} (${items.length})`;
     $("#results-heading").hidden = false;
     $("#clear-video-results").hidden = false;
-    say(`Found ${data.results.length} playlists.`);
-  } catch (error) { say(error.message); }
-  finally { event.submitter.disabled = false; event.submitter.textContent = "Search playlists"; }
+    more.hidden = !activeSearch.nextPageToken;
+    say(items.length ? `Showing ${items.length} results.` : "No results found. Try another search.");
+    if (append) resultsEl.children[previous.length]?.querySelector("button")?.focus();
+  } catch (error) {
+    if (generation === searchGeneration) say(error.message);
+  } finally {
+    if (generation === searchGeneration) {
+      searchingMore = false;
+      more.disabled = false;
+      more.textContent = "Search more";
+    }
+  }
+}
+for (const [formId, inputId, mode] of [["#video-search", "#video-query", "results"], ["#video-playlist-search", "#video-playlist-query", "playlist-results"]]) {
+  $(formId).addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const button = event.submitter;
+    button.disabled = true;
+    try { await searchVideos(mode, $(inputId).value.trim()); }
+    finally { button.disabled = false; }
+  });
+}
+$("#video-search-more").addEventListener("click", () => {
+  if (activeSearch) void searchVideos(activeSearch.mode, activeSearch.query, true);
 });
 
 $("#video-load-playlist").addEventListener("submit", async (event) => {
@@ -476,7 +572,7 @@ $("#saved-video-playlists").addEventListener("change", () => {
   const selected = playlists.find((item) => item.id === playlistId());
   $("#play-video-playlist").disabled = !selected;
   renderTvPlaylistPicker();
-  if (selected) void loadSavedPlaylist(selected);
+  if (selected) loadSavedPlaylist(selected);
 });
 
 window.addEventListener("mymusics:tv-mode-change", renderTvPlaylistPicker);
@@ -484,7 +580,7 @@ window.addEventListener("mymusics:tv-mode-change", renderTvPlaylistPicker);
 $("#play-video-playlist").addEventListener("click", () => {
   const selected = playlists.find((item) => item.id === playlistId());
   if (!selected) return say("Choose a saved playlist first.");
-  void loadSavedPlaylist(selected, true);
+  loadSavedPlaylist(selected, true);
 });
 
 $("#clear-video-queue").addEventListener("click", async () => {
@@ -510,7 +606,10 @@ window.addEventListener("mymusics:playback-target-change", async () => {
   if (window.MyMusicsPlayback?.isHost) {
     embed.mute();
     const item = queue[current];
-    if (item) await startHostVideo(item.id, embed.getCurrentTime?.() || 0);
+    if (item) {
+      prepareHostVideo(item.id, embed.getPlayerState?.() === YT.PlayerState.PLAYING);
+      await startHostVideo();
+    }
   } else {
     await stopHostVideo();
     embed.unMute();
@@ -525,12 +624,8 @@ $("#clear-video-results").addEventListener("click", () => {
 window.addEventListener("pagehide", () => {
   pageLeaving = true;
   iframePlayer?.stopVideo?.();
-  if (hostVideoId || hostVideoSession) {
-    hostVideoId = "";
-    hostVideoSession = "";
-    window.MyMusicsPlayback?.setHostSession("");
-    void hostControl("stop", true);
-  }
+  clearInterval(hostSyncTimer);
+  void stopHostVideo(true);
 });
 
 $("#previous-video").addEventListener("click", () => playAt(Math.max(0, current - 1)));

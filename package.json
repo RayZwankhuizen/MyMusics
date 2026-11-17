@@ -1,6 +1,6 @@
 {
   "name": "mymusics",
-  "version": "1.0.40",
+  "version": "1.0.41",
   "private": true,
   "description": "Lightweight browser-based web radio",
   "scripts": {
@@ -11,8 +11,7 @@
     "test": "node --test"
   },
   "dependencies": {
-    "express": "^5.1.0",
-    "node-fetch": "^2.7.0"
+    "express": "^5.1.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.7",

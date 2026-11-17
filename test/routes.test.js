@@ -283,10 +283,10 @@ test("music audio and artwork proxy headers, range, and transcode options", asyn
       return {
         status: args[2].transcode ? 200 : 206,
         headers: { get: (name) => ({ "content-type": args[2].transcode ? "audio/mpeg" : "audio/flac", "content-length": "3", "accept-ranges": args[2].transcode ? null : "bytes", "content-range": args[2].transcode ? null : "bytes 0-2/10" }[name]) },
-        body: Readable.from([Buffer.from("abc")])
+        body: Readable.toWeb(Readable.from([Buffer.from("abc")]))
       };
     },
-    image: async () => ({ ok: true, headers: { get: () => "image/webp" }, body: Readable.from([Buffer.from("art")]) })
+    image: async () => ({ ok: true, headers: { get: () => "image/webp" }, body: Readable.toWeb(Readable.from([Buffer.from("art")])) })
   };
   const base = await testServer(t, { jellyfin });
 
@@ -351,4 +351,38 @@ test("host-player APIs validate inputs and pass playback commands to the host", 
   assert.deepEqual(calls[3], ["control", "b", "seek", 42]);
   assert.equal((await request(base, "/api/host-player/control", { method: "POST", body: { action: "stop" } })).status, 200);
   assert.deepEqual(calls[4], ["stop"]);
+});
+
+test("YouTube host preparation stays paused and stale video sessions cannot seek or stop", async (t) => {
+  const calls = [];
+  const hostPlayer = {
+    activeType: "", videoId: "",
+    async playVideo(id, time, options) {
+      this.activeType = "video"; this.videoId = id;
+      calls.push(["video", id, time, options]);
+    },
+    async control(...args) { calls.push(["control", ...args]); },
+    async stop() { this.activeType = ""; calls.push(["stop"]); }
+  };
+  const base = await testServer(t, { hostPlayer });
+  const prepare = () => request(base, "/api/host-player/video", {
+    method: "POST", headers: { Origin: base }, body: { videoId: "abcdefghijk", startSeconds: 5, paused: true }
+  });
+  const first = await prepare();
+  assert.equal(first.status, 200);
+  assert.deepEqual(calls[0], ["video", "abcdefghijk", 5, { paused: true }]);
+  const second = await prepare();
+  assert.notEqual(first.body.sessionId, second.body.sessionId);
+  for (const action of ["seek", "stop"]) {
+    const stale = await request(base, "/api/host-player/control", {
+      method: "POST", body: { deck: "a", videoId: "abcdefghijk", sessionId: first.body.sessionId, action, value: 50 }
+    });
+    assert.equal(stale.status, 409);
+  }
+  assert.equal(calls.length, 2);
+  assert.equal((await request(base, "/api/host-player/control", {
+    method: "POST", body: { deck: "a", videoId: "abcdefghijk", sessionId: second.body.sessionId, action: "seek", value: 50 }
+  })).status, 200);
+  assert.deepEqual(calls.at(-1), ["control", "a", "seek", 50]);
+  await request(base, "/api/host-player/control", { method: "POST", body: { action: "stop" } });
 });

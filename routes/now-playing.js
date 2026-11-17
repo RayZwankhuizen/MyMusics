@@ -1,4 +1,4 @@
-const fetch = require("node-fetch");
+const fetch = globalThis.fetch;
 const { TextDecoder } = require("node:util");
 const { MAX_STREAM_ERROR_KEYS, rememberBounded } = require("./metadata-limits");
 const { writeBoundedSse } = require("./bounded-sse-write");
@@ -72,7 +72,6 @@ module.exports = function registerNowPlayingRoutes(app, { getStations }) {
     } finally {
       clearTimeout(timeout);
       controller.abort();
-      response?.body?.destroy();
     }
   }
 
@@ -84,7 +83,6 @@ module.exports = function registerNowPlayingRoutes(app, { getStations }) {
 
   function stopMetadataMonitor(monitor) {
     monitor.controller.abort();
-    monitor.response?.body?.destroy();
     for (const client of monitor.clients) client.end();
     monitor.clients.clear();
     if (metadataMonitor === monitor) metadataMonitor = null;
@@ -164,7 +162,6 @@ module.exports = function registerNowPlayingRoutes(app, { getStations }) {
         clearTimeout(connectionTimeout);
         monitor.controller.signal.removeEventListener("abort", abortConnection);
         connection.abort();
-        monitor.response?.body?.destroy();
         monitor.response = null;
       }
     }
@@ -202,7 +199,7 @@ module.exports = function registerNowPlayingRoutes(app, { getStations }) {
   });
 
   async function readHls(streamUrl) {
-    const response = await fetch(streamUrl, { headers: { "User-Agent": "MyMusics/1.0" }, timeout: 8000 });
+    const response = await fetch(streamUrl, { headers: { "User-Agent": "MyMusics/1.0" }, signal: AbortSignal.timeout(8000) });
     if (!response.ok) throw new Error(`Playlist returned ${response.status}`);
     const playlist = await response.text();
     for (const line of playlist.split(/\r?\n/)) {

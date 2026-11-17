@@ -77,3 +77,33 @@ html.tv-mode body.video-page .video-queue .item-actions button{min-height:44px;p
 @media(max-width:850px){.video-page .video-workspace{grid-template-columns:1fr}.video-page .video-side{max-height:none;overflow:visible}.video-page .video-main video{max-height:none}}
 @media(max-width:760px){.video-page .sidebar{padding:14px 16px}.video-page .brand{font-size:19px}body.video-page main.video-main-content{margin:0;padding:0 16px 32px}.video-page .video-workspace{width:auto;margin:8px 0 24px;padding:10px 12px 12px}.video-page .video-now{align-items:flex-start;flex-direction:column}.video-page .video-queue li{grid-template-columns:40px minmax(0,1fr)}.video-page .video-queue .item-actions{grid-column:2;justify-content:flex-start}.video-page .queue-heading{grid-template-columns:minmax(0,1fr) auto}.video-page .queue-heading #clear-video-queue{grid-column:1/-1;justify-self:start}}
 @media(prefers-reduced-motion:reduce){.video-page *, .video-page *::before,.video-page *::after{scroll-behavior:auto!important;transition:none!important}}
+
+/* Expanded views share their live controls and lists with the sidebar. */
+.video-dialog-shortcuts{display:flex;flex-wrap:wrap;gap:8px;margin:16px 4px 8px}
+body.video-page dialog.video-dialog{width:min(1120px,92vw);max-width:92vw;max-height:88vh;margin:auto;padding:0;border:1px solid var(--line);border-radius:16px;background:var(--navy);color:var(--ink)}
+body.video-page dialog.video-dialog:not([open]){display:none}
+body.video-page dialog.video-dialog[open]{display:flex;flex-direction:column;align-items:stretch;gap:0}
+.video-dialog::backdrop{background:rgba(0,0,0,.75)}
+.video-dialog-heading{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 24px;border-bottom:1px solid var(--line)}
+.video-dialog-heading h2{margin:0;font-size:26px}
+.video-dialog-body{min-height:0;overflow:auto;overscroll-behavior:contain;padding:20px 24px 28px}
+.video-dialog #video-search-status{margin:0 0 20px;color:var(--muted);font-size:17px;line-height:1.5}
+.video-dialog .video-search label{font-size:18px}
+.video-dialog .video-search input{height:52px;font-size:20px}
+.video-dialog button{min-height:48px;padding:10px 16px;font-size:18px}
+.video-dialog .video-queue{gap:12px}
+.video-dialog .video-queue li,html.tv-mode body.video-page .video-dialog .video-queue li{grid-template-columns:200px minmax(0,1fr);gap:12px 20px;padding:16px;border-color:var(--line)}
+.video-dialog .video-queue img,html.tv-mode body.video-page .video-dialog .video-queue img{grid-row:1/3;width:200px;height:112px;object-fit:cover;border-radius:8px}
+.video-dialog .video-queue .item-kind{font-size:15px}
+.video-dialog .video-queue .item-title,html.tv-mode body.video-page .video-dialog .video-queue .item-title{font-size:22px;line-height:1.35;white-space:normal;overflow-wrap:anywhere}
+.video-dialog .video-queue .item-author,html.tv-mode body.video-page .video-dialog .video-queue .item-author{margin-top:6px;font-size:18px;line-height:1.4;white-space:normal;overflow-wrap:anywhere}
+.video-dialog .video-queue .item-actions{gap:8px}
+.video-dialog .video-queue .item-actions button,html.tv-mode body.video-page .video-dialog .video-queue .item-actions button{min-height:48px;padding:10px 16px;font-size:18px!important}
+.video-dialog #video-search-more{display:block;margin:24px auto 0;min-width:180px}
+.video-dialog #video-search-more[hidden]{display:none}
+.video-dialog .queue-heading{padding-top:0;margin-top:0}
+.video-dialog .queue-heading h2{font-size:22px}
+.video-dialog .queue-heading span{font-size:17px}
+@media(max-width:600px){body.video-page dialog.video-dialog{width:96vw;max-width:96vw;max-height:94vh}.video-dialog-heading,.video-dialog-body{padding:16px}.video-dialog .video-queue li,html.tv-mode body.video-page .video-dialog .video-queue li{grid-template-columns:110px minmax(0,1fr);gap:12px;padding:12px}.video-dialog .video-queue img,html.tv-mode body.video-page .video-dialog .video-queue img{width:110px;height:62px;grid-row:auto}.video-dialog .video-queue .item-actions{grid-column:1/-1}.video-dialog .video-search>div{flex-wrap:wrap}.video-dialog .video-queue .item-title{font-size:19px}}
+html.tv-mode body.video-page dialog.video-dialog,html.silk-browser.tv-mode body.video-page dialog.video-dialog{width:min(1350px,92vw);max-height:90vh;margin:auto}
+.video-dialog .item-actions button{min-width:48px}

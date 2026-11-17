@@ -1,4 +1,4 @@
-const fetch = require("node-fetch");
+const fetch = globalThis.fetch;
 const { canStartLookup, readCache, writeCache } = require("./metadata-limits");
 
 module.exports = function registerMetadataProviderRoutes(app) {
@@ -27,7 +27,7 @@ module.exports = function registerMetadataProviderRoutes(app) {
         if (remaining <= 0) break;
         try {
           const response = await fetch(`https://lrclib.net/api/search?${query}`, {
-            headers: { "User-Agent": "MyMusics/1.0 (personal radio player)" }, timeout: Math.min(8000, remaining)
+            headers: { "User-Agent": "MyMusics/1.0 (personal radio player)" }, signal: AbortSignal.timeout(Math.min(8000, remaining))
           });
           if (response.ok) match = (await response.json()).find(matches) || null;
         } catch {}
@@ -35,7 +35,7 @@ module.exports = function registerMetadataProviderRoutes(app) {
       }
       if (!match && Date.now() < deadline) {
         const url = `https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`;
-        const response = await fetch(url, { headers: { "User-Agent": "MyMusics/1.0" }, timeout: Math.min(8000, deadline - Date.now()) });
+        const response = await fetch(url, { headers: { "User-Agent": "MyMusics/1.0" }, signal: AbortSignal.timeout(Math.min(8000, deadline - Date.now())) });
         if (!response.ok) return res.json(null);
         const { lyrics } = await response.json();
         return res.json(lyrics ? { trackName: title, plainLyrics: lyrics, syncedLyrics: null, source: "Lyrics.ovh" } : null);
@@ -69,7 +69,7 @@ module.exports = function registerMetadataProviderRoutes(app) {
       try {
         const params = new URLSearchParams({ q: `${artist} ${title}` });
         const response = await fetch(`https://api.genius.com/search?${params}`, {
-          headers: { Authorization: `Bearer ${token}`, "User-Agent": "MyMusics/1.0" }, timeout: 8000
+          headers: { Authorization: `Bearer ${token}`, "User-Agent": "MyMusics/1.0" }, signal: AbortSignal.timeout(8000)
         });
         if (!response.ok) return null;
         const { response: data } = await response.json();

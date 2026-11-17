@@ -12,12 +12,19 @@ async function mockFetch(input) {
   return { status, ok: status >= 200 && status < 300, json: async () => result.body };
 }
 
-const fetchPath = require.resolve("node-fetch");
-require(fetchPath);
-const originalFetch = require.cache[fetchPath].exports;
-require.cache[fetchPath].exports = mockFetch;
-const jellyfin = require("../jellyfin");
-require.cache[fetchPath].exports = originalFetch;
+const originalFetch = globalThis.fetch;
+globalThis.fetch = mockFetch;
+// Isolate the mocked client from personal settings saved on this machine.
+const storage = require("../storage");
+const originalReadSettings = storage.readJellyfinSettings;
+let jellyfin;
+try {
+  storage.readJellyfinSettings = () => null;
+  jellyfin = require("../jellyfin");
+} finally {
+  storage.readJellyfinSettings = originalReadSettings;
+  globalThis.fetch = originalFetch;
+}
 
 function track(id, { artist = `Artist ${id}`, artistId = `artist-${id}`, albumId = "album-1", genre = "Rock" } = {}) {
   return {
@@ -150,5 +157,21 @@ test("AutoDJ preserves the first lookup error when every source fails", async ()
       jellyfin.nextTracks({ seed: "seed" }),
       /Jellyfin returned HTTP 503/
     );
+  });
+});
+
+
+test("AutoDJ similar artists still uses the selected artist after the fetch migration", async () => {
+  await withJellyfin((url) => {
+    if (url.pathname === "/Items/seed") return { body: track("seed") };
+    if (url.pathname === "/Artists/selected-artist/Similar") return items({ Id: "related-artist", Name: "Related artist" });
+    if (url.pathname === "/Items" && url.searchParams.get("ArtistIds") === "related-artist") {
+      return items(track("related-track", { artistId: "related-artist" }));
+    }
+    return { status: 404 };
+  }, async (requests) => {
+    const result = await jellyfin.nextTracks({ seed: "seed", mode: "artist", artistId: "selected-artist", similar: true, limit: 1 });
+    assert.deepEqual(result.tracks.map((item) => item.id), ["related-track"]);
+    assert.ok(requests.some((url) => url.pathname === "/Artists/selected-artist/Similar"));
   });
 });

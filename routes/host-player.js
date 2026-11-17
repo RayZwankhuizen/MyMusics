@@ -87,7 +87,8 @@ module.exports = function registerHostPlayerRoutes(app, { hostPlayer, getStation
     const startSeconds = Number(req.body?.startSeconds ?? 0);
     if (!Number.isFinite(startSeconds) || startSeconds < 0 || startSeconds > 86_400) return res.status(400).json({ error: "Choose a valid video position." });
     try {
-      await hostPlayer.playVideo(videoId, startSeconds);
+      await hostPlayer.playVideo(videoId, startSeconds, { paused: req.body?.paused === true });
+      clearHostPlaybackLease();
       res.json({ ok: true, sessionId: startHostPlaybackLease() });
     } catch (error) {
       res.status(503).json({ error: error.message || "Host MPV could not play this YouTube video." });
@@ -235,6 +236,10 @@ module.exports = function registerHostPlayerRoutes(app, { hostPlayer, getStation
 
   app.post("/api/host-player/control", async (req, res) => {
     const deck = String(req.body?.deck || "");
+    if (req.body?.sessionId !== undefined && (!hostPlaybackSession || req.body.sessionId !== hostPlaybackSession
+      || hostPlayer.activeType !== "video" || req.body.videoId !== hostPlayer.videoId)) {
+      return res.status(409).json({ error: "Host video session has ended." });
+    }
     if (req.body?.action === "stop") {
       clearHostPlaybackLease();
       await hostPlayer.stop();

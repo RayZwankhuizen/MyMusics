@@ -1,8 +1,9 @@
-const fetch = require("node-fetch");
+const fetch = globalThis.fetch;
 const dns = require("node:dns").promises;
 const http = require("node:http");
 const https = require("node:https");
 const net = require("node:net");
+const zlib = require("node:zlib");
 
 function withTimeout(promise, milliseconds) {
   let timer;
@@ -32,6 +33,61 @@ function pinnedLookup(address, family) {
   };
 }
 
+// Native fetch does not accept Node http.Agent lookups. Keep DNS pinning
+// for untrusted logo URLs with the built-in HTTP clients instead.
+function fetchPinnedUrl(url, { address, family, maxBytes, timeout }) {
+  return new Promise((resolve, reject) => {
+    const transport = url.protocol === "https:" ? https : http;
+    const request = transport.get(url, {
+      agent: false,
+      lookup: pinnedLookup(address, family),
+      headers: { "User-Agent": "MyMusics/1.0 (station logo finder)", Accept: "image/*, text/html;q=0.8", "Accept-Encoding": "identity" }
+    });
+    const timer = setTimeout(() => request.destroy(new Error("Logo lookup timed out.")), timeout);
+    let settled = false;
+    const finish = (error, value) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      if (error) reject(error);
+      else resolve(value);
+    };
+    request.on("error", (error) => finish(error));
+    request.on("response", (response) => {
+      const status = response.statusCode;
+      const headers = new Headers();
+      for (const [name, value] of Object.entries(response.headers)) {
+        if (value !== undefined) headers.set(name, Array.isArray(value) ? value.join(", ") : value);
+      }
+      if (status < 200 || status >= 300) {
+        finish(null, { status, headers });
+        response.destroy();
+        return;
+      }
+      // Bound the decoded body too, matching the old client's size limit.
+      const encoding = headers.get("content-encoding");
+      const decoder = encoding === "gzip" ? zlib.createGunzip()
+        : encoding === "br" ? zlib.createBrotliDecompress()
+        : encoding === "deflate" ? zlib.createInflate() : null;
+      const body = decoder ? response.pipe(decoder) : response;
+      const fail = (error) => { finish(error); response.destroy(); decoder?.destroy(); };
+      const chunks = [];
+      let size = 0;
+      response.on("error", fail);
+      if (decoder) decoder.on("error", fail);
+      body.on("data", (chunk) => {
+        size += chunk.length;
+        if (size > maxBytes) {
+          fail(new Error("Logo response exceeds the download limit."));
+          return;
+        }
+        chunks.push(chunk);
+      });
+      body.on("end", () => finish(null, { status, headers, body: Buffer.concat(chunks) }));
+    });
+  });
+}
+
 async function fetchPublicUrl(value, maxBytes = 2_000_000, deadline = Date.now() + 20_000) {
   let url;
   try { url = new URL(value); } catch { throw new Error("Enter a valid image or website URL."); }
@@ -42,21 +98,15 @@ async function fetchPublicUrl(value, maxBytes = 2_000_000, deadline = Date.now()
     const addresses = await withTimeout(dns.lookup(url.hostname, { all: true, verbatim: true }), Math.min(5000, remaining));
     if (!addresses.length || addresses.some(({ address }) => !publicAddress(address))) throw new Error("The URL must point to a public website.");
     const { address, family } = addresses[0];
-    const agentOptions = { lookup: pinnedLookup(address, family) };
-    const response = await fetch(url.href, {
-      agent: url.protocol === "https:" ? new https.Agent(agentOptions) : new http.Agent(agentOptions),
-      headers: { "User-Agent": "MyMusics/1.0 (station logo finder)", Accept: "image/*, text/html;q=0.8" },
-      redirect: "manual", timeout: Math.min(8000, remaining), size: maxBytes
-    });
+    const response = await fetchPinnedUrl(url, { address, family, maxBytes, timeout: Math.min(8000, remaining) });
     if ([301, 302, 303, 307, 308].includes(response.status)) {
       const location = response.headers.get("location");
-      response.body?.destroy();
       if (!location || redirects === 3) throw new Error("The logo website redirected too many times.");
       url = new URL(location, url);
       continue;
     }
-    if (!response.ok) { response.body?.destroy(); throw new Error(`Website returned HTTP ${response.status}.`); }
-    return { url, type: (response.headers.get("content-type") || "").split(";")[0].toLowerCase(), body: await response.buffer() };
+    if (response.status < 200 || response.status >= 300) throw new Error(`Website returned HTTP ${response.status}.`);
+    return { url, type: (response.headers.get("content-type") || "").split(";")[0].toLowerCase(), body: response.body };
   }
   throw new Error("Could not fetch the logo.");
 }
@@ -118,7 +168,7 @@ async function radioBrowserSearch(searches, { countrycode = "", limit = 60, orde
       }
       try {
         const query = new URLSearchParams({ ...filter, ...(countrycode ? { countrycode } : {}), limit: String(limit), hidebroken: "true", order, reverse: "true" });
-        const response = await fetch(`${endpoint}/json/stations/search?${query}`, { headers: { "User-Agent": "MyMusics/1.0 (station discovery)" }, timeout: Math.min(6000, remaining) });
+        const response = await fetch(`${endpoint}/json/stations/search?${query}`, { headers: { "User-Agent": "MyMusics/1.0 (station discovery)" }, signal: AbortSignal.timeout(Math.min(6000, remaining)) });
         if (!response.ok) throw new Error(`Radio directory returned ${response.status}.`);
         matches.push(...await response.json());
       } catch (error) { lastError = new Error(`${endpoint}: ${error.code || error.message || "request failed"}`); retry.push(filter); }

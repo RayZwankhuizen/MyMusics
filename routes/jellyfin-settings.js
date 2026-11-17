@@ -1,4 +1,4 @@
-const fetch = require("node-fetch");
+const fetch = globalThis.fetch;
 
 module.exports = function registerJellyfinSettingsRoutes(app, jellyfin, storage) {
   function sameOrigin(req, res) {
@@ -88,7 +88,7 @@ module.exports = function registerJellyfinSettingsRoutes(app, jellyfin, storage)
     try {
       const url = new URL("https://www.googleapis.com/youtube/v3/videos");
       url.search = new URLSearchParams({ part: "id", id: "dQw4w9WgXcQ", key: apiKey });
-      const response = await fetch(url.toString(), { timeout: 8000 });
+      const response = await fetch(url.toString(), { signal: AbortSignal.timeout(8000) });
       const result = await response.json();
       if (!response.ok) return res.status(502).json({ error: result.error?.message || `YouTube returned HTTP ${response.status}.` });
       res.json({ ok: true });

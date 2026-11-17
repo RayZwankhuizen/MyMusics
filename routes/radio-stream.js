@@ -1,4 +1,5 @@
-const fetch = require("node-fetch");
+const fetch = globalThis.fetch;
+const { Readable } = require("node:stream");
 
 module.exports = function registerRadioStreamRoute(app, { getStations }) {
   const streams = new Map();
@@ -41,7 +42,7 @@ module.exports = function registerRadioStreamRoute(app, { getStations }) {
         signal: stream.controller.signal
       });
       if (!upstream.ok || !upstream.body) {
-        upstream.body?.destroy();
+        await upstream.body?.cancel();
         return finish(stream, { status: upstream.status || 502 });
       }
       stream.status = upstream.status;
@@ -53,11 +54,12 @@ module.exports = function registerRadioStreamRoute(app, { getStations }) {
       for (const client of stream.clients) {
         if (!client.headersSent) client.status(stream.status).set(stream.headers).flushHeaders();
       }
-      upstream.body.on("data", (chunk) => {
+      const body = Readable.fromWeb(upstream.body);
+      body.on("data", (chunk) => {
         for (const client of stream.clients) if (!client.destroyed) client.write(chunk);
       });
-      upstream.body.on("end", () => finish(stream));
-      upstream.body.on("error", (error) => finish(stream, error));
+      body.on("end", () => finish(stream));
+      body.on("error", (error) => finish(stream, error));
     } catch (error) {
       if (!stream.controller.signal.aborted) finish(stream, error);
     }

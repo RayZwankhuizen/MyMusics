@@ -4,20 +4,28 @@ const test = require("node:test");
 let activeHandler;
 let activeRequests = [];
 
-async function mockFetch(input) {
+async function mockFetch(input, options) {
   const url = new URL(input);
+  url.fetchOptions = options;
   activeRequests.push(url);
   const result = activeHandler(url) || { body: {} };
   const status = result.status || 200;
   return { status, ok: status >= 200 && status < 300, json: async () => result.body };
 }
 
-const fetchPath = require.resolve("node-fetch");
-require(fetchPath);
-const originalFetch = require.cache[fetchPath].exports;
-require.cache[fetchPath].exports = mockFetch;
-const jellyfin = require("../jellyfin");
-require.cache[fetchPath].exports = originalFetch;
+const originalFetch = globalThis.fetch;
+globalThis.fetch = mockFetch;
+// Isolate the mocked client from personal settings saved on this machine.
+const storage = require("../storage");
+const originalReadSettings = storage.readJellyfinSettings;
+let jellyfin;
+try {
+  storage.readJellyfinSettings = () => null;
+  jellyfin = require("../jellyfin");
+} finally {
+  storage.readJellyfinSettings = originalReadSettings;
+  globalThis.fetch = originalFetch;
+}
 
 async function withJellyfin(handler, run) {
   const previous = {
@@ -163,5 +171,20 @@ test("combined search prioritizes an exact genre and tolerates a failed category
     assert.deepEqual(result.map((item) => item.id), ["genre-jazz", "track-1", "genre-fusion"]);
     assert.deepEqual(result[0], { kind: "genre", id: "genre-jazz", title: "Jazz", albumCount: 3, trackCount: 20 });
     assert.deepEqual(result[2], { kind: "genre", id: "genre-fusion", title: "Jazz Fusion", albumCount: 1, trackCount: 4 });
+  });
+});
+
+
+test("Jellyfin media deletion uses native fetch with authentication and an abort deadline", async () => {
+  await withJellyfin(() => ({ status: 204 }), async (requests) => {
+    assert.equal(await jellyfin.deleteItem("a".repeat(32)), true);
+    const call = requests.at(-1);
+    assert.equal(call.pathname, `/Items/${"a".repeat(32)}`);
+    assert.equal(call.fetchOptions.method, "DELETE");
+    assert.ok(call.fetchOptions.signal instanceof AbortSignal);
+    assert.ok(Object.values(call.fetchOptions.headers).some((value) => String(value).includes("test-key")));
+  });
+  await withJellyfin(() => ({ status: 403 }), async () => {
+    await assert.rejects(jellyfin.deleteItem("a".repeat(32)), /HTTP 403/);
   });
 });

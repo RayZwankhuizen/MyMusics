@@ -11,6 +11,7 @@ jellyfin-settings.json
 *.log
 .DS_Store
 coverage/
+.release-message
 
 # Agent and project process material
 AGENTS.md
