@@ -1,4 +1,4 @@
-export function createRadioStationView({ genreNav, stationList, searchInput, favoriteStatus, getStations, onChooseGenre, onChooseFavorites, onPlay, onEdit, onToggleFavorite }) {
+export function createRadioStationView({ genreNav, stationList, searchInput, favoriteStatus, getStations, onChooseGenre, onChooseFavorites, onPlay, onEdit, onDelete, onToggleFavorite }) {
   let editMode = false;
   let lastStationView = null;
 
@@ -109,9 +109,24 @@ export function createRadioStationView({ genreNav, stationList, searchInput, fav
       edit.setAttribute("aria-label", `Edit ${station.name}`);
       edit.hidden = !editMode;
       edit.addEventListener("click", () => onEdit(genre, index));
+      const remove = document.createElement("button");
+      remove.className = "station-edit-button";
+      remove.type = "button";
+      remove.textContent = "Delete";
+      remove.setAttribute("aria-label", `Delete ${station.name}`);
+      remove.addEventListener("click", async () => {
+        remove.disabled = true;
+        try {
+          if (await onDelete(genre, index)) document.querySelector("#edit-stations-toggle").focus({ preventScroll: true });
+        } catch (error) {
+          favoriteStatus.textContent = error.message;
+        } finally {
+          remove.disabled = false;
+        }
+      });
       const actions = document.createElement("div");
       actions.className = "station-actions";
-      actions.append(edit, favorite);
+      actions.append(edit, remove, favorite);
       row.append(play, details, actions);
       stationList.append(row);
       requestAnimationFrame(() => {
@@ -131,7 +146,7 @@ export function createRadioStationView({ genreNav, stationList, searchInput, fav
     event.currentTarget.setAttribute("aria-pressed", String(editMode));
     if (lastStationView) renderStations(lastStationView.stationsByGenre, lastStationView.activeGenre, lastStationView.showingFavorites, lastStationView.activeStation);
     favoriteStatus.textContent = editMode
-      ? "Editing stations: choose Edit beside a station to change it."
+      ? "Choose Edit beside a station."
       : "Station editing closed.";
   });
 

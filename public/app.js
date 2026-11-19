@@ -1,23 +1,23 @@
 import { inferMetadataKind as classifyMetadataKind, isProgramMetadata as classifyProgramMetadata, metadataTrack } from "./radio-metadata-kind.mjs";
 import { defaultRadioEqualizerPreset } from "./radio-equalizer-preset.mjs";
-import { createRadioStationView } from "./radio-station-view.mjs?v=tv-remote-1";
-import { createRadioStationManagement } from "./radio-station-management.mjs";
-import { createRadioSpeechDetector } from "./radio-speech-detector.mjs";
+import { createRadioStationView } from "./radio-station-view.mjs?v=station-delete-2";
+import { createRadioStationManagement } from "./radio-station-management.mjs?v=station-delete-1";
+import { createRadioSpeechDetector } from "./radio-speech-detector.mjs?v=speech-audio-1";
 import { createRadioSuppressionStore, metadataBlockKey as buildMetadataBlockKey, speechTrackKey } from "./radio-suppression-store.mjs";
 import { fetchTrackMetadata } from "./radio-track-metadata-api.mjs";
 import { createRadioMetadataView } from "./radio-metadata-view.mjs";
-import { createRadioTrackDetailsView } from "./radio-track-details-view.mjs";
+import { createRadioTrackDetailsView } from "./radio-track-details-view.mjs?v=optional-genius-1";
 import { createRadioHostOutput } from "./radio-host-output.mjs?v=radio-output-focus-1";
 import { createRadioNowPlaying } from "./radio-now-playing.mjs";
-import { createRadioEqualizerController } from "./radio-equalizer-controller.mjs?v=radio-dual-output-1";
+import { createRadioEqualizerController } from "./radio-equalizer-controller.mjs?v=speech-audio-1";
 import { createRadioHlsPlayback } from "./radio-hls-playback.mjs";
-import { createRadioBrowserPlayback } from "./radio-browser-playback.mjs?v=radio-dual-output-1";
+import { createRadioBrowserPlayback } from "./radio-browser-playback.mjs?v=speech-timing-1";
 import { createRadioLyricsController } from "./radio-lyrics-controller.mjs?v=shared-lyrics-2";
-import { createRadioSuppressionController } from "./radio-suppression-controller.mjs?v=manual-track-suppression-2";
-import { wireRadioSpeechVolumeSettings } from "./radio-speech-volume-settings.mjs";
+import { createRadioSuppressionController } from "./radio-suppression-controller.mjs?v=speech-audio-1";
+import { wireRadioSpeechVolumeSettings } from "./radio-speech-volume-settings.mjs?v=speech-settings-2";
 import { createRadioStationCatalog } from "./radio-station-catalog.mjs";
 import { createRadioTrackUpdates } from "./radio-track-updates.mjs";
-import { createRadioSuppressionControls } from "./radio-suppression-controls.mjs";
+import { createRadioSuppressionControls } from "./radio-suppression-controls.mjs?v=speech-settings-2";
 import { createRadioStationPlayback } from "./radio-station-playback.mjs?v=radio-output-focus-1";
 import { createRadioTrackLookup } from "./radio-track-lookup.mjs";
 import { createRadioAudioOutput } from "./radio-audio-output.mjs";
@@ -74,6 +74,7 @@ const hlsPlayback = createRadioHlsPlayback({
 });
 const browserPlayback = createRadioBrowserPlayback({
   getAudio: radioAudioOutput.getAudio,
+  getGeneration: () => audioPlaybackGeneration,
   setStatus,
   streamUrl: radioStreamUrl,
   hlsPlayback,
@@ -82,21 +83,12 @@ const browserPlayback = createRadioBrowserPlayback({
   startSpeechDetection
 });
 const speechDetector = createRadioSpeechDetector({
-  streamUrl: radioStreamUrl,
-  onStopped: () => suppressionController.setDucked(false),
-  onStatus: (status) => {
-    const element = el("#speech-suppression-status");
-    if (status === "loading") {
-      element.textContent = "Loading…";
-      element.dataset.state = "loading";
-    } else if (status === "ready") {
-      element.textContent = suppressionController.ducked ? "Suppressed" : isTrackSuppressionEnabled(suppressionController.currentTrackKey) ? "Listening" : "Track suppression off";
-      element.dataset.state = suppressionController.ducked ? "suppressed" : "listening";
-    } else if (status === "stream-blocked" || status === "unavailable") {
-      element.textContent = status === "stream-blocked" ? "Stream blocks analysis" : "Detector unavailable";
-      element.dataset.state = "off";
-    }
+  createInput: radioEqualizer.createSpeechInput,
+  onStopped: () => {
+    suppressionController.setDetectorStatus("idle");
+    suppressionController.setDucked(false);
   },
+  onStatus: (status) => suppressionController.setDetectorStatus(status),
   onSpeechStart: () => {
     suppressionController.onSpeechStart();
   },
@@ -108,6 +100,10 @@ suppressionController = createRadioSuppressionController({
   speechDetector,
   getStation: () => activeStation,
   getAudio: radioAudioOutput.getAudio,
+  getSpeechGain: radioEqualizer.getSpeechGain,
+  setSpeechGain: radioEqualizer.setSpeechGain,
+  isEnabled: () => Boolean(activeStation && activeStation.type !== "hls"
+    && !/\.m3u8(?:$|[?#])/i.test(activeStation.url) && !speechSuppressionDisabledStations.has(activeStation.url)),
   getMetadataKey: metadataBlockKey,
   getTrackKey: speechTrackKey
 });
@@ -130,6 +126,7 @@ const stationView = createRadioStationView({
   onChooseFavorites: chooseFavorites,
   onPlay: playStation,
   onEdit: openStationEditor,
+  onDelete: (genre, index) => stationManagement.remove(genre, index),
   onToggleFavorite: toggleFavorite
 });
 stationCatalog = createRadioStationCatalog({
@@ -150,9 +147,7 @@ wireRadioPlayerBar({
   setHostPaused: hostPlayerOutput.togglePaused
 });
 
-document.querySelectorAll("dialog").forEach(window.MyMusicsUI.closeOnBackdropClick);
 
-const isTrackSuppressionEnabled = (key) => suppressionController.isTrackEnabled(key);
 const renderMetadataSuppression = (button, key) => suppressionController.renderMetadata(button, key);
 const setCurrentMetadataBlock = (fields, raw, stationUrl) => suppressionController.setCurrentMetadata(fields, raw, stationUrl);
 const setCurrentSpeechTrack = (artist, title) => suppressionController.setCurrentTrack(artist, title);
@@ -194,15 +189,54 @@ el("#player-tools-toggle").addEventListener("click", () => {
 function radioStreamUrl(url) { return `/api/radio-stream?url=${encodeURIComponent(url)}`; }
 
 function stopSpeechDetection() { speechDetector.stop(); }
-function startSpeechDetection(station) { return speechDetector.start(station); }
+function startSpeechDetection() { return speechDetector.start(); }
 
 function chooseGenre(genre) { stationCatalog.chooseGenre(genre); }
 function chooseFavorites() { stationCatalog.chooseFavorites(); }
 
 function toggleFavorite(genre, index, favorite) { return stationCatalog.toggleFavorite(genre, index, favorite); }
 
+const playerFavorite = el("#radio-player-favorite");
+let savingPlayerFavorite = false;
+
+function activeStationIndex() {
+  return stationCatalog.stations[activeStationGenre]?.findIndex(
+    (station) => station.url === activeStation?.url && station.name === activeStation?.name
+  ) ?? -1;
+}
+
+function renderPlayerFavorite() {
+  const station = stationCatalog.stations[activeStationGenre]?.[activeStationIndex()];
+  const favorite = station?.favorite === true;
+  playerFavorite.hidden = !station;
+  playerFavorite.disabled = savingPlayerFavorite;
+  playerFavorite.textContent = favorite ? "★" : "☆";
+  playerFavorite.setAttribute("aria-pressed", String(favorite));
+  playerFavorite.setAttribute("aria-label", station ? `${station.name} favorite` : "Favorite station");
+  playerFavorite.title = favorite ? "Remove from Favorites" : "Add to Favorites";
+}
+
+playerFavorite.addEventListener("click", async () => {
+  const genre = activeStationGenre;
+  const index = activeStationIndex();
+  if (index < 0 || savingPlayerFavorite) return;
+  savingPlayerFavorite = true;
+  renderPlayerFavorite();
+  try {
+    await toggleFavorite(genre, index, stationCatalog.stations[genre][index].favorite !== true);
+  } catch {
+    el("#favorite-status").textContent = "Could not update Favorites. Please try again.";
+  } finally {
+    savingPlayerFavorite = false;
+    renderPlayerFavorite();
+  }
+});
+
 function renderGenreNav() { stationView.renderGenres(stationCatalog.stations, stationCatalog.activeGenre, stationCatalog.showingFavorites); }
-function renderStations() { stationView.renderStations(stationCatalog.stations, stationCatalog.activeGenre, stationCatalog.showingFavorites, activeStation); }
+function renderStations() {
+  stationView.renderStations(stationCatalog.stations, stationCatalog.activeGenre, stationCatalog.showingFavorites, activeStation);
+  renderPlayerFavorite();
+}
 function resetStationTrackMetadata() {
   lookupKey = "";
   trackUpdates.reset();
@@ -287,7 +321,11 @@ const stationPlayback = createRadioStationPlayback({
     getVolume: () => Number(el("#radio-player-volume").value) / 100,
     nextGeneration: () => ++audioPlaybackGeneration,
     isCurrentGeneration: (generation) => generation === audioPlaybackGeneration,
-    setStation: (station, genre) => { activeStation = station; activeStationGenre = genre; }
+    setStation: (station, genre) => {
+      activeStation = station;
+      activeStationGenre = genre;
+      if (!station) renderPlayerFavorite();
+    }
   },
   players: { equalizer: radioEqualizer, hostOutput: hostPlayerOutput, browser: browserPlayback, hls: hlsPlayback, nowPlaying },
   ui: {

@@ -33,7 +33,7 @@ export function wireManageStreamFinder({ el, request }) {
     if (event.currentTarget.open && !el("#stream-search-name").value) el("#stream-search-name").value = el("#station-name").value.trim();
   });
   el("#stream-search-name").addEventListener("keydown", (event) => {
-    if (event.key === "Enter") { event.preventDefault(); el("#stream-search-button").click(); }
+    if (event.key === "Enter" && !event.isComposing && event.keyCode !== 229) { event.preventDefault(); el("#stream-search-button").click(); }
   });
 
   el("#stream-search-button").addEventListener("click", async () => {

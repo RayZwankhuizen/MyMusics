@@ -59,6 +59,7 @@ export function createManageCatalog({ el, request, notice, stationImages, stream
     el("#station-url").value = station.url;
     el("#station-type").value = station.type || "mp3";
     el("#speech-volume-percent").value = station.speechVolumePercent ?? 30;
+    el("#speech-release-delay").value = station.speechReleaseDelaySeconds ?? 3;
     stationImages.edit(station.image);
     el("#add-station-heading").textContent = `Edit ${station.name}`;
     el("#station-form .save-button").textContent = "Save changes";
@@ -140,6 +141,7 @@ export function createManageCatalog({ el, request, notice, stationImages, stream
       website: el("#station-website").value.trim(),
       type: el("#station-type").value,
       speechVolumePercent: Number(el("#speech-volume-percent").value),
+      speechReleaseDelaySeconds: el("#speech-release-delay").valueAsNumber,
       genre: index === "" ? selectedGenre : el("#station-genre").value,
       image: stationImages.image()
     };

@@ -1,6 +1,7 @@
 export function wireRadioSpeechVolumeSettings({ getStation, getStations, setStations, setActiveStation, isDucked, applyPercent, renderStations, updateSuppressionButton }) {
   const dialog = document.querySelector("#speech-volume-dialog");
   const value = document.querySelector("#speech-volume-value");
+  const delay = document.querySelector("#speech-release-delay");
   const message = document.querySelector("#speech-volume-message");
 
   document.querySelector("#speech-volume-open").addEventListener("click", async () => {
@@ -19,6 +20,7 @@ export function wireRadioSpeechVolumeSettings({ getStation, getStations, setStat
       }
     } catch {}
     value.value = getStation()?.speechVolumePercent ?? 30;
+    delay.value = getStation()?.speechReleaseDelaySeconds ?? 3;
     message.textContent = "";
     dialog.showModal();
   });
@@ -27,8 +29,10 @@ export function wireRadioSpeechVolumeSettings({ getStation, getStations, setStat
   document.querySelector("#speech-volume-form").addEventListener("submit", async (event) => {
     event.preventDefault();
     const station = getStation();
-    const percent = Number(value.value);
+    const percent = value.valueAsNumber;
+    const delaySeconds = delay.valueAsNumber;
     if (!Number.isInteger(percent) || percent < 0 || percent > 100 || !station) return;
+    if (!Number.isInteger(delaySeconds) || delaySeconds < 0 || delaySeconds > 60) return;
     const stations = getStations();
     const genre = Object.keys(stations).find((name) => stations[name].some((item) => item.url === station.url));
     const index = genre ? stations[genre].findIndex((item) => item.url === station.url) : -1;
@@ -38,7 +42,7 @@ export function wireRadioSpeechVolumeSettings({ getStation, getStations, setStat
       const response = await fetch(`/api/genres/${encodeURIComponent(genre)}/stations/${index}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...station, genre, speechVolumePercent: percent })
+        body: JSON.stringify({ ...station, genre, speechVolumePercent: percent, speechReleaseDelaySeconds: delaySeconds })
       });
       const updated = await response.json();
       if (!response.ok) throw new Error(updated.error || "Could not save this setting.");
@@ -46,6 +50,7 @@ export function wireRadioSpeechVolumeSettings({ getStation, getStations, setStat
       const updatedStation = updated[genre][index];
       setActiveStation(updatedStation, genre);
       if (updatedStation.speechVolumePercent !== percent) throw new Error(`Server kept ${updatedStation.speechVolumePercent ?? 30}%; refresh MyMusics before trying again.`);
+      if ((updatedStation.speechReleaseDelaySeconds ?? 3) !== delaySeconds) throw new Error("Server did not save the recovery delay. Refresh MyMusics before trying again.");
       if (isDucked()) applyPercent(percent);
       renderStations();
       updateSuppressionButton();

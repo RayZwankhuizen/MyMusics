@@ -140,7 +140,7 @@ export function wireMusicAutoDj({ el, state, fillQueue, renderQueue, setStatus }
   });
   el("#autodj-source-search-button").addEventListener("click", () => { void searchSources(); });
   sourceQuery.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") { event.preventDefault(); void searchSources(); }
+    if (event.key === "Enter" && !event.isComposing && event.keyCode !== 229) { event.preventDefault(); void searchSources(); }
   });
 
   el("#autodj-close")?.addEventListener("click", () => dialog.close());

@@ -129,7 +129,7 @@ export function wireManageMedia({ el, request }) {
       }
       const duplicates = [...groups.values()].filter((tracks) => tracks.length > 1);
       duplicates.sort((a, b) => a[0].artist.localeCompare(b[0].artist) || a[0].title.localeCompare(b[0].title));
-      duplicates.forEach((group, index) => list.append(renderGroup({ tracks: group }, index)));
+      duplicates.forEach((group, index) => { list.append(renderGroup({ tracks: group }, index)); });
       updateSelection();
       status.textContent = duplicates.length
         ? `${duplicates.length} matching groups found across ${startIndex} tracks. Matches use title, artist, and duration; review each location before deleting.`

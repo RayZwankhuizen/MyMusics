@@ -1,26 +1,23 @@
-export function createRadioSpeechDetector({ streamUrl, onSpeechStart, onSpeechEnd, onMisfire, onStopped, onStatus }) {
+export function createRadioSpeechDetector({ createInput, onSpeechStart, onSpeechEnd, onMisfire, onStopped, onStatus }) {
   let detector = null;
-  let detectorAudio = null;
-  let context = null;
+  let input = null;
   let generation = 0;
   let lastDetectedAt = 0;
   let speechActive = false;
   let loadPromise = null;
 
+  function dispose(instance) {
+    void Promise.resolve().then(() => instance.destroy ? instance.destroy() : instance.pause()).catch(() => {});
+  }
+
   function stop() {
     generation++;
     lastDetectedAt = 0;
     speechActive = false;
-    detector?.pause();
+    if (detector) dispose(detector);
     detector = null;
-    if (detectorAudio) {
-      detectorAudio.pause();
-      detectorAudio.removeAttribute("src");
-      detectorAudio.load();
-    }
-    detectorAudio = null;
-    context?.close().catch(() => {});
-    context = null;
+    input?.close();
+    input = null;
     onStopped();
   }
 
@@ -66,28 +63,27 @@ export function createRadioSpeechDetector({ streamUrl, onSpeechStart, onSpeechEn
     };
   }
 
-  async function start(station) {
+  async function start() {
     stop();
     const run = generation;
     onStatus("loading");
     try {
-      context = new AudioContext();
-      const resumed = context.resume();
-      detectorAudio = new Audio();
-      detectorAudio.crossOrigin = "anonymous";
-      detectorAudio.preload = "none";
-      detectorAudio.src = streamUrl(station.url);
-      const source = context.createMediaElementSource(detectorAudio);
-      const silentOutput = context.createGain();
-      silentOutput.gain.value = 0;
-      source.connect(silentOutput).connect(context.destination);
-      const input = context.createMediaStreamDestination();
-      source.connect(input);
-      await Promise.all([resumed, detectorAudio.play(), loadVad()]);
+      const analysis = createInput();
+      if (!analysis) {
+        onStatus("stream-blocked");
+        return;
+      }
+      input = analysis;
+      await loadVad();
       if (run !== generation) return;
-      detector = await window.vad.MicVAD.new(detectorOptions(run, input));
-      if (run !== generation) { detector.pause(); detector = null; return; }
-      detector.start();
+      const instance = await window.vad.MicVAD.new(detectorOptions(run, analysis));
+      if (run !== generation) {
+        dispose(instance);
+        return;
+      }
+      detector = instance;
+      await instance.start();
+      if (run !== generation) return;
       onStatus("ready");
     } catch (error) {
       if (run !== generation) return;

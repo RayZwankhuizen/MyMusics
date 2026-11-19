@@ -6,6 +6,7 @@ export function createRadioStationManagement({ getStations, setStations, getActi
   const genreInput = document.querySelector("#station-edit-genre");
   const message = document.querySelector("#station-edit-message");
   let editing = null;
+  let deleting = false;
 
   async function request(genre, index, method, body) {
     const response = await fetch(`/api/genres/${encodeURIComponent(genre)}/stations/${index}`, {
@@ -64,19 +65,27 @@ export function createRadioStationManagement({ getStations, setStations, getActi
 
   document.querySelector("#station-edit-cancel").addEventListener("click", () => dialog.close());
   dialog.addEventListener("close", () => { editing = null; });
-  document.querySelector("#station-edit-delete").addEventListener("click", async () => {
-    if (!editing) return;
-    const { genre, index } = editing;
+  async function remove(genre, index) {
     const station = getStations()[genre]?.[index];
-    if (!station || !confirm(`Delete “${station.name}”? This cannot be undone.`)) return;
+    if (deleting || !station || !confirm(`Delete “${station.name}”? This cannot be undone.`)) return false;
+    deleting = true;
     try {
       const updated = await request(genre, index, "DELETE");
       setStations(updated);
       refreshStations();
-      dialog.close();
       document.querySelector("#favorite-status").textContent = `“${station.name}” deleted.`;
+      return true;
+    } finally {
+      deleting = false;
+    }
+  }
+
+  document.querySelector("#station-edit-delete").addEventListener("click", async () => {
+    if (!editing) return;
+    try {
+      if (await remove(editing.genre, editing.index)) dialog.close();
     } catch (error) { message.textContent = error.message; }
   });
 
-  return Object.freeze({ open });
+  return Object.freeze({ open, remove });
 }

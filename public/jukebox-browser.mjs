@@ -1,4 +1,7 @@
 export function createJukeboxRack({ state, searchTypes, el, empty, strip, genreCountSummary, resultDetails, openInfo, startRadio, queuePlaylist }) {
+  const nextOffsets = new Map();
+  const pending = new Map();
+
   function renderItem(item) {
     if (state.tab === "artists" || state.tab === "all") {
       const subtitle = item.albumCount ? `${item.albumCount} album${item.albumCount === 1 ? "" : "s"}` : "";
@@ -26,48 +29,83 @@ export function createJukeboxRack({ state, searchTypes, el, empty, strip, genreC
       list.append(empty("Loading…"));
       return;
     }
-    if (!items.length) {
+    const offset = nextOffsets.get(state.tab);
+    if (!items.length && !offset) {
       list.append(empty(state.tab === "playlists" ? "No playlists yet. Create one on the music page." : "Nothing to choose from here."));
-      return;
     }
-    items.forEach((item) => { list.append(renderItem(item)); });
+    const rows = document.createDocumentFragment();
+    items.forEach((item) => { rows.append(renderItem(item)); });
+    if (offset) {
+      const tab = state.tab;
+      const more = strip("Load more artists", "", async () => {
+        more.disabled = true;
+        more.querySelector("strong").textContent = "Loading…";
+        const loaded = await load(tab, false, offset);
+        if (loaded && el("#jb-search-dialog").open) {
+          const buttons = list.querySelectorAll(".jb-strip");
+          (buttons[items.length] || buttons[buttons.length - 1] || el("#jb-search-close")).focus();
+        }
+        more.disabled = false;
+        more.querySelector("strong").textContent = "Load more artists";
+      });
+      rows.append(more);
+    }
+    list.append(rows);
   }
 
-  async function fetchItems(tab) {
+  async function fetchItems(tab, offset) {
     const playlists = tab === "playlists";
+    const params = new URLSearchParams({ q: "", type: searchTypes[tab] || "genre", t: Date.now().toString() });
+    if (tab === "all" || tab === "artists") params.set("artistOffset", String(offset));
     const url = playlists
       ? `/api/music/playlists?t=${Date.now()}`
-      : `/api/music/search?${new URLSearchParams({ q: "", type: searchTypes[tab] || "genre", t: Date.now().toString() })}`;
+      : `/api/music/search?${params}`;
     const response = await fetch(url, { cache: "no-store" });
     const result = await response.json();
     if (!response.ok) throw new Error(result.error || (playlists ? "Playlists are unavailable." : "The library is unavailable."));
     const items = playlists ? result.playlists : result.results;
-    return Array.isArray(items) ? items : [];
+    return { items: Array.isArray(items) ? items : [], nextOffset: result.nextOffset };
   }
 
-  async function load(tab, force = false) {
+  async function load(tab, force = false, offset = 0) {
     if (tab === "queue") return;
     if (tab === "tracks") {
       el("#jb-rack-list").replaceChildren(empty("Enter a track title above to search."));
       return;
     }
-    if (!force && state.cache[tab]) return;
-    try { state.cache[tab] = await fetchItems(tab); }
-    catch (error) {
-      state.cache[tab] = [];
-      el("#jb-rack-list").replaceChildren(empty(error.message));
-      return;
+    const cache = state.cache;
+    if (pending.get(tab) === cache || (!force && !offset && cache[tab])) return;
+    pending.set(tab, cache);
+    const showingRack = () => state.tab === tab && !el("#jb-search")?.value.trim() && el("#jb-search-back")?.hidden;
+    try {
+      const { items, nextOffset } = await fetchItems(tab, offset);
+      if (state.cache !== cache) return;
+      cache[tab] = offset ? [...cache[tab], ...items] : items;
+      nextOffsets.set(tab, nextOffset);
+      if (showingRack()) {
+        render();
+        return true;
+      }
+    } catch (error) {
+      if (state.cache !== cache || !showingRack()) return;
+      if (!offset) el("#jb-rack-list").replaceChildren(empty(error.message));
+      else el("#jb-search-feedback").textContent = error.message;
+    } finally {
+      if (pending.get(tab) === cache) pending.delete(tab);
     }
-    if (state.tab === tab) render();
   }
 
   function selectTab(tab) {
     state.tab = tab;
+    state.detailRequest++;
+    el("#jb-search-back").hidden = true;
+    el("#jb-search-add-album").hidden = true;
+    el("#jb-search-heading").textContent = "Search my music";
     document.querySelectorAll("#jb-search-dialog .jb-tab").forEach((button) => {
       button.setAttribute("aria-pressed", String(button.dataset.rack === tab));
     });
     const query = el("#jb-search")?.value.trim();
-    if (query?.length >= 2) {
+    if (query) {
       el("#jb-search-btn")?.click();
       return;
     }
@@ -275,7 +313,7 @@ export function createJukeboxSearch({ state, searchTypes, el, empty, strip, text
         run(input.value);
       });
       input.addEventListener("keydown", (event) => {
-        if (event.key !== "Enter") return;
+        if (event.key !== "Enter" || event.isComposing || event.keyCode === 229) return;
         event.preventDefault();
         searchButton.click();
       });

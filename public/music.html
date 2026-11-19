@@ -10,10 +10,10 @@
   <link rel="stylesheet" href="/style.css?v=mode-switch-youtube-4">
   <link rel="stylesheet" href="/jukebox.css?v=search-art-5">
   <script defer src="/playback-target.js?v=host-playback-lease-1"></script>
-  <script defer src="/ui-dialogs.js?v=2"></script>
+  <script defer src="/ui-dialogs.js?v=backdrop-1"></script>
   <script defer src="/equalizer.js?v=stereo-meter-1"></script>
   <script defer src="/synced-lyrics.js?v=1"></script>
-  <script type="module" src="/music.js?v=player-controls-placement-1"></script>
+  <script type="module" src="/music.js?v=backdrop-1"></script>
   <link rel="stylesheet" href="/app-theme.css?v=tv-toggle-fixed-1">
   <link rel="stylesheet" href="/music-theme.css?v=player-controls-placement-1">
   <link rel="stylesheet" href="/silk-tv.css?v=tv-face-on-1">
@@ -124,7 +124,7 @@
               <button id="queue-empty" class="jb-key" type="button">Empty queue</button>
               <div id="queue-list" class="station-list" aria-live="polite"></div>
             </details>
-          <dialog id="jb-search-dialog" class="jb-search-dialog" aria-labelledby="jb-search-heading">
+          <dialog closedby="any" id="jb-search-dialog" class="jb-search-dialog" aria-labelledby="jb-search-heading">
             <div class="jb-search-dialog-header">
               <h3 id="jb-search-heading">Search my music</h3>
               <button id="jb-search-back" class="jb-key" type="button" hidden>Back to results</button>
@@ -166,7 +166,7 @@
             </div>
           </dialog>
 
-          <dialog id="autodj-dialog" class="music-autodj-dialog" aria-labelledby="autodj-heading">
+          <dialog closedby="any" id="autodj-dialog" class="music-autodj-dialog" aria-labelledby="autodj-heading">
             <form>
               <div class="info-heading"><h2 id="autodj-heading">AutoDJ</h2><button id="autodj-close" type="button">Cancel</button></div>
               <p id="autodj-description" class="autodj-description">Choose a genre, artist, album, or playlist as the starting point.</p>
@@ -207,7 +207,7 @@ JELLYFIN_USER_ID=your-user-id</pre>
     </main>
   </div>
 
-  <dialog id="equalizer-panel" class="equalizer-panel" aria-labelledby="equalizer-title">
+  <dialog closedby="any" id="equalizer-panel" class="equalizer-panel" aria-labelledby="equalizer-title">
     <div class="equalizer-heading"><div><h3 id="equalizer-title">Equalizer</h3><p id="equalizer-status" role="status">Starts with the first track.</p></div><label class="equalizer-preset">Preset<select id="equalizer-preset" disabled><option value="flat">Flat</option><option value="pop">Pop</option><option value="rock">Rock</option><option value="classical">Classical</option><option value="jazz">Jazz</option><option value="electronic">Electronic</option><option value="spoken">Spoken</option><option value="country">Country</option><option value="custom">Custom</option></select></label><button id="equalizer-power" type="button" aria-pressed="false" disabled>EQ Off</button><button id="equalizer-reset" type="button" disabled>Reset</button><button id="equalizer-close" type="button">Close</button></div>
     <canvas id="equalizer-visual" aria-label="Live audio waves for bass, mids and treble"></canvas>
     <section class="equalizer-legend" aria-label="Visualizer color legend"><span><i class="bass" aria-hidden="true"></i>Bass · 45–220 Hz</span><span><i class="mids" aria-hidden="true"></i>Mids · 220 Hz–2.2 kHz</span><span><i class="treble" aria-hidden="true"></i>Treble · 2.2–10 kHz</span></section>
@@ -230,7 +230,7 @@ JELLYFIN_USER_ID=your-user-id</pre>
   </div>
   <span id="player-status" class="sr-only" role="status" aria-live="polite">READY WHEN YOU ARE</span>
 
-  <dialog id="info-dialog" class="info-dialog" aria-labelledby="info-title">
+  <dialog closedby="any" id="info-dialog" class="info-dialog" aria-labelledby="info-title">
     <div class="info-heading"><h2 id="info-title">Details</h2><button id="info-close" type="button">Close</button></div>
     <div id="info-body" class="info-body">
       <img id="info-art" alt="Cover art" hidden>
@@ -241,7 +241,7 @@ JELLYFIN_USER_ID=your-user-id</pre>
     <div id="info-actions" class="info-actions"></div>
   </dialog>
 
-  <dialog id="playlist-picker-dialog" class="info-dialog playlist-picker-dialog" aria-labelledby="playlist-picker-title">
+  <dialog closedby="any" id="playlist-picker-dialog" class="info-dialog playlist-picker-dialog" aria-labelledby="playlist-picker-title">
     <div class="info-heading"><h2 id="playlist-picker-title">Add to playlist</h2><button id="playlist-picker-close" type="button">Close</button></div>
     <p id="playlist-picker-track" class="playlist-picker-track"></p>
     <p id="playlist-picker-status" class="lookup-status" role="status" aria-live="polite"></p>
@@ -249,7 +249,7 @@ JELLYFIN_USER_ID=your-user-id</pre>
     <a class="station-edit-button playlist-picker-manage" href="/manage.html#playlists">Create or manage playlists</a>
   </dialog>
 
-  <dialog id="left-search-dialog" class="info-dialog">
+  <dialog closedby="any" id="left-search-dialog" class="info-dialog">
     <div class="info-heading"><h2>Search</h2><button id="left-search-close" type="button">Close</button></div>
     <form id="music-search-form" class="station-filter">
       <div class="music-search-row">

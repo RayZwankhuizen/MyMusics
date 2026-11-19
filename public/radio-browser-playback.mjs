@@ -1,6 +1,7 @@
-export function createRadioBrowserPlayback({ getAudio, setStatus, streamUrl, hlsPlayback, speechSuppressionDisabled, startSpeechDetection }) {
+export function createRadioBrowserPlayback({ getAudio, getGeneration, setStatus, streamUrl, hlsPlayback, speechSuppressionDisabled, startSpeechDetection }) {
   async function play(station, isHls) {
     const audio = getAudio();
+    const generation = getGeneration();
     try {
       audio.pause();
       audio.onplaying = () => setStatus("ON AIR", true);
@@ -14,11 +15,11 @@ export function createRadioBrowserPlayback({ getAudio, setStatus, streamUrl, hls
       } else {
         audio.src = streamUrl(station.url);
         await audio.play();
-        if (!speechSuppressionDisabled(station.url)) startSpeechDetection(station);
+        if (generation === getGeneration() && !speechSuppressionDisabled(station.url)) startSpeechDetection(station);
       }
       return true;
     } catch (error) {
-      setStatus(`PLAYBACK FAILED · ${error.name || error.message}`);
+      if (generation === getGeneration()) setStatus(`PLAYBACK FAILED · ${error.name || error.message}`);
       return false;
     }
   }

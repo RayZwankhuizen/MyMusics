@@ -16,9 +16,9 @@ export function createRadioTrackDetailsView({ isCurrent }) {
     if (!isCurrent(key)) return;
     try {
       const art = await fetchGeniusArtwork(artist, title);
-      if (!isCurrent(key)) return;
+      if (!isCurrent(key) || art?.configured === false) return;
       if (!art?.imageUrl) {
-        statusElement.textContent = art?.configured === false ? "Set GENIUS_ACCESS_TOKEN to enable Genius artwork." : "No album art found.";
+        statusElement.textContent = "No album art found.";
         return;
       }
       image.onload = () => { image.hidden = false; };

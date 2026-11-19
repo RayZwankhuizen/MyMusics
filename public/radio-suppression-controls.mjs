@@ -6,18 +6,12 @@ export function createRadioSuppressionControls({ getStation, disabledStations, s
     const enabled = Boolean(station && !disabledStations.has(station.url));
     const button = el("#speech-suppression");
     button.disabled = !station || station.type === "hls" || /\.m3u8(?:$|[?#])/i.test(station.url);
-    button.setAttribute("aria-pressed", String(enabled));
+    button.setAttribute("aria-pressed", String(enabled && !button.disabled));
+    button.textContent = `Speech suppression: ${enabled && !button.disabled ? "On" : "Off"}`;
     const volumeButton = el("#speech-volume-open");
     volumeButton.disabled = button.disabled;
-    volumeButton.textContent = `${station?.speechVolumePercent ?? 30}%`;
-    volumeButton.setAttribute("aria-label", `Set speech and ad volume, ${station?.speechVolumePercent ?? 30}%`);
-    if (button.disabled && station) {
-      el("#speech-suppression-status").textContent = "HLS unavailable";
-      el("#speech-suppression-status").dataset.state = "off";
-    } else if (!enabled) {
-      el("#speech-suppression-status").textContent = "Off";
-      el("#speech-suppression-status").dataset.state = "off";
-    }
+    volumeButton.textContent = `Speech settings (${station?.speechVolumePercent ?? 30}%)`;
+    controller.renderStatus();
   }
 
   el("#speech-feedback").addEventListener("click", (event) => {
@@ -33,11 +27,11 @@ export function createRadioSuppressionControls({ getStation, disabledStations, s
     if (!disabledStations.has(station.url)) {
       disabledStations.add(station.url);
       stopDetection();
-      el("#speech-suppression-status").textContent = "Off";
-      el("#speech-suppression-status").dataset.state = "off";
+      el("#speech-feedback").hidden = true;
     } else {
       disabledStations.delete(station.url);
       startDetection(station);
+      if (controller.metadataBlockDucked) controller.setDucked(true);
     }
     saveDisabledStations();
     updateButton();

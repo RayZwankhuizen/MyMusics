@@ -178,15 +178,30 @@ module.exports = function createJellyfinCatalog({ getJson }) {
     return results;
   }
 
-  async function allArtists(limit = 300) {
+  async function artistItems(limit, startIndex) {
     const result = await getJson("/Items", {
       IncludeItemTypes: "MusicArtist",
       Recursive: "true",
       SortBy: "SortName",
+      ...(startIndex ? { StartIndex: String(startIndex) } : {}),
       Fields: "AlbumCount,ChildCount",
       Limit: String(limit)
     });
-    return filterArtistFolders((result?.Items || []).filter((item) => item?.Id));
+    return result?.Items || [];
+  }
+
+  async function allArtists(limit = 300) {
+    return filterArtistFolders((await artistItems(limit)).filter((item) => item?.Id));
+  }
+
+  async function artistPage(startIndex) {
+    const limit = Math.min(40, 300 - startIndex);
+    const items = await artistItems(limit, startIndex);
+    const next = startIndex + limit;
+    return {
+      results: await filterArtistFolders(items.filter((item) => item?.Id)),
+      nextOffset: items.length === limit && next < 300 ? next : null
+    };
   }
 
   async function allAlbums(limit = 300) {
@@ -415,7 +430,7 @@ module.exports = function createJellyfinCatalog({ getJson }) {
     clearCache: () => genreCountCache.clear(),
     api: {
       search, searchAll, searchTracks, searchAlbums, searchArtists, searchGenres,
-      allGenres, listGenres: genreItems, allArtists, allAlbums, itemInfo, countByGenre, countAlbumsByGenre,
+      allGenres, listGenres: genreItems, allArtists, artistPage, allAlbums, itemInfo, countByGenre, countAlbumsByGenre,
       albumsByGenre, countByArtist, countAlbumsByArtist, artistAlbums, artistTracks,
       tracksByGenre, albumTracks, randomTrackByArtist, randomTrackByGenre, randomTracks, getTrack,
       managementTracks, managementTrack

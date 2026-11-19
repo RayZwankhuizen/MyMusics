@@ -241,13 +241,13 @@ test("station logos are found, optimized, uploaded, and saved with a station", a
     }
     if (url.pathname === "/api/genres/Jazz/stations" && request.method() === "POST") {
       requests.push({ path: url.pathname, body: request.postDataJSON() });
-      await route.fulfill({ contentType: "application/json", body: JSON.stringify({ Jazz: [{ name: "Test Radio", url: "https://radio.example/live", website: "https://radio.example", image: "/station-images/local-logo.webp" }] }) });
+      await route.fulfill({ contentType: "application/json", body: JSON.stringify({ Jazz: [{ name: "Test Radio", url: "https://radio.example/live", website: "https://radio.example", speechReleaseDelaySeconds: request.postDataJSON().speechReleaseDelaySeconds, image: "/station-images/local-logo.webp" }] }) });
       return;
     }
     if (url.pathname === "/api/genres/Jazz/stations/0" && request.method() === "PUT") {
       requests.push({ path: url.pathname, body: request.postDataJSON() });
-      const { name, url: streamUrl, website, type, speechVolumePercent, image } = request.postDataJSON();
-      await route.fulfill({ contentType: "application/json", body: JSON.stringify({ Jazz: [{ name, url: streamUrl, website, type, speechVolumePercent, ...(image ? { image } : {}) }] }) });
+      const { name, url: streamUrl, website, type, speechVolumePercent, speechReleaseDelaySeconds, image } = request.postDataJSON();
+      await route.fulfill({ contentType: "application/json", body: JSON.stringify({ Jazz: [{ name, url: streamUrl, website, type, speechVolumePercent, speechReleaseDelaySeconds, ...(image ? { image } : {}) }] }) });
       return;
     }
     await route.continue();
@@ -258,11 +258,18 @@ test("station logos are found, optimized, uploaded, and saved with a station", a
   await page.locator("#station-name").fill("Test Radio");
   await page.locator("#station-url").fill("radio.example/live");
   await page.locator("#station-website").fill("radio.example");
+  assert.equal(await page.locator("#speech-release-delay").inputValue(), "3");
+  await page.locator("#speech-release-delay").fill("5");
   await page.locator("#find-station-logo").click();
   await page.waitForFunction(() => document.querySelector("#station-logo-status")?.textContent === "Logo copied locally as WebP (max. 512 pixels). Save the station to keep it.");
   await page.locator('#station-form button[type="submit"]').click();
   await page.waitForFunction(() => document.querySelector("#notice")?.textContent === "Station added.");
   await page.getByRole("button", { name: "Edit" }).click();
+  await page.locator("#station-name").fill("Discard this change");
+  await page.mouse.click(2, 2);
+  await page.locator("#station-dialog").waitFor({ state: "hidden" });
+  await page.getByRole("button", { name: "Edit" }).click();
+  assert.equal(await page.locator("#station-name").inputValue(), "Test Radio");
   await page.locator("#station-image").setInputFiles({ name: "radio-logo.png", mimeType: "image/png", buffer: image });
   await page.locator('#station-form button[type="submit"]').click();
   await page.waitForFunction(() => document.querySelector("#notice")?.textContent === "Station updated.");
@@ -274,14 +281,14 @@ test("station logos are found, optimized, uploaded, and saved with a station", a
     { path: "/api/station-images/find", body: { automatic: true, name: "Test Radio", url: "https://radio.example/live", website: "https://radio.example" } },
     { path: "/api/station-images", contentType: "image/webp", signature: "RIFF", format: "WEBP" },
     { path: "/api/genres/Jazz/stations", body: {
-      name: "Test Radio", url: "https://radio.example/live", website: "radio.example", type: "mp3", speechVolumePercent: 30, genre: "Jazz", image: "/station-images/local-logo.webp"
+      name: "Test Radio", url: "https://radio.example/live", website: "radio.example", type: "mp3", speechVolumePercent: 30, speechReleaseDelaySeconds: 5, genre: "Jazz", image: "/station-images/local-logo.webp"
     } },
     { path: "/api/station-images", contentType: "image/webp", signature: "RIFF", format: "WEBP" },
     { path: "/api/genres/Jazz/stations/0", body: {
-      name: "Test Radio", url: "https://radio.example/live", website: "https://radio.example", type: "mp3", speechVolumePercent: 30, genre: "Jazz", image: "/station-images/local-logo.webp"
+      name: "Test Radio", url: "https://radio.example/live", website: "https://radio.example", type: "mp3", speechVolumePercent: 30, speechReleaseDelaySeconds: 5, genre: "Jazz", image: "/station-images/local-logo.webp"
     } },
     { path: "/api/genres/Jazz/stations/0", body: {
-      name: "Test Radio", url: "https://radio.example/live", website: "https://radio.example", type: "mp3", speechVolumePercent: 30, genre: "Jazz", image: ""
+      name: "Test Radio", url: "https://radio.example/live", website: "https://radio.example", type: "mp3", speechVolumePercent: 30, speechReleaseDelaySeconds: 5, genre: "Jazz", image: ""
     } }
   ]);
   await page.close();

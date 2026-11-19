@@ -6,6 +6,7 @@
 		"useIgnoreFile": true
 	},
 	"files": {
+		"includes": ["**", "!bookmarks_15_11_2026.html"],
 		"ignoreUnknown": false
 	},
 	"formatter": {

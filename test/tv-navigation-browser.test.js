@@ -55,3 +55,101 @@ test("TV mode enables remote focus, custom radio controls, and the audio output 
   assert.equal(await page.evaluate(() => localStorage.getItem("mymusics:tv-mode")), "true");
   await page.close();
 });
+
+test("the radio player star adds and removes the current station from Favorites", async () => {
+  const page = await browser.newPage();
+  try {
+    const station = { name: "Test Jazz", url: "https://radio.example/jazz" };
+    const catalog = { Jazz: [station] };
+    const requests = [];
+    await page.route("**/stations", (route) => route.fulfill({ json: catalog }));
+    await page.route("**/api/**", (route) => route.abort());
+    await page.route("**/api/genres/Jazz/stations/0/favorite", (route) => {
+      assert.equal(route.request().method(), "PATCH");
+      const { favorite } = route.request().postDataJSON();
+      requests.push(favorite);
+      station.favorite = favorite;
+      return route.fulfill({ json: catalog });
+    });
+
+    await page.goto(baseUrl);
+    const star = page.locator("#radio-player-favorite");
+    assert.equal(await star.isHidden(), true);
+    await page.locator("#station-list .play-button").click();
+    await star.click();
+    await page.locator('#radio-player-favorite[aria-pressed="true"]').waitFor();
+    await page.locator("#genres [data-favorites]").click();
+    await page.locator("#station-list .play-button").waitFor();
+    assert.equal(await page.locator("#station-list .favorite-button").getAttribute("aria-pressed"), "true");
+
+    await star.click();
+    await page.locator('#radio-player-favorite[aria-pressed="false"]').waitFor();
+    await page.getByText("No favorite stations yet.", { exact: false }).waitFor();
+    assert.deepEqual(requests, [true, false]);
+  } finally {
+    await page.close();
+  }
+});
+
+test("radio speech settings show and save the recovery delay", async () => {
+  const page = await browser.newPage();
+  try {
+    const station = { name: "Test Jazz", url: "https://radio.example/jazz", type: "mp3" };
+    const catalog = { Jazz: [station] };
+    await page.route("**/stations", (route) => route.fulfill({ json: catalog }));
+    await page.route("**/api/**", (route) => route.abort());
+    await page.route("**/api/genres/Jazz/stations/0", (route) => {
+      assert.equal(route.request().method(), "PUT");
+      const { speechVolumePercent, speechReleaseDelaySeconds } = route.request().postDataJSON();
+      assert.equal(speechReleaseDelaySeconds, 6);
+      Object.assign(station, { speechVolumePercent, speechReleaseDelaySeconds });
+      return route.fulfill({ json: catalog });
+    });
+    await page.goto(baseUrl);
+    await page.locator("#station-list .play-button").click();
+    await page.getByRole("button", { name: "Sound settings", exact: true }).click();
+    const open = page.getByRole("button", { name: "Speech settings (30%)" });
+    await open.click();
+    const dialog = page.getByRole("dialog", { name: "Speech and ad settings" });
+    const delay = dialog.getByLabel("Volume recovery delay (seconds)");
+    assert.equal(await delay.inputValue(), "3");
+    await delay.fill("6");
+    await dialog.getByRole("button", { name: "Save" }).click();
+    await dialog.waitFor({ state: "hidden" });
+    await open.click();
+    assert.equal(await delay.inputValue(), "6");
+    await page.mouse.click(2, 2);
+    await dialog.waitFor({ state: "hidden" });
+  } finally {
+    await page.close();
+  }
+});
+
+test("the radio station overview deletes a station only after confirmation", async () => {
+  const page = await browser.newPage();
+  try {
+    const catalog = { Jazz: [{ name: "Test Jazz", url: "https://radio.example/jazz" }] };
+    let deletions = 0;
+    await page.route("**/stations", (route) => route.fulfill({ json: catalog }));
+    await page.route("**/api/genres/Jazz/stations/0", (route) => {
+      assert.equal(route.request().method(), "DELETE");
+      deletions++;
+      return route.fulfill({ json: { Jazz: [] } });
+    });
+    await page.goto(baseUrl);
+    await page.getByRole("button", { name: "Play Test Jazz" }).waitFor();
+    const remove = page.getByRole("button", { name: "Delete Test Jazz" });
+    await remove.waitFor();
+    page.once("dialog", (dialog) => dialog.dismiss());
+    await remove.click();
+    assert.equal(deletions, 0);
+    await remove.waitFor();
+    page.once("dialog", (dialog) => dialog.accept());
+    await remove.click();
+    await page.getByText("“Test Jazz” deleted.", { exact: true }).waitFor();
+    assert.equal(deletions, 1);
+    assert.equal(await page.getByRole("button", { name: "Play Test Jazz" }).count(), 0);
+  } finally {
+    await page.close();
+  }
+});

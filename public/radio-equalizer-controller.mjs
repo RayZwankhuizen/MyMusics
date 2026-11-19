@@ -99,11 +99,14 @@ export function createRadioEqualizerController({ getAudio, getStation, getStatio
     let switchedAudio = false;
     try {
       const graph = window.MyMusicsEqualizer.createGraph(audioContext, [replacement], (index) => Number(bands.querySelectorAll("input")[index].value), true);
+      const speechGain = audioContext.createGain();
+      graph.analyser.disconnect(audioContext.destination);
+      graph.analyser.connect(speechGain).connect(audioContext.destination);
       await audioContext.resume();
       if (generation !== getGeneration() || station !== getStation()) { audioContext.close().catch(() => {}); return false; }
       replaceAudio(replacement);
       switchedAudio = true;
-      context = { context: audioContext, analyser: graph.analyser, dryGain: graph.dryGain, wetGain: graph.wetGain, meterAnalysers: graph.meterAnalysers };
+      context = { context: audioContext, source: graph.sources[0], analyser: graph.analyser, dryGain: graph.dryGain, wetGain: graph.wetGain, meterAnalysers: graph.meterAnalysers, speechGain };
       filters = graph.filters;
       ready = true;
       bands.querySelectorAll("input").forEach((input) => { input.disabled = false; });
@@ -160,6 +163,25 @@ export function createRadioEqualizerController({ getAudio, getStation, getStatio
     draw,
     enable,
     reset,
+    getSpeechGain: () => context?.speechGain.gain.value,
+    setSpeechGain(value) {
+      if (!context) return false;
+      context.speechGain.gain.value = value;
+      return true;
+    },
+    createSpeechInput() {
+      if (!ready) return null;
+      const { context: audioContext, source } = context;
+      const input = audioContext.createMediaStreamDestination();
+      source.connect(input);
+      return {
+        stream: input.stream,
+        close() {
+          source.disconnect(input);
+          input.stream.getTracks().forEach((track) => { track.stop(); });
+        }
+      };
+    },
     getMeterLevels() {
       if (!ready || !context?.meterAnalysers?.length) return null;
       return context.meterAnalysers.map((analyser) => {

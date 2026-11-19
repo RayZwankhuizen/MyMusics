@@ -15,6 +15,7 @@
   <script defer src="/playback-target.js?v=host-playback-lease-1"></script>
   <script defer src="/tv-navigation.js?v=tv-navigation-5"></script>
   <link rel="stylesheet" href="/sidebar-footer.css?v=1">
+  <script defer src="/ui-dialogs.js?v=backdrop-1"></script>
 </head>
 <body class="video-page">
   <div class="app-shell video-app-shell">
@@ -55,11 +56,11 @@
       <p class="footnote">YouTube search needs a Data API key. Host audio uses MPV; video stays in the browser.</p>
     </main>
   </div>
-  <dialog id="video-search-dialog" class="video-dialog video-workspace" aria-labelledby="video-search-dialog-title">
+  <dialog closedby="any" id="video-search-dialog" class="video-dialog video-workspace" aria-labelledby="video-search-dialog-title">
     <header class="video-dialog-heading"><h2 id="video-search-dialog-title">Search YouTube</h2><button type="button" data-close-video-dialog>Close</button></header>
     <div class="video-dialog-body" id="video-search-dialog-body"><p id="video-search-status" role="status" aria-live="polite">Search for videos or playlists.</p></div>
   </dialog>
-  <dialog id="video-queue-dialog" class="video-dialog video-workspace" aria-labelledby="video-queue-dialog-title">
+  <dialog closedby="any" id="video-queue-dialog" class="video-dialog video-workspace" aria-labelledby="video-queue-dialog-title">
     <header class="video-dialog-heading"><h2 id="video-queue-dialog-title">YouTube queue</h2><button type="button" data-close-video-dialog>Close</button></header>
     <div class="video-dialog-body" id="video-queue-dialog-body"></div>
   </dialog>

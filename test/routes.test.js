@@ -112,6 +112,21 @@ test("station routes validate, persist, and expose edits", async (t) => {
   assert.equal(added.status, 200);
   assert.equal(added.body.Jazz[0].name, "Local FM");
   assert.equal(added.body.Jazz[0].speechVolumePercent, 30);
+  assert.equal(added.body.Jazz[0].speechReleaseDelaySeconds, 3);
+
+  const station = { name: "Local FM", url: "https://radio.example/stream", type: "mp3" };
+  const stationPath = "/api/genres/Jazz/stations/0";
+  const updated = await request(base, stationPath, {
+    method: "PUT", body: { ...station, speechReleaseDelaySeconds: 0 }
+  });
+  assert.equal(updated.status, 200);
+  assert.equal(updated.body.Jazz[0].speechReleaseDelaySeconds, 0);
+  const invalidDelay = await request(base, stationPath, {
+    method: "PUT", body: { ...station, speechReleaseDelaySeconds: -1 }
+  });
+  assert.equal(invalidDelay.status, 400);
+  await request(base, stationPath, { method: "PUT", body: station });
+  assert.equal((await request(base, "/stations")).body.Jazz[0].speechReleaseDelaySeconds, 0);
 
   const invalid = await request(base, "/api/genres/Jazz/stations", {
     method: "POST", body: { name: "Bad", url: "file:///etc/passwd", type: "mp3" }

@@ -50,6 +50,10 @@ module.exports = function registerMusicRoutes(app, { jellyfin, playlists, musicG
     try {
       if (type === "playlist") return res.json({ type, results: localPlaylists() });
       if (!jellyfin.configured()) return res.json({ type, results: ["all", "playlist"].includes(type) ? localPlaylists() : [] });
+      const offset = Number(req.query.artistOffset);
+      if (!term && (type === "all" || type === "artist") && Number.isInteger(offset) && offset >= 0 && offset < 300 && jellyfin.artistPage) {
+        return res.json({ type, ...await jellyfin.artistPage(offset) });
+      }
       let results;
       if (!term) results = type === "album" ? await jellyfin.allAlbums(300) : type === "genre" ? await musicGenres.list(jellyfin) : await jellyfin.allArtists(300);
       else if (type === "genre") results = typeof jellyfin.listGenres === "function"

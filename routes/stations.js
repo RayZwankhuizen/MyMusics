@@ -41,6 +41,7 @@ module.exports = function registerStationRoutes(app, { storage }) {
     }
     if (body?.favorite !== undefined && typeof body.favorite !== "boolean") return { error: "Favorite must be true or false." };
     const speechVolumePercent = body?.speechVolumePercent === undefined ? 30 : Number(body.speechVolumePercent);
+    const speechReleaseDelaySeconds = body?.speechReleaseDelaySeconds === undefined ? 3 : body.speechReleaseDelaySeconds;
     const equalizerPreset = body?.equalizerPreset;
     const image = body?.image;
     let parsedUrl;
@@ -51,11 +52,12 @@ module.exports = function registerStationRoutes(app, { storage }) {
     if (website && (website.length > 2048 || !parsedWebsite || !["http:", "https:"].includes(parsedWebsite.protocol) || parsedWebsite.username || parsedWebsite.password)) return { error: "Enter a valid HTTP or HTTPS station website." };
     if (image !== undefined && image !== "" && !storage.hasStationImage(image)) return { error: "Choose a valid station logo." };
     if (!Number.isInteger(speechVolumePercent) || speechVolumePercent < 0 || speechVolumePercent > 100) return { error: "Speech/ad volume must be a whole percentage from 0 to 100." };
+    if (!Number.isInteger(speechReleaseDelaySeconds) || speechReleaseDelaySeconds < 0 || speechReleaseDelaySeconds > 60) return { error: "Speech release delay must be a whole number from 0 to 60 seconds." };
     if (equalizerPreset !== undefined && !["flat", "pop", "rock", "classical", "jazz", "electronic", "spoken", "country"].includes(equalizerPreset)) return { error: "Choose a valid equalizer preset." };
     if (!parsedUrl || !["http:", "https:"].includes(parsedUrl.protocol)) return { error: "Enter a valid HTTP or HTTPS stream URL." };
     if (!["mp3", "hls"].includes(type)) return { error: "Stream type must be mp3 or hls." };
     if (type === "hls" && !parsedUrl.pathname.toLowerCase().endsWith(".m3u8")) return { error: "HLS streams must use a .m3u8 URL." };
-    return { station: { name, url, type, favorite: body?.favorite === true, speechVolumePercent, ...(website ? { website } : {}), ...(equalizerPreset ? { equalizerPreset } : {}), ...(image ? { image } : {}) } };
+    return { station: { name, url, type, favorite: body?.favorite === true, speechVolumePercent, speechReleaseDelaySeconds, ...(website ? { website } : {}), ...(equalizerPreset ? { equalizerPreset } : {}), ...(image ? { image } : {}) } };
   }
 
   app.post("/api/station-images/find", async (req, res) => {
@@ -233,6 +235,7 @@ module.exports = function registerStationRoutes(app, { storage }) {
     const result = stationFrom(req.body);
     if (result.error) return res.status(400).json({ error: result.error });
     if (req.body?.favorite === undefined) result.station.favorite = stations[genre][index].favorite === true;
+    if (req.body?.speechReleaseDelaySeconds === undefined) result.station.speechReleaseDelaySeconds = stations[genre][index].speechReleaseDelaySeconds ?? 3;
     if (targetGenre === genre) {
       const list = [...stations[genre]];
       list[index] = result.station;

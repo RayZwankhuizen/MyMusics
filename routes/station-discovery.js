@@ -171,7 +171,7 @@ async function radioBrowserSearch(searches, { countrycode = "", limit = 60, orde
         const response = await fetch(`${endpoint}/json/stations/search?${query}`, { headers: { "User-Agent": "MyMusics/1.0 (station discovery)" }, signal: AbortSignal.timeout(Math.min(6000, remaining)) });
         if (!response.ok) throw new Error(`Radio directory returned ${response.status}.`);
         matches.push(...await response.json());
-      } catch (error) { lastError = new Error(`${endpoint}: ${error.code || error.message || "request failed"}`); retry.push(filter); }
+      } catch (error) { lastError = new Error(`${endpoint}: ${error.code || error.message || "request failed"}`, { cause: error }); retry.push(filter); }
     }
     pending = retry;
     if (!pending.length) break;

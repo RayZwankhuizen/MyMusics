@@ -146,10 +146,7 @@ test("music search form submits a query and renders its result", async () => {
   assert.equal(await page.evaluate(() => typeof window.MyMusicsPlayback?.isHost), "boolean");
   const infoDialog = page.locator("#jb-search-dialog");
   await infoDialog.evaluate((dialog) => dialog.showModal());
-  await infoDialog.evaluate((dialog) => {
-    const box = dialog.getBoundingClientRect();
-    dialog.dispatchEvent(new MouseEvent("click", { bubbles: true, detail: 1, clientX: box.right + 1, clientY: box.bottom + 1 }));
-  });
+  await page.mouse.click(2, 2);
   assert.equal(await infoDialog.evaluate((dialog) => dialog.open), false);
   await page.locator("#left-search-dialog").evaluate((dialog) => dialog.showModal());
   await page.locator("#music-search-type").selectOption("track");
@@ -308,6 +305,73 @@ test("queue actions reorder and remove tracks", async () => {
     assert.deepEqual(await titles.allTextContents(), ["Test Song", "Second Song"]);
     await rows.nth(1).getByRole("button", { name: "Remove" }).click();
     assert.deepEqual(await titles.allTextContents(), ["Test Song"]);
+  } finally {
+    await page.close();
+  }
+});
+
+test("Browse music loads the next artist page only on request", async () => {
+  const page = await browser.newPage();
+  const offsets = [];
+  try {
+    await page.route("**/api/**", async (route) => {
+      const url = new URL(route.request().url());
+      let body = {};
+      if (url.pathname === "/api/music/search" && url.searchParams.get("type") === "all") {
+        const offset = url.searchParams.get("artistOffset");
+        offsets.push(offset);
+        body = offset === "0"
+          ? { results: [{ kind: "artist", id: "first", title: "First artist" }], nextOffset: 40 }
+          : { results: [{ kind: "artist", id: "second", title: "Second artist" }], nextOffset: null };
+      }
+      await route.fulfill({ json: body });
+    });
+    await page.goto(`${baseUrl}/music.html`);
+    await page.getByRole("button", { name: "Browse music" }).click();
+    const rack = page.locator("#jb-rack-list");
+    await rack.getByRole("button", { name: "First artist" }).waitFor();
+    assert.deepEqual(offsets, ["0"]);
+    await rack.getByRole("button", { name: "Load more artists" }).click();
+    await page.waitForFunction(() => document.activeElement.textContent === "Second artist");
+    assert.deepEqual(await rack.getByRole("button").allTextContents(), ["First artist", "Second artist"]);
+    assert.deepEqual(offsets, ["0", "40"]);
+  } finally {
+    await page.close();
+  }
+});
+
+test("lyrics highlight and scroll on browsers without Array.at", async () => {
+  const page = await browser.newPage();
+  try {
+    await page.route(`${baseUrl}/lyrics-test`, (route) => route.fulfill({ contentType: "text/html", body: "<!doctype html>" }));
+    await page.goto(`${baseUrl}/lyrics-test`);
+    await page.setContent('<link rel="stylesheet" href="/style.css"><div id="lines" class="lyrics-content" style="height:100px"></div><progress></progress><p></p>');
+    const result = await page.evaluate(async () => {
+      const { renderSyncedLyrics } = await import("/radio-lyrics-view.mjs");
+      const arrayAt = Array.prototype.at;
+      Array.prototype.at = undefined;
+      let currentTime = 0;
+      const content = document.querySelector("#lines");
+      let timer;
+      try {
+        timer = renderSyncedLyrics({
+          lines: Array.from({ length: 8 }, (_, time) => ({ time, text: `Line ${time}` })),
+          content,
+          progress: document.querySelector("progress"),
+          status: document.querySelector("p"),
+          elapsedTime: () => currentTime,
+          lineDelay: () => 0
+        });
+        currentTime = 6;
+        await new Promise((resolve) => setTimeout(resolve, 250));
+        return { active: content.querySelector('[aria-current="true"]')?.textContent, scrollTop: content.scrollTop };
+      } finally {
+        clearInterval(timer);
+        Array.prototype.at = arrayAt;
+      }
+    });
+    assert.equal(result.active, "Line 6");
+    assert.ok(result.scrollTop > 0);
   } finally {
     await page.close();
   }
@@ -660,10 +724,7 @@ test("radio playback renders metadata from the active station event stream", asy
     "[00:02.00]Second line\n[00:01.5]First line"
   )), [{ time: 1.5, text: "First line" }, { time: 2, text: "Second line" }]);
   await page.locator("#radio-search-open").click();
-  await page.locator("#radio-search-dialog").evaluate((dialog) => {
-    const box = dialog.getBoundingClientRect();
-    dialog.dispatchEvent(new MouseEvent("click", { bubbles: true, detail: 1, clientX: box.right + 1, clientY: box.bottom + 1 }));
-  });
+  await page.mouse.click(2, 2);
   assert.equal(await page.locator("#radio-search-dialog").evaluate((dialog) => dialog.open), false);
   await page.locator("#radio-search-open").click();
   await page.locator("#radio-search").fill("test");

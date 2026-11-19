@@ -32,7 +32,7 @@ export function renderSyncedLyrics({ lines, content, progress, status, elapsedTi
       // Reserve the same space while waiting for the first timestamp too.
       // Space at both ends lets even the first and last lines sit in the middle.
       content.style.paddingTop = `${Math.max(0, (content.clientHeight - elements[0].offsetHeight) / 2)}px`;
-      content.style.paddingBottom = `${Math.max(0, (content.clientHeight - elements.at(-1).offsetHeight) / 2)}px`;
+      content.style.paddingBottom = `${Math.max(0, (content.clientHeight - elements[elements.length - 1].offsetHeight) / 2)}px`;
       const line = elements[Math.max(0, active)].getBoundingClientRect();
       const box = content.getBoundingClientRect();
       content.scrollTop += line.top + line.height / 2 - (box.top + content.clientTop + content.clientHeight / 2);

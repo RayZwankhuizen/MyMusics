@@ -3,7 +3,7 @@ import { createMusicSearch, wireMusicSearchEvents } from "./music-search.mjs";
 import { wirePlaybackLifecycleEvents, wireMusicPlaybackTargetChange, wireJukeboxPlayerEvents, wireDeckSeekEvents, wireDeckPlaybackControls, createDeckEndedHandler } from "./music-playback-events.mjs?v=player-layout-1";
 import { createMusicEqualizer } from "./music-equalizer.mjs?v=stereo-meter-1";
 import { createMusicInfoView, createMusicResultView } from "./music-library-views.mjs";
-import { createJukeboxRack, createJukeboxSearch } from "./jukebox-browser.mjs?v=tv-remote-1";
+import { createJukeboxRack, createJukeboxSearch } from "./jukebox-browser.mjs?v=artist-pages-1";
 import { createMusicDeckState, createMusicDeckPreload, createMusicDeckTransition } from "./music-decks.mjs";
 import { createMusicTrackPlayback } from "./music-track-playback.mjs";
 import { createMusicQueueView } from "./music-queue-view.mjs";
@@ -406,7 +406,7 @@ function wireEvents() {
   wireMusicAutoDj({ el, state, fillQueue, renderQueue, setStatus });
 
   wireMusicSearchEvents({ el, search: musicSearch });
-  wireMusicDialogEvents({ el, closeOnBackdropClick: window.MyMusicsUI.closeOnBackdropClick });
+  wireMusicDialogEvents({ el });
   wireMusicRefreshEvents({ el, jbState, loadJukeboxTab, runJukeboxSearch });
 
   wireMusicGenrePulldown({ el, emptyRow, resultRow: musicResultView.row });
@@ -441,9 +441,6 @@ async function init() {
     renderJukeboxNow();
     await queuePlaylist(playlistId, { shuffle: params.get("shuffle") === "1" });
   } else {
-    // With an empty search term, All lists the artists in the library.
-    musicSearch("", "all");
-    // The jukebox is the main screen, so its rack is filled right away.
     renderJukeboxNow();
     jbSelectTab(jbState.tab);
   }

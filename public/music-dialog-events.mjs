@@ -1,4 +1,4 @@
-export function wireMusicDialogEvents({ el, closeOnBackdropClick }) {
+export function wireMusicDialogEvents({ el }) {
   const infoClose = el("#info-close");
   if (infoClose) {
     infoClose.addEventListener("click", () => {
@@ -15,6 +15,4 @@ export function wireMusicDialogEvents({ el, closeOnBackdropClick }) {
       window.MyMusicsUI.closeDialog(leftSearchDialog);
     });
   }
-
-  document.querySelectorAll("dialog").forEach(closeOnBackdropClick);
 }

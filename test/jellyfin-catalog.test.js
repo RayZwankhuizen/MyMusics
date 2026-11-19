@@ -150,6 +150,22 @@ test("artist listing removes folders and nested artist folders", async () => {
   });
 });
 
+test("artist paging uses the unfiltered Jellyfin offset", async () => {
+  const rows = Array.from({ length: 42 }, (_, id) => ({ Id: String(id), IsFolder: id === 0 }));
+  await withJellyfin((url) => {
+    const offset = Number(url.searchParams.get("StartIndex"));
+    const limit = Number(url.searchParams.get("Limit"));
+    return items(...rows.slice(offset, offset + limit));
+  }, async () => {
+    const first = await jellyfin.artistPage(0);
+    assert.equal(first.results.length, 39);
+    assert.equal(first.nextOffset, 40);
+    const second = await jellyfin.artistPage(first.nextOffset);
+    assert.deepEqual(second.results.map(({ id }) => id), ["40", "41"]);
+    assert.equal(second.nextOffset, null);
+  });
+});
+
 test("combined search prioritizes an exact genre and tolerates a failed category", async () => {
   await withJellyfin((url) => {
     if (url.pathname === "/MusicGenres") return { body: [

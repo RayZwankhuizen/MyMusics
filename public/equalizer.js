@@ -108,7 +108,7 @@ window.MyMusicsEqualizer = Object.freeze({
     }
     wetGain.connect(analyser);
     analyser.connect(context.destination);
-    return { analyser, dryGain, wetGain, filters, meterAnalysers, meterAnalyserSets };
+    return { sources, analyser, dryGain, wetGain, filters, meterAnalysers, meterAnalyserSets };
   },
   setEnabled({ context, dryGain, wetGain }, button, enabled) {
     const time = context.currentTime;
