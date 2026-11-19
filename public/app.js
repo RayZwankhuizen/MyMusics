@@ -1,10 +1,10 @@
 import { inferMetadataKind as classifyMetadataKind, isProgramMetadata as classifyProgramMetadata, metadataTrack } from "./radio-metadata-kind.mjs";
 import { defaultRadioEqualizerPreset } from "./radio-equalizer-preset.mjs";
-import { createRadioStationView } from "./radio-station-view.mjs?v=station-delete-2";
+import { createRadioStationView } from "./radio-station-view.mjs?v=favorites-view-1";
 import { createRadioStationManagement } from "./radio-station-management.mjs?v=station-delete-1";
 import { createRadioSpeechDetector } from "./radio-speech-detector.mjs?v=speech-audio-1";
 import { createRadioSuppressionStore, metadataBlockKey as buildMetadataBlockKey, speechTrackKey } from "./radio-suppression-store.mjs";
-import { fetchTrackMetadata } from "./radio-track-metadata-api.mjs";
+import { fetchTrackMetadata } from "./radio-track-metadata-api.mjs?v=lyrics-version-1";
 import { createRadioMetadataView } from "./radio-metadata-view.mjs";
 import { createRadioTrackDetailsView } from "./radio-track-details-view.mjs?v=optional-genius-1";
 import { createRadioHostOutput } from "./radio-host-output.mjs?v=radio-output-focus-1";
@@ -12,14 +12,14 @@ import { createRadioNowPlaying } from "./radio-now-playing.mjs";
 import { createRadioEqualizerController } from "./radio-equalizer-controller.mjs?v=speech-audio-1";
 import { createRadioHlsPlayback } from "./radio-hls-playback.mjs";
 import { createRadioBrowserPlayback } from "./radio-browser-playback.mjs?v=speech-timing-1";
-import { createRadioLyricsController } from "./radio-lyrics-controller.mjs?v=shared-lyrics-2";
-import { createRadioSuppressionController } from "./radio-suppression-controller.mjs?v=speech-audio-1";
+import { createRadioLyricsController } from "./radio-lyrics-controller.mjs?v=lyrics-step-1";
+import { createRadioSuppressionController } from "./radio-suppression-controller.mjs?v=speech-fade-1";
 import { wireRadioSpeechVolumeSettings } from "./radio-speech-volume-settings.mjs?v=speech-settings-2";
-import { createRadioStationCatalog } from "./radio-station-catalog.mjs";
-import { createRadioTrackUpdates } from "./radio-track-updates.mjs";
+import { createRadioStationCatalog } from "./radio-station-catalog.mjs?v=favorites-view-1";
+import { createRadioTrackUpdates } from "./radio-track-updates.mjs?v=speech-fade-1";
 import { createRadioSuppressionControls } from "./radio-suppression-controls.mjs?v=speech-settings-2";
 import { createRadioStationPlayback } from "./radio-station-playback.mjs?v=radio-output-focus-1";
-import { createRadioTrackLookup } from "./radio-track-lookup.mjs";
+import { createRadioTrackLookup } from "./radio-track-lookup.mjs?v=speech-fade-1";
 import { createRadioAudioOutput } from "./radio-audio-output.mjs";
 import { wireRadioPlayerBar } from "./radio-player-bar.mjs?v=radio-output-focus-1";
 
@@ -42,14 +42,18 @@ let trackStartedAt = null;
 const suppressionStore = createRadioSuppressionStore();
 const { disabledStations: speechSuppressionDisabledStations } = suppressionStore;
 const el = (selector) => document.querySelector(selector);
+const radioTrackElapsed = () => (trackStartedAt ? Math.max(0, (Date.now() - Date.parse(trackStartedAt)) / 1000) : (performance.now() - lyricsStartedAt) / 1000) + lyricsSyncOffset;
 const isProgramMetadata = (track, station = activeStation) => classifyProgramMetadata(track, station);
 const metadataBlockKey = (fields, raw, stationUrl = activeStation?.url) => buildMetadataBlockKey(fields, raw, stationUrl);
 const trackDetailsView = createRadioTrackDetailsView({ isCurrent: (key) => key === lookupKey });
 const lyricsController = createRadioLyricsController({
   isCurrent: (key) => key === lookupKey,
   getTrackKey: speechTrackKey,
+  getCorrectionKey: (artist, title) => activeStation?.url
+    ? `mymusics:lyrics-correction:${JSON.stringify([activeStation.url, speechTrackKey(artist, title)])}`
+    : null,
   parseSynced: (value) => window.MyMusicsLyrics.parseSynced(value),
-  elapsedTime: () => (trackStartedAt ? Math.max(0, (Date.now() - Date.parse(trackStartedAt)) / 1000) : (performance.now() - lyricsStartedAt) / 1000) + lyricsSyncOffset,
+  elapsedTime: radioTrackElapsed,
   onConfirmedTrack: (key) => suppressionController.confirmTrack(key)
 });
 const radioEqualizer = createRadioEqualizerController({
@@ -70,7 +74,11 @@ const hlsPlayback = createRadioHlsPlayback({
   getAudio: radioAudioOutput.getAudio,
   setStatus,
   onMetadata: appendMetadataBlock,
-  onTrack: (artist, title) => { trackStartedAt = null; setTrackStartStatus(false); lookupTrack(artist, title); }
+  onTrack: (artist, title) => {
+    if (artist && title && !isProgramMetadata({ artist, title })) trackStartedAt = null;
+    setTrackStartStatus(false);
+    lookupTrack(artist, title);
+  }
 });
 const browserPlayback = createRadioBrowserPlayback({
   getAudio: radioAudioOutput.getAudio,
@@ -104,10 +112,13 @@ suppressionController = createRadioSuppressionController({
   setSpeechGain: radioEqualizer.setSpeechGain,
   isEnabled: () => Boolean(activeStation && activeStation.type !== "hls"
     && !/\.m3u8(?:$|[?#])/i.test(activeStation.url) && !speechSuppressionDisabledStations.has(activeStation.url)),
+  getTrackElapsedSeconds: radioTrackElapsed,
+  isHostOutput: () => window.MyMusicsPlayback?.isHost === true,
   getMetadataKey: metadataBlockKey,
   getTrackKey: speechTrackKey
 });
 suppressionController.bindAudioVolumeChange();
+window.addEventListener("mymusics:playback-target-change", suppressionController.renderStatus);
 const updateSpeechSuppressionButton = createRadioSuppressionControls({
   getStation: () => activeStation,
   disabledStations: speechSuppressionDisabledStations,
@@ -156,11 +167,11 @@ const trackLookup = createRadioTrackLookup({
   setKey: (key) => { lookupKey = key; },
   isProgramMetadata,
   setCurrentTrack: setCurrentSpeechTrack,
-  setTrackStartedAt: (value) => { trackStartedAt = value; },
   setTrackStartStatus,
   lyrics: lyricsController,
   startLyrics: () => { lyricsStartedAt = performance.now(); lyricsSyncOffset = 0; },
   fetchMetadata: fetchTrackMetadata,
+  onTrackDuration: (artist, title, durationMs) => suppressionController.setTrackDuration(speechTrackKey(artist, title), durationMs),
   trackDetailsView
 });
 function showProgramMetadata(track) { trackLookup.showProgramMetadata(track); }
@@ -171,7 +182,7 @@ wireRadioSpeechVolumeSettings({
   setStations: (stations) => stationCatalog.setStations(stations),
   setActiveStation: (station, genre) => { activeStation = station; activeStationGenre = genre; },
   isDucked: () => suppressionController.ducked,
-  applyPercent: (percent) => suppressionController.setVolume(suppressionController.preferredVolume * percent / 100),
+  applyPercent: () => suppressionController.setDucked(true),
   renderStations,
   updateSuppressionButton: updateSpeechSuppressionButton
 });
@@ -213,7 +224,7 @@ function renderPlayerFavorite() {
   playerFavorite.textContent = favorite ? "★" : "☆";
   playerFavorite.setAttribute("aria-pressed", String(favorite));
   playerFavorite.setAttribute("aria-label", station ? `${station.name} favorite` : "Favorite station");
-  playerFavorite.title = favorite ? "Remove from Favorites" : "Add to Favorites";
+  playerFavorite.title = station ? `${favorite ? "Remove" : "Add"} ${station.name} ${favorite ? "from" : "to"} Favorites` : "Favorite station";
 }
 
 playerFavorite.addEventListener("click", async () => {
@@ -360,10 +371,8 @@ function appendMetadataBlock(data) { metadataView.append(data); }
 
 async function start() {
   try {
-    const stations = await stationCatalog.load();
-    renderGenreNav();
-    const firstGenre = Object.keys(stations)[0];
-    if (firstGenre) chooseGenre(firstGenre);
+    await stationCatalog.load();
+    stationCatalog.restoreView();
   } catch (error) {
     console.error("Could not load stations:", error);
     stationList.textContent = `${error.message || "Stations could not be loaded."} Try refreshing the page.`;

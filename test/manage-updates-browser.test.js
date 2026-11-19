@@ -162,14 +162,14 @@ test("radio and music maintenance share one page and old playlist links redirect
   await page.close();
 });
 
-test("station search finds results, marks duplicates, and adds a new station", async () => {
+test("station-name search lets the user add a station to an existing genre", async () => {
   const page = await browser.newPage();
   const requests = [];
   await page.route("**/*", async (route) => {
     const request = route.request();
     const url = new URL(request.url());
     if (url.pathname === "/stations") {
-      await route.fulfill({ contentType: "application/json", body: JSON.stringify({ Jazz: [{ name: "Existing", url: "https://radio.example/existing" }] }) });
+      await route.fulfill({ contentType: "application/json", body: JSON.stringify({ Jazz: [{ name: "Existing", url: "https://radio.example/existing" }], "NL - Rock": [] }) });
       return;
     }
     if (url.pathname === "/api/update") {
@@ -180,18 +180,13 @@ test("station search finds results, marks duplicates, and adds a new station", a
       requests.push({ path: url.pathname, query: url.searchParams.toString() });
       await route.fulfill({ contentType: "application/json", body: JSON.stringify([
         { name: "Existing", url: "https://radio.example/existing", type: "mp3", country: "NL", tags: "jazz" },
-        { name: "New Radio", url: "https://radio.example/new", type: "hls", website: "https://radio.example", country: "NL", tags: "rock" }
+        { name: "40rock", url: "https://radio.example/live.m3u8", type: "hls", website: "https://radio.example", country: "NL", tags: "rock" }
       ]) });
-      return;
-    }
-    if (url.pathname === "/api/genres" && request.method() === "POST") {
-      requests.push({ path: url.pathname, body: request.postDataJSON() });
-      await route.fulfill({ contentType: "application/json", body: JSON.stringify({ Jazz: [{ name: "Existing", url: "https://radio.example/existing" }], "NL - Rock": [] }) });
       return;
     }
     if (url.pathname === "/api/genres/NL%20-%20Rock/stations" && request.method() === "POST") {
       requests.push({ path: url.pathname, body: request.postDataJSON() });
-      await route.fulfill({ contentType: "application/json", body: JSON.stringify({ Jazz: [{ name: "Existing", url: "https://radio.example/existing" }], "NL - Rock": [{ name: "New Radio", url: "https://radio.example/new" }] }) });
+      await route.fulfill({ contentType: "application/json", body: JSON.stringify({ Jazz: [{ name: "Existing", url: "https://radio.example/existing" }], "NL - Rock": [{ name: "40rock", url: "https://radio.example/live.m3u8" }] }) });
       return;
     }
     await route.continue();
@@ -199,16 +194,28 @@ test("station search finds results, marks duplicates, and adds a new station", a
 
   await page.goto(`${baseUrl}/manage.html`);
   await page.locator('#station-search-form input[name="countrycode"]').fill("nl");
-  await page.locator('#station-search-form input[name="tag"]').fill("rock");
+  await page.locator('#station-search-form input[name="tag"]').fill("40rock");
   await page.locator("#station-search-form button").click();
-  await page.getByRole("button", { name: "Add to NL - Rock" }).waitFor();
-  assert.equal(await page.getByRole("button", { name: "Added" }).isDisabled(), true);
-  await page.getByRole("button", { name: "Add to NL - Rock" }).click();
-  await page.waitForFunction(() => document.querySelector("#notice")?.textContent === "New Radio added to NL - Rock.");
+  const results = page.locator("#station-search-results");
+  await results.getByRole("button", { name: "Add station", exact: true }).click();
+  const editor = page.getByRole("dialog", { name: "Add a station" });
+  await editor.waitFor();
+  assert.equal(await editor.getByLabel("Station name", { exact: true }).first().inputValue(), "40rock");
+  assert.equal(await editor.getByLabel("Stream URL", { exact: true }).inputValue(), "https://radio.example/live.m3u8");
+  assert.equal(await editor.getByLabel("Stream type").inputValue(), "hls");
+  const destination = editor.getByLabel("Genre", { exact: true });
+  assert.equal(await destination.inputValue(), "Jazz");
+  await destination.selectOption("NL - Rock");
+  assert.equal(await results.getByRole("button", { name: "In Jazz", exact: true }).isDisabled(), true);
+  assert.equal(requests.length, 1, "opening the editor does not add the station");
+  await editor.getByRole("button", { name: "Add station", exact: true }).click();
+  await editor.waitFor({ state: "hidden" });
+  await page.waitForFunction(() => document.querySelector("#notice")?.textContent === "Station added.");
+  assert.equal(await results.getByRole("button", { name: "In NL - Rock", exact: true }).isDisabled(), true);
+  assert.equal(await page.locator("#stations-heading").textContent(), "NL - Rock");
   assert.deepEqual(requests, [
-    { path: "/api/station-search", query: "countrycode=NL&tag=rock" },
-    { path: "/api/genres", body: { name: "NL - Rock" } },
-    { path: "/api/genres/NL%20-%20Rock/stations", body: { name: "New Radio", url: "https://radio.example/new", type: "hls", website: "https://radio.example", speechVolumePercent: 30 } }
+    { path: "/api/station-search", query: "countrycode=NL&tag=40rock" },
+    { path: "/api/genres/NL%20-%20Rock/stations", body: { name: "40rock", url: "https://radio.example/live.m3u8", type: "hls", website: "https://radio.example", speechVolumePercent: 30, speechReleaseDelaySeconds: 3, genre: "NL - Rock", image: "" } }
   ]);
   await page.close();
 });
@@ -328,7 +335,7 @@ test("stream search previews HLS and fills the station stream fields", async () 
       return;
     }
     if (url.pathname === "/api/stream-search") {
-      searches.push(url.searchParams.get("name"));
+      searches.push({ name: url.searchParams.get("name"), countrycode: url.searchParams.get("countrycode") });
       await route.fulfill({ contentType: "application/json", body: JSON.stringify([
         { name: "Test FM", url: "https://radio.example/live.m3u8", type: "hls", website: "https://radio.example", country: "NL", codec: "AAC", bitrate: 128, clickcount: 25 },
         { name: "Test MP3", url: "https://radio.example/live.mp3", type: "mp3", website: "https://radio.example", country: "NL", codec: "MP3", bitrate: 128, clickcount: 10 }
@@ -344,7 +351,8 @@ test("stream search previews HLS and fills the station stream fields", async () 
   await page.locator("#stream-finder summary").click();
   await page.locator("#stream-search-name").waitFor();
   await page.waitForFunction(() => document.querySelector("#stream-search-name")?.value === "Test Radio");
-  await page.locator("#stream-search-button").click();
+  await page.locator("#stream-search-country").fill("nl");
+  await page.locator("#stream-search-country").press("Enter");
   const preview = page.locator('#stream-search-results button[aria-label="Preview Test FM"]');
   await preview.waitFor();
   await preview.click();
@@ -358,8 +366,10 @@ test("stream search previews HLS and fills the station stream fields", async () 
   assert.equal(await page.locator("#stream-preview").getAttribute("src"), "https://radio.example/live.mp3");
   await mp3Preview.click();
   await page.waitForFunction(() => document.querySelector("#stream-search-status")?.textContent === "Preview stopped.");
+  await page.locator("#stream-search-name").fill("");
+  await page.locator("#stream-search-button").click();
   await page.getByRole("button", { name: "Use Test FM stream" }).click();
-  assert.deepEqual(searches, ["Test Radio"]);
+  assert.deepEqual(searches, [{ name: "Test Radio", countrycode: "NL" }, { name: "", countrycode: "NL" }]);
   assert.equal(await page.locator("#station-url").inputValue(), "https://radio.example/live.m3u8");
   assert.equal(await page.locator("#station-type").inputValue(), "hls");
   assert.equal(await page.locator("#station-website").inputValue(), "https://radio.example");

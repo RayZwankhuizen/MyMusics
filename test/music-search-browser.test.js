@@ -377,6 +377,40 @@ test("lyrics highlight and scroll on browsers without Array.at", async () => {
   }
 });
 
+test("lyrics without timestamps follow an estimated pace after selecting a line", async () => {
+  const page = await browser.newPage();
+  try {
+    await page.route(`${baseUrl}/lyrics-test`, (route) => route.fulfill({ contentType: "text/html", body: "<!doctype html>" }));
+    await page.goto(`${baseUrl}/lyrics-test`);
+    await page.setContent('<link rel="stylesheet" href="/style.css"><div id="lines" class="lyrics-content" style="height:80px"></div><progress hidden></progress><p role="status"></p>');
+    await page.evaluate(async () => {
+      const { renderPlainLyrics } = await import("/radio-lyrics-view.mjs");
+      window.lyricsTestTime = 30;
+      renderPlainLyrics({
+        lyrics: { plainLyrics: "First line\n\nSecond line\r\nThird line\nFourth line" },
+        content: document.querySelector("#lines"),
+        progress: document.querySelector("progress"),
+        status: document.querySelector("p"),
+        elapsedTime: () => window.lyricsTestTime,
+        lineDelay: () => 0
+      });
+    });
+    const lines = page.locator("#lines .lyric-line");
+    assert.equal(await lines.count(), 4);
+    assert.equal(await page.locator("#lines [aria-current]").count(), 0);
+    await lines.nth(1).press("Enter");
+    assert.equal(await page.locator("#lines [aria-current]").textContent(), "Second line");
+    assert.match(await page.getByRole("status").textContent(), /^Estimated timing/);
+    await page.evaluate(() => { window.lyricsTestTime += 4; });
+    await page.waitForFunction(() => document.querySelector("#lines [aria-current]")?.textContent === "Third line");
+    assert.ok(await page.locator("#lines").evaluate((content) => content.scrollTop > 0));
+    await lines.first().click();
+    assert.equal(await page.locator("#lines [aria-current]").textContent(), "First line");
+  } finally {
+    await page.close();
+  }
+});
+
 test("jukebox search submits the active rack and renders results", async () => {
   const page = await browser.newPage();
   const queries = [];
@@ -712,11 +746,14 @@ test("radio playback renders metadata from the active station event stream", asy
     contentType: "application/json",
     body: JSON.stringify({ trackTitle: "Test Track", album: "Test Album", year: 2026, durationMs: 1_500, tags: [], coverArt: "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" })
   }));
-  await page.route(/\/lyrics(?:\?|$)/, (route) => route.fulfill({
-    status: 200,
-    contentType: "application/json",
-    body: JSON.stringify({ syncedLyrics: "[00:00.00]Test lyric\n[00:01.00]Second line" })
-  }));
+  await page.route(/\/lyrics(?:\?|$)/, (route) => {
+    const params = new URL(route.request().url()).searchParams;
+    assert.equal(params.get("album"), "Test Album");
+    assert.equal(params.get("durationMs"), "1500");
+    return route.fulfill({
+      json: { source: "LRCLIB", albumName: "Selected Release", duration: 2, syncedLyrics: "[00:00.00]Test lyric\n[00:01.00]Second line" }
+    });
+  });
 
   await page.goto(`${baseUrl}/index.html`);
   await assertEqualizerHelpers(page);
@@ -757,8 +794,30 @@ test("radio playback renders metadata from the active station event stream", asy
   await page.locator("#lyrics-content .lyric-line").nth(1).waitFor();
   assert.deepEqual(await page.locator("#lyrics-content .lyric-line").allTextContents(), ["Test lyric", "Second line"]);
   assert.equal(await page.locator("#lyrics-progress").getAttribute("max"), "2");
+  assert.equal(await page.locator("#lyrics-source").textContent(), "LRCLIB · Selected Release · 0:02");
+  const delayOutput = page.locator("#lyrics-delay");
+  await page.getByRole("button", { name: "Show each lyrics line 500 milliseconds earlier", exact: true }).click();
+  assert.equal(await delayOutput.textContent(), "-200 ms");
+  await page.getByRole("button", { name: "Show each lyrics line 500 milliseconds later", exact: true }).click();
+  assert.equal(await delayOutput.textContent(), "300 ms");
+  await page.getByRole("button", { name: "Show each lyrics line 50 milliseconds later", exact: true }).click();
+  assert.equal(await delayOutput.textContent(), "350 ms");
+  await page.getByRole("button", { name: "Show each lyrics line 50 milliseconds earlier", exact: true }).click();
+  assert.equal(await delayOutput.textContent(), "300 ms");
   assert.match(await page.locator("#metadata-blocks").innerText(), /TRACK UPDATE/);
   assert.deepEqual(await page.locator("#metadata-stream-info span").allInnerTexts(), ["ICY interval: 16000 bytes", "icy-name: Test Radio"]);
+  const rememberTiming = page.getByRole("checkbox", { name: "Remember timing for this song on this station" });
+  assert.equal(await rememberTiming.isVisible(), false);
+  await page.evaluate(() => window.nowPlayingTestSource.emit("track", {
+    artist: "Test Artist", title: "Test Track",
+    startTime: new Date(Date.now() - 5000).toISOString(), startTimeSent: true
+  }));
+  await page.getByRole("button", { name: "Start sync at: Second line" }).click();
+  const timingAmount = page.locator("#lyrics-correction-amount");
+  const savedTiming = await timingAmount.textContent();
+  assert.match(savedTiming, /^Lyrics [0-9.]+ s later$/);
+  assert.equal(await rememberTiming.isChecked(), false);
+  await rememberTiming.check();
   await page.evaluate(() => window.nowPlayingTestSource.emit("track", {
     artist: "",
     title: "News bulletin",
@@ -768,6 +827,15 @@ test("radio playback renders metadata from the active station event stream", asy
   await page.waitForFunction(() => document.querySelector("#track-title").textContent === "News bulletin"
     && document.querySelector("#lyrics-status").textContent === "Program information; no lyrics.");
   assert.equal(await page.locator("#lyrics-content .lyric-line").count(), 0);
+  assert.equal(await rememberTiming.isVisible(), false);
+  await page.evaluate(() => window.nowPlayingTestSource.emit("track", {
+    artist: "Test Artist", title: "Test Track", startTime: "", startTimeSent: false
+  }));
+  await rememberTiming.waitFor();
+  assert.equal(await rememberTiming.isChecked(), true);
+  assert.equal(await timingAmount.textContent(), savedTiming);
+  await rememberTiming.uncheck();
+  assert.equal(await page.evaluate(() => Object.keys(localStorage).some((key) => key.startsWith("mymusics:lyrics-correction:"))), false);
   await page.close();
 });
 

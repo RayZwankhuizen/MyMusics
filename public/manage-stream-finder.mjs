@@ -32,23 +32,32 @@ export function wireManageStreamFinder({ el, request }) {
   el("#stream-finder").addEventListener("toggle", (event) => {
     if (event.currentTarget.open && !el("#stream-search-name").value) el("#stream-search-name").value = el("#station-name").value.trim();
   });
-  el("#stream-search-name").addEventListener("keydown", (event) => {
-    if (event.key === "Enter" && !event.isComposing && event.keyCode !== 229) { event.preventDefault(); el("#stream-search-button").click(); }
-  });
+  for (const input of [el("#stream-search-name"), el("#stream-search-country")]) {
+    input.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" || event.isComposing || event.keyCode === 229) return;
+      event.preventDefault();
+      el("#stream-search-button").click();
+    });
+  }
 
   el("#stream-search-button").addEventListener("click", async () => {
     const name = el("#stream-search-name").value.trim();
+    const countrycode = el("#stream-search-country").value.trim().toUpperCase();
     const status = el("#stream-search-status");
     const results = el("#stream-search-results");
     const button = el("#stream-search-button");
-    if (name.length < 2) { status.textContent = "Enter at least two characters of the station name."; return; }
+    if (countrycode && !/^[A-Z]{2}$/.test(countrycode)) { status.textContent = "Enter a two-letter country code, such as NL, US, GB, or ES."; return; }
+    if (!name && !countrycode) { status.textContent = "Enter a station name or a country code."; return; }
+    if (name.length === 1) { status.textContent = "Enter at least two characters of the station name."; return; }
     stopPreview();
     results.replaceChildren();
     status.textContent = "Searching for available streams…";
     button.disabled = true;
     try {
-      const found = await request(`/api/stream-search?${new URLSearchParams({ name })}`);
-      if (!found.length) { status.textContent = "No online streams found. Try another station name."; return; }
+      const query = new URLSearchParams({ name });
+      if (countrycode) query.set("countrycode", countrycode);
+      const found = await request(`/api/stream-search?${query}`);
+      if (!found.length) { status.textContent = "No online streams found. Try a different name or country code."; return; }
       status.textContent = `${found.length} stream${found.length === 1 ? "" : "s"} found. Preview and select one to fill the stream fields.`;
       found.forEach((stream) => {
         const row = document.createElement("article"); row.className = "stream-result";
@@ -113,6 +122,7 @@ export function wireManageStreamFinder({ el, request }) {
     reset() {
       stopPreview();
       el("#stream-search-name").value = "";
+      el("#stream-search-country").value = "";
       el("#stream-search-status").textContent = "";
       el("#stream-search-results").replaceChildren();
       el("#stream-finder").open = false;

@@ -110,7 +110,9 @@
       <input id="station-url" name="url" type="text" inputmode="url" autocapitalize="none" placeholder="radio.example/live.mp3" required>
       <details id="stream-finder" class="stream-finder">
         <summary>Find and preview streams</summary>
-        <p class="form-hint">Search by station name. Up to 10 candidates reported online by the directory are ranked by bitrate and popularity. Preview one before selecting it.</p>
+        <p class="form-hint">Search by station name, country code, or both. Up to 10 candidates reported online by the directory are ranked by bitrate and popularity. Preview one before selecting it.</p>
+        <label for="stream-search-country">Country code (optional)</label>
+        <input id="stream-search-country" type="text" maxlength="2" placeholder="NL, US, GB, ES" autocapitalize="characters" spellcheck="false">
         <label for="stream-search-name">Station name</label>
         <div class="stream-search-controls"><input id="stream-search-name" type="search" maxlength="80" placeholder="e.g. Radio Example"><button id="stream-search-button" class="small-button" type="button">Search</button></div>
         <p id="stream-search-status" class="form-hint" role="status" aria-live="polite"></p>

@@ -58,7 +58,7 @@ function createPlaylists() {
   };
 }
 
-async function testServer(t, { jellyfin = { configured: () => false, serverUrl: () => "" }, playlists = createPlaylists(), hostPlayer } = {}) {
+async function testServer(t, { jellyfin = { configured: () => false, serverUrl: () => "" }, playlists = createPlaylists(), hostPlayer, lyricsFetch } = {}) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "mymusics-routes-"));
   const storage = createStorage({ dataDir: path.join(root, "data"), rootDir: root });
   storage.writeStations({ Jazz: [] });
@@ -74,7 +74,7 @@ async function testServer(t, { jellyfin = { configured: () => false, serverUrl: 
     status: async () => ({ playing: false }), playRadio: async () => {}, playMusic: async () => {}, control: async () => {}, stop: async () => {}
   }, getStations });
   registerMetadataRoutes(app, { getStations });
-  registerMetadataProviderRoutes(app);
+  registerMetadataProviderRoutes(app, { fetch: lyricsFetch });
   app.use(apiNotFound);
   app.use(apiError);
 
@@ -101,6 +101,42 @@ async function request(base, route, { method = "GET", body, raw, headers = {} } 
   }
   return { status: response.status, body: parsed, cacheControl: response.headers.get("cache-control"), headers: response.headers };
 }
+
+test("LRCLIB ranks matching releases before rejecting incompatible timing", async (t) => {
+  const track = { artistName: "Sample Artist", trackName: "Sample Song" };
+  const calls = [];
+  const base = await testServer(t, { lyricsFetch: async (url) => {
+    const query = new URL(url);
+    calls.push(query.hostname);
+    if (query.hostname === "api.lyrics.ovh") return Response.json({ lyrics: "Fallback lyrics" });
+    const artist = query.searchParams.get("artist_name") || query.searchParams.get("q");
+    if (artist?.startsWith("Missing Artist")) return Response.json([]);
+    const candidates = [
+      { ...track, albumName: "Studio", duration: 180, plainLyrics: "Studio lyrics" },
+      { ...track, albumName: "Live", duration: 215, plainLyrics: "Live lyrics", syncedLyrics: "[00:12.00]Live line" }
+    ];
+    if (query.searchParams.has("q")) {
+      candidates.push({
+        ...track, albumName: "Studio", duration: 181, syncedLyrics: "[00:08.00]Studio line"
+      });
+    }
+    return Response.json(candidates);
+  } });
+  const route = "/lyrics?artist=Sample+Artist&title=Sample+Song&album=Studio&durationMs=180000";
+  const ranked = await request(base, route);
+  assert.equal(ranked.body.source, "LRCLIB");
+  assert.equal(ranked.body.albumName, "Studio");
+  assert.equal(ranked.body.syncedLyrics, "[00:08.00]Studio line");
+  assert.deepEqual(calls, ["lrclib.net", "lrclib.net"]);
+
+  const mismatched = await request(base, route.replace("180000", "190000"));
+  assert.equal(mismatched.body.plainLyrics, "Studio lyrics");
+  assert.equal(mismatched.body.syncedLyrics, null);
+
+  const fallback = await request(base, "/lyrics?artist=Missing+Artist&title=Sample+Song");
+  assert.equal(fallback.body.source, "Lyrics.ovh");
+  assert.equal(fallback.body.syncedLyrics, null);
+});
 
 test("station routes validate, persist, and expose edits", async (t) => {
   const base = await testServer(t);
@@ -138,6 +174,19 @@ test("station routes validate, persist, and expose edits", async (t) => {
   });
   assert.equal(favorite.body.Jazz[0].favorite, true);
   assert.equal((await request(base, "/stations")).body.Jazz[0].favorite, true);
+  await request(base, "/api/genres/Jazz/stations", {
+    method: "POST", body: { name: "Other FM", url: "https://radio.example/other", type: "mp3" }
+  });
+  const wrongStation = await request(base, `${stationPath}/favorite`, {
+    method: "PATCH", body: { name: "Other FM", url: "https://radio.example/other", favorite: false }
+  });
+  assert.equal(wrongStation.status, 409);
+  assert.equal((await request(base, "/stations")).body.Jazz[0].favorite, true);
+  await request(base, `${stationPath}/favorite`, { method: "PATCH", body: { favorite: false } });
+  await request(base, "/api/genres/Jazz/stations/1/favorite", { method: "PATCH", body: { favorite: true } });
+  const refreshed = await request(base, "/stations");
+  assert.deepEqual(refreshed.body.Jazz.map(({ name, favorite }) => [name, favorite]),
+    [["Local FM", false], ["Other FM", true]]);
 });
 
 test("station image routes validate uploads, persist references, and reject unsupported sources", async (t) => {

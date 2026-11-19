@@ -6,8 +6,10 @@ export async function fetchTrackMetadata(artist, title) {
   return result;
 }
 
-export async function fetchTrackLyrics(artist, title) {
+export async function fetchTrackLyrics(artist, title, { album, durationMs } = {}) {
   const params = new URLSearchParams({ artist, title });
+  if (album) params.set("album", album);
+  if (Number.isFinite(durationMs) && durationMs > 0) params.set("durationMs", String(durationMs));
   const response = await fetch(`/lyrics?${params}`);
   return response.ok ? response.json() : null;
 }

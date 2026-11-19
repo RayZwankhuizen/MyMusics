@@ -8,15 +8,15 @@
   <title>MyMusics — Radio</title>
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="preconnect" href="https://coverartarchive.org">
-  <link rel="stylesheet" href="/style.css?v=mode-switch-youtube-4">
+  <link rel="stylesheet" href="/style.css?v=lyrics-step-1">
   <script defer src="/playback-target.js?v=host-playback-lease-1"></script>
   <script defer src="/ui-dialogs.js?v=backdrop-1"></script>
   <script defer src="/equalizer.js?v=stereo-meter-1"></script>
   <script defer src="/synced-lyrics.js?v=1"></script>
-  <script type="module" src="/app.js?v=speech-settings-2"></script>
+  <script type="module" src="/app.js?v=speech-fade-1"></script>
   <link rel="stylesheet" href="/app-theme.css?v=tv-toggle-fixed-1">
   <link rel="stylesheet" href="/silk-tv.css?v=silk-tv-7">
-  <link rel="stylesheet" href="/radio-receiver.css?v=10">
+  <link rel="stylesheet" href="/radio-receiver.css?v=suppression-activity-1">
   <link rel="stylesheet" href="/sidebar-footer.css?v=1">
 </head>
 <body class="radio-page">
@@ -53,14 +53,19 @@
           <audio id="audio" preload="none" aria-label="Radio playback"></audio>
           <div class="radio-player-current"><div id="radio-player-logo" class="radio-player-logo" aria-hidden="true">M</div><div class="radio-player-copy"><strong id="radio-player-station">Choose a station</strong><span id="radio-player-track">Live radio · nothing playing</span></div><span id="radio-player-live" class="radio-player-live" data-state="idle">READY</span></div>
           <div class="receiver-vu" aria-hidden="true"><span class="receiver-vu-label">STEREO · VU</span><div class="receiver-vu-channel"><span>L</span><div class="receiver-vu-track"><i></i></div></div><div class="receiver-vu-channel"><span>R</span><div class="receiver-vu-track"><i></i></div></div></div>
-          <div class="radio-player-controls"><button id="radio-player-toggle" type="button" data-play aria-label="Play radio" disabled>▶</button><button id="radio-player-favorite" class="favorite-button" type="button" aria-label="Favorite station" aria-pressed="false" hidden>☆</button><label class="radio-player-volume-label" for="radio-player-volume">Volume</label><input id="radio-player-volume" type="range" min="0" max="100" value="100" aria-label="Radio volume" disabled><button id="player-tools-toggle" class="player-tools-toggle" type="button" aria-expanded="false" aria-controls="player-tools">Sound settings</button></div>
+          <div class="radio-player-controls"><button id="radio-player-toggle" type="button" data-play aria-label="Play radio" disabled>▶</button><button id="radio-player-favorite" class="favorite-button" type="button" aria-label="Favorite station" aria-pressed="false" hidden>☆</button><label class="radio-player-volume-label" for="radio-player-volume">Volume</label><input id="radio-player-volume" type="range" min="0" max="100" value="100" aria-label="Radio volume" disabled><button id="player-tools-toggle" class="player-tools-toggle" type="button" aria-expanded="false" aria-controls="player-tools">Sound settings</button><span id="radio-suppression-activity" role="status"></span></div>
           <div id="host-radio-controls" class="host-radio-controls" hidden><button id="host-radio-toggle" type="button">Pause</button><label>Volume <input id="host-radio-volume" type="range" min="0" max="100" value="100"></label><span id="host-radio-status" role="status"></span></div>
           <div id="player-tools" class="player-tools" hidden><span class="equalizer" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span id="player-status" role="status" aria-live="polite"></span><button id="equalizer-toggle" class="speech-suppression" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="equalizer-panel">Equalizer</button><button id="speech-suppression" class="speech-suppression" type="button" aria-label="Speech suppression" aria-pressed="false" disabled>Speech suppression: Off</button><button id="speech-volume-open" class="speech-suppression" type="button" aria-haspopup="dialog" aria-controls="speech-volume-dialog" disabled>Speech settings (30%)</button><span id="speech-suppression-status" role="status">No station suppression</span></div>
         </section>
           </div>
 
           <div class="receiver-lyrics"><section class="lyrics-panel" aria-labelledby="lyrics-heading">
-            <div class="lyrics-heading"><div class="lyrics-title"><h3 id="lyrics-heading">Lyrics</h3><span id="start-time-indicator" class="start-time-indicator" data-state="missing" role="status" aria-label="Track start time not sent"><i aria-hidden="true"></i></span><nav class="lyrics-speed" aria-label="Lyrics timing adjustment"><button id="lyrics-slower" type="button" aria-label="Show each lyrics line 50 milliseconds later" title="Show lines 50 ms later">−</button><output id="lyrics-delay" aria-live="polite">300 ms</output><button id="lyrics-faster" type="button" aria-label="Show each lyrics line 50 milliseconds earlier" title="Show lines 50 ms earlier">+</button></nav></div><span id="lyrics-status" role="status">Choose a station to find lyrics.</span></div>
+            <div class="lyrics-heading"><div class="lyrics-title"><h3 id="lyrics-heading">Lyrics</h3><span id="start-time-indicator" class="start-time-indicator" data-state="missing" role="status" aria-label="Track start time not sent"><i aria-hidden="true"></i></span><nav class="lyrics-speed" aria-label="Lyrics timing adjustment"><button type="button" data-lyrics-delay-step="500" aria-label="Show each lyrics line 500 milliseconds later">−500 ms</button><button id="lyrics-slower" data-lyrics-delay-step="50" type="button" aria-label="Show each lyrics line 50 milliseconds later" title="Show lines 50 ms later">−</button><output id="lyrics-delay" aria-live="polite">300 ms</output><button id="lyrics-faster" data-lyrics-delay-step="-50" type="button" aria-label="Show each lyrics line 50 milliseconds earlier" title="Show lines 50 ms earlier">+</button><button type="button" data-lyrics-delay-step="-500" aria-label="Show each lyrics line 500 milliseconds earlier">+500 ms</button></nav></div><span id="lyrics-status" role="status">Choose a station to find lyrics.</span></div>
+            <div id="lyrics-correction" hidden>
+              <label><input id="lyrics-remember-correction" type="checkbox" aria-describedby="lyrics-correction-amount"> Remember timing for this song on this station</label>
+              <span id="lyrics-correction-amount" role="status"></span>
+            </div>
+            <p id="lyrics-source" class="lookup-status" hidden></p>
             <progress id="lyrics-progress" class="lyrics-progress" max="1" value="0" aria-label="Position in lyrics" hidden></progress>
             <div id="lyrics-content" class="lyrics-content" aria-live="off"></div>
           </section></div>

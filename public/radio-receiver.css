@@ -29,6 +29,8 @@ html body.radio-page .receiver .radio-player-copy strong,html body.radio-page .r
 html body.radio-page .receiver .radio-player-copy strong{color:#f5f7fa;font-size:14px}
 html body.radio-page .receiver .radio-player-copy span{color:#c2c7d1;font-size:12px}
 html body.radio-page .receiver .radio-player-controls{display:flex;flex-wrap:wrap;gap:10px;width:100%}
+html body.radio-page .receiver #radio-suppression-activity{align-self:center;padding:4px 8px;border:1px solid #b99b62;border-radius:5px;background:#352914;color:#ffe8b0;font-size:12px}
+html body.radio-page .receiver #radio-suppression-activity:empty{position:absolute;padding:0;border:0}
 html body.radio-page .receiver :is(#radio-player-toggle,#radio-player-favorite){min-width:48px;min-height:48px}
 html body.radio-page .receiver #radio-player-favorite[aria-pressed="true"]{color:#ffbc67;border-color:currentColor}
 html body.radio-page .receiver #radio-player-volume{width:auto;flex:1;min-width:60px;max-width:260px}

@@ -6,26 +6,29 @@
       "type": "mp3",
       "favorite": true,
       "speechVolumePercent": 10,
+      "speechReleaseDelaySeconds": 3,
       "website": "https://www.arrow.nl/",
+      "equalizerPreset": "rock",
       "image": "/station-images/1cb67e96-02f4-464d-b888-15d594eccc31.webp"
     },
     {
-      "name": "Veronica Rock Radio",
-      "url": "https://21223.live.streamtheworld.com/VERONICAAAC.aac",
-      "type": "mp3",
-      "favorite": false,
-      "speechVolumePercent": 30,
-      "website": "https://www.radioveronica.nl/",
-      "image": "/station-images/893cbbeb-3c85-4d38-8304-8e8e9a8b9bec.webp"
-    },
-    {
-      "name": "40ROCK Radio",
+      "name": "40rock",
       "url": "http://40rockstream.live-streams.nl/live",
       "type": "mp3",
+      "favorite": true,
+      "speechVolumePercent": 30,
+      "speechReleaseDelaySeconds": 3,
+      "website": "https://www.40rockradio.nl/",
+      "image": "/station-images/30b5abe7-5807-476c-a4a7-62787ed6e812.webp"
+    },
+    {
+      "name": "ISKC Old Men's Rock",
+      "url": "https://443-1.autopo.st/79/OldMenRock",
+      "type": "mp3",
       "favorite": false,
       "speechVolumePercent": 30,
-      "website": "https://www.40rockradio.nl/",
-      "image": "/station-images/89ba4c45-acaf-45f2-9899-64e3372d44eb.webp"
+      "speechReleaseDelaySeconds": 3,
+      "website": "https://iskcrocks.com/?page_id=1898"
     }
   ],
   "NL - Christmas": [
@@ -64,7 +67,7 @@
       "name": "Jolene Country Radio",
       "url": "https://22713.live.streamtheworld.com/SERVICE07.mp3",
       "type": "mp3",
-      "favorite": false,
+      "favorite": true,
       "speechVolumePercent": 30,
       "website": "https://jolenecountryradio.nl/",
       "image": "/station-images/580f7736-0361-4dc6-bfd3-1beb6b4e0ef0.webp"

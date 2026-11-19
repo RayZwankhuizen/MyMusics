@@ -21,7 +21,7 @@ import { wireMusicAutoDj } from "./music-autodj.mjs?v=artist-similarity-1";
 import { createMusicSessionStorage } from "./music-session-storage.mjs";
 import { createMusicPlaylistActions } from "./music-playlist-actions.mjs";
 import { wireMusicVolume } from "./music-volume.mjs?v=host-volume-sync-1";
-import { createRadioLyricsController } from "./radio-lyrics-controller.mjs?v=shared-lyrics-2";
+import { createRadioLyricsController } from "./radio-lyrics-controller.mjs?v=lyrics-step-1";
 import { wireMusicVuMeter } from "./music-vu-meter.mjs?v=active-type-1";
 
 // Music mode: plays the Jellyfin library through this server and builds the
@@ -131,7 +131,7 @@ function renderMusicLyrics(track) {
     return;
   }
   musicLyrics.reset("Searching lyrics…", true);
-  musicLyrics.load(track.artist, track.title, key);
+  musicLyrics.load(track.artist, track.title, key, track);
 }
 function syncJukeboxPlaying() { return jukeboxDeckView.syncPlaying(); }
 function renderJukeboxNow() { return jukeboxDeckView.renderNow(); }

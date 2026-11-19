@@ -154,9 +154,12 @@ module.exports = function registerStationRoutes(app, { storage }) {
 
   app.get("/api/stream-search", async (req, res) => {
     const name = String(req.query.name || "").trim().slice(0, 80);
-    if (name.length < 2) return res.status(400).json({ error: "Enter at least two characters of the station name." });
+    const countrycode = String(req.query.countrycode || "").trim().toUpperCase();
+    if (countrycode && !/^[A-Z]{2}$/.test(countrycode)) return res.status(400).json({ error: "Enter a two-letter country code, such as NL, US, GB, or ES." });
+    if (!name && !countrycode) return res.status(400).json({ error: "Enter a station name or a country code." });
+    if (name.length === 1) return res.status(400).json({ error: "Enter at least two characters of the station name." });
     try {
-      const matches = await radioBrowserSearch([{ name }], { limit: 40, order: "bitrate" });
+      const matches = await radioBrowserSearch([name ? { name } : {}], { countrycode, limit: 40, order: "bitrate" });
       const unique = new Map();
       for (const station of matches) {
         const url = station.url_resolved || station.url;
@@ -262,8 +265,13 @@ module.exports = function registerStationRoutes(app, { storage }) {
     if (!(genre in stations)) return res.status(404).json({ error: "Genre not found." });
     if (!Number.isInteger(index) || index < 0 || index >= stations[genre].length) return res.status(404).json({ error: "Station not found." });
     if (typeof req.body?.favorite !== "boolean") return res.status(400).json({ error: "Favorite must be true or false." });
+    const station = stations[genre][index];
+    if ((req.body.name !== undefined && req.body.name !== station.name)
+        || (req.body.url !== undefined && req.body.url !== station.url)) {
+      return res.status(409).json({ error: "The station list changed. Refresh and try again." });
+    }
     const list = [...stations[genre]];
-    list[index] = { ...list[index], favorite: req.body.favorite };
+    list[index] = { ...station, favorite: req.body.favorite };
     commit({ ...stations, [genre]: list }, res);
   });
   return () => stations;

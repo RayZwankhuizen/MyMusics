@@ -56,36 +56,51 @@ test("TV mode enables remote focus, custom radio controls, and the audio output 
   await page.close();
 });
 
-test("the radio player star adds and removes the current station from Favorites", async () => {
+test("radio favorites can be changed and stay selected after reload", async () => {
   const page = await browser.newPage();
   try {
     const station = { name: "Test Jazz", url: "https://radio.example/jazz" };
-    const catalog = { Jazz: [station] };
+    const other = { name: "Other Jazz", url: "https://radio.example/other" };
+    const catalog = { Jazz: [station, other] };
     const requests = [];
     await page.route("**/stations", (route) => route.fulfill({ json: catalog }));
     await page.route("**/api/**", (route) => route.abort());
-    await page.route("**/api/genres/Jazz/stations/0/favorite", (route) => {
+    await page.route("**/api/genres/Jazz/stations/*/favorite", (route) => {
       assert.equal(route.request().method(), "PATCH");
-      const { favorite } = route.request().postDataJSON();
-      requests.push(favorite);
-      station.favorite = favorite;
+      const { favorite, name } = route.request().postDataJSON();
+      const index = Number(new URL(route.request().url()).pathname.split("/").at(-2));
+      assert.equal(name, catalog.Jazz[index].name);
+      requests.push([index, favorite]);
+      catalog.Jazz[index].favorite = favorite;
       return route.fulfill({ json: catalog });
     });
 
     await page.goto(baseUrl);
     const star = page.locator("#radio-player-favorite");
     assert.equal(await star.isHidden(), true);
-    await page.locator("#station-list .play-button").click();
+    await page.getByRole("button", { name: "Play Test Jazz" }).click();
     await star.click();
     await page.locator('#radio-player-favorite[aria-pressed="true"]').waitFor();
+    await page.getByRole("button", { name: "Add Other Jazz to favorites" }).click();
+    await page.getByRole("button", { name: "Remove Other Jazz from favorites" }).waitFor();
+    assert.equal(await page.locator("#radio-player-station").textContent(), "Test Jazz");
     await page.locator("#genres [data-favorites]").click();
-    await page.locator("#station-list .play-button").waitFor();
-    assert.equal(await page.locator("#station-list .favorite-button").getAttribute("aria-pressed"), "true");
+    await page.getByRole("button", { name: "Play Test Jazz" }).waitFor();
+    await page.getByRole("button", { name: "Play Other Jazz" }).waitFor();
+    assert.equal(await page.getByRole("button", { name: "Delete Test Jazz" }).count(), 0);
+    assert.equal(await page.getByRole("button", { name: "Remove Test Jazz from favorites" }).textContent(), "Remove from Favorites");
 
-    await star.click();
+    await page.getByRole("button", { name: "Remove Test Jazz from favorites" }).click();
     await page.locator('#radio-player-favorite[aria-pressed="false"]').waitFor();
-    await page.getByText("No favorite stations yet.", { exact: false }).waitFor();
-    assert.deepEqual(requests, [true, false]);
+    assert.equal(await page.getByRole("button", { name: "Play Test Jazz" }).count(), 0);
+    await page.locator('#genres [data-genre="Jazz"]').click();
+    await page.getByRole("button", { name: "Play Test Jazz" }).waitFor();
+    await page.locator("#genres [data-favorites]").click();
+    await page.reload();
+    await page.locator('#genres [data-favorites][aria-current="page"]').waitFor();
+    await page.getByRole("button", { name: "Play Other Jazz" }).waitFor();
+    assert.equal(await page.getByRole("button", { name: "Play Test Jazz" }).count(), 0);
+    assert.deepEqual(requests, [[0, true], [1, true], [0, false]]);
   } finally {
     await page.close();
   }

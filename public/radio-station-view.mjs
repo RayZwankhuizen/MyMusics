@@ -45,6 +45,7 @@ export function createRadioStationView({ genreNav, stationList, searchInput, fav
 
   function renderStations(stationsByGenre, activeGenre, showingFavorites, activeStation) {
     lastStationView = { stationsByGenre, activeGenre, showingFavorites, activeStation };
+    document.querySelector("#edit-stations-toggle").hidden = showingFavorites;
     const entries = showingFavorites
       ? Object.entries(stationsByGenre).flatMap(([genre, stations]) => stations.flatMap((station, index) => station.favorite === true ? [{ station, genre, index }] : []))
       : (stationsByGenre[activeGenre] || []).map((station, index) => ({ station, genre: activeGenre, index }));
@@ -91,9 +92,9 @@ export function createRadioStationView({ genreNav, stationList, searchInput, fav
       play.addEventListener("click", () => onPlay(station, genre));
 
       const favorite = document.createElement("button");
-      favorite.className = "favorite-button";
+      favorite.className = showingFavorites ? "station-edit-button" : "favorite-button";
       favorite.type = "button";
-      favorite.textContent = station.favorite === true ? "★" : "☆";
+      favorite.textContent = showingFavorites ? "Remove from Favorites" : station.favorite === true ? "★" : "☆";
       favorite.setAttribute("aria-label", `${station.favorite === true ? "Remove" : "Add"} ${station.name} ${station.favorite === true ? "from" : "to"} favorites`);
       favorite.setAttribute("aria-pressed", String(station.favorite === true));
       favorite.addEventListener("click", async () => {
@@ -126,7 +127,8 @@ export function createRadioStationView({ genreNav, stationList, searchInput, fav
       });
       const actions = document.createElement("div");
       actions.className = "station-actions";
-      actions.append(edit, remove, favorite);
+      if (!showingFavorites) actions.append(edit, remove);
+      actions.append(favorite);
       row.append(play, details, actions);
       stationList.append(row);
       requestAnimationFrame(() => {

@@ -1,11 +1,22 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
 
+function controlVolumeRamp(t) {
+  let frame;
+  let time = 0;
+  t.mock.method(globalThis, "setInterval", (callback) => { frame = callback; return 1; });
+  t.mock.method(performance, "now", () => time);
+  return (milliseconds) => {
+    time += milliseconds;
+    frame();
+  };
+}
+
 test("early song metadata and confirmation preserve ducking until the presenter stops speaking", async (t) => {
   const { createRadioSuppressionController } = await import("../public/radio-suppression-controller.mjs");
   const elements = new Map();
   t.mock.timers.enable({ apis: ["setTimeout"] });
-  t.mock.method(globalThis, "setInterval", () => 1);
+  const advanceRamp = controlVolumeRamp(t);
   const previousDocument = globalThis.document;
   t.after(() => { globalThis.document = previousDocument; });
   globalThis.document = {
@@ -30,6 +41,7 @@ test("early song metadata and confirmation preserve ducking until the presenter 
 
   controller.onSpeechStart();
   controller.setCurrentTrack("Artist", "Track");
+  advanceRamp(300);
   assert.equal(outputGain, 0.3, "new metadata can arrive during active speech");
   assert.equal(audio.volume, 1, "the detector still gets the original player signal");
   controller.setCurrentTrack("Artist", "Track");
@@ -58,6 +70,50 @@ test("early song metadata and confirmation preserve ducking until the presenter 
   assert.equal(controller.confirmedTrackKey, "", "a station change discards the previous song confirmation");
 });
 
+test("programme metadata keeps song protection until its expected end", async (t) => {
+  const { createRadioSuppressionController } = await import("../public/radio-suppression-controller.mjs");
+  const { createRadioTrackUpdates } = await import("../public/radio-track-updates.mjs");
+  const advanceRamp = controlVolumeRamp(t);
+  const previousDocument = globalThis.document;
+  t.after(() => { globalThis.document = previousDocument; });
+  globalThis.document = { querySelector: () => ({ dataset: {}, setAttribute() {} }) };
+  t.mock.timers.enable({ apis: ["setTimeout", "Date"], now: 0 });
+  const audio = { volume: 1 };
+  const speechDetector = { speechActive: false };
+  const controller = createRadioSuppressionController({
+    store: { feedback: new Map(), suppressedMetadataBlocks: new Set() },
+    speechDetector,
+    getStation: () => ({ speechVolumePercent: 30 }),
+    getAudio: () => audio,
+    getTrackKey: (_artist, title) => title,
+    getTrackElapsedSeconds: () => Date.now() / 1000
+  });
+  const updates = createRadioTrackUpdates({
+    setMetadataBlock() {}, appendMetadata() {}, setTrackStartStatus() {}, renderTrack() {}, lookupTrack() {},
+    setCurrentTrack: controller.setCurrentTrack,
+    isProgramMetadata: (track) => track.title === "News",
+    showProgramMetadata() {},
+    setTrackStartedAt: () => assert.fail("Programme info must preserve the song clock")
+  });
+  controller.setCurrentTrack("Artist", "Previous song");
+  controller.confirmTrack("Previous song");
+  controller.setTrackDuration("Previous song", 180_000);
+  t.mock.timers.tick(179_000);
+  updates.applyStream({ artist: "Radio", title: "News" }, {});
+  updates.applyStream({ artist: "", title: "" }, {});
+  speechDetector.speechActive = true;
+  controller.onSpeechStart();
+  assert.equal(audio.volume, 1, "vocals are still protected during the song");
+  controller.setCurrentTrack("Artist", "Previous song");
+  t.mock.timers.tick(1000);
+  assert.equal(audio.volume, 1, "volume does not jump at the start of the fade");
+  advanceRamp(150);
+  assert.ok(audio.volume > 0.3 && audio.volume < 1, "the fade passes through an intermediate volume");
+  advanceRamp(150);
+  assert.equal(audio.volume, 0.3, "continued speech is suppressed once the expected end passes");
+  assert.equal(controller.currentTrackKey, "Previous song");
+});
+
 test("track suppression overrides the station setting and ends when the next song starts", async (t) => {
   const { createRadioSuppressionController } = await import("../public/radio-suppression-controller.mjs");
   const elements = new Map();
@@ -70,11 +126,10 @@ test("track suppression overrides the station setting and ends when the next son
     },
     querySelectorAll: () => []
   };
-  let finishRamp;
-  t.mock.method(globalThis, "setInterval", (callback) => { finishRamp = callback; return 1; });
-  const clock = t.mock.method(performance, "now", () => 0);
+  const advanceRamp = controlVolumeRamp(t);
   const audio = { volume: 1 };
   let enabled = true;
+  let hostOutput = false;
   const speechDetector = { speechActive: false };
   const controller = createRadioSuppressionController({
     store: {
@@ -87,45 +142,55 @@ test("track suppression overrides the station setting and ends when the next son
     speechDetector,
     getStation: () => ({ url: "https://radio.example/live" }),
     isEnabled: () => enabled,
+    isHostOutput: () => hostOutput,
     getAudio: () => audio,
     getTrackKey: (_artist, title) => title,
     getMetadataKey: (_fields, raw) => raw
   });
   const status = document.querySelector("#speech-suppression-status");
+  const activity = document.querySelector("#radio-suppression-activity");
   controller.setDetectorStatus("ready");
   assert.equal(status.textContent, "Station suppression on");
   controller.setCurrentMetadata({}, "Blocked");
+  advanceRamp(300);
   assert.equal(audio.volume, 0.3);
+  assert.equal(activity.textContent, "Speech / ad volume reduced");
+  hostOutput = true;
+  controller.renderStatus();
+  assert.equal(activity.textContent, "");
+  hostOutput = false;
 
   enabled = false;
   controller.setDetectorStatus("idle");
   controller.setDucked(false);
+  assert.equal(activity.textContent, "Restoring volume");
   controller.setCurrentMetadata({}, "Blocked");
-  clock.mock.mockImplementation(() => 1000);
-  finishRamp();
+  advanceRamp(1000);
   assert.equal(audio.volume, 1);
+  assert.equal(activity.textContent, "");
   assert.equal(status.textContent, "No station suppression");
   assert.equal(controller.metadataBlockDucked, true);
 
   controller.setCurrentTrack("Artist", "Track");
   controller.confirmTrack("Track");
   controller.setTrack("Track", true);
+  advanceRamp(300);
   assert.equal(audio.volume, 0.3);
   assert.equal(status.textContent, "Song suppressed");
+  assert.equal(activity.textContent, "Song suppressed");
   controller.releaseAfterPause();
   controller.setDucked(false);
   assert.equal(audio.volume, 0.3, "stopping the station detector leaves the song suppressed");
 
   controller.setCurrentTrack("Artist", "Next track");
-  clock.mock.mockImplementation(() => 2000);
-  finishRamp();
+  advanceRamp(1000);
   assert.equal(audio.volume, 1);
   assert.equal(status.textContent, "No station suppression");
   controller.setCurrentTrack("Artist", "Track");
+  advanceRamp(300);
   assert.equal(audio.volume, 0.3, "the preference applies the next time the song plays");
   controller.setTrack("Track", false);
-  clock.mock.mockImplementation(() => 3000);
-  finishRamp();
+  advanceRamp(1000);
   assert.equal(audio.volume, 1);
   assert.equal(status.textContent, "No station suppression");
 });

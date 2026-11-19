@@ -9,7 +9,7 @@
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/style.css?v=mode-switch-youtube-4">
   <link rel="stylesheet" href="/manage.css">
-  <script type="module" src="/manage.js?v=bulk-delete-select-1"></script>
+  <script type="module" src="/manage.js?v=station-country-1"></script>
   <link rel="stylesheet" href="/app-theme.css?v=tv-toggle-fixed-1">
   <link rel="stylesheet" href="/management-theme.css?v=bulk-delete-select-1">
   <link rel="stylesheet" href="/manage-settings.css?v=youtube-api-settings-1">
@@ -143,9 +143,9 @@
             <form id="station-form" class="station-form">
               <input id="station-index" type="hidden">
               <label for="station-name">Station name</label><input id="station-name" name="name" maxlength="100" placeholder="e.g. Radio Example" required>
-              <div class="station-genre-field"><span>Genre</span><strong id="station-genre-label"></strong><label id="station-genre-edit-label" for="station-genre" hidden>Move to genre</label><select id="station-genre" name="genre" required hidden></select></div>
+              <div class="station-genre-field"><label id="station-genre-label" for="station-genre">Genre</label><select id="station-genre" name="genre" required></select></div>
               <label for="station-url">Stream URL</label><input id="station-url" name="url" type="text" inputmode="url" autocapitalize="none" placeholder="radio.example/live.mp3" required>
-              <details id="stream-finder" class="stream-finder"><summary>Search and preview streams</summary><p class="form-hint">Search by station name. Preview a candidate before adding it.</p><label for="stream-search-name">Station name</label><div class="stream-search-controls"><input id="stream-search-name" type="search" maxlength="80" placeholder="e.g. Radio Example"><button id="stream-search-button" class="small-button" type="button">Search</button></div><p id="stream-search-status" class="form-hint" role="status" aria-live="polite"></p><audio id="stream-preview" controls preload="none" aria-label="Preview selected stream" hidden></audio><div id="stream-search-results" class="stream-search-results" aria-live="polite"></div></details>
+              <details id="stream-finder" class="stream-finder"><summary>Search and preview streams</summary><p class="form-hint">Search by station name, country code, or both. Preview a candidate before adding it.</p><label for="stream-search-country">Country code (optional)</label><input id="stream-search-country" type="text" maxlength="2" placeholder="NL, US, GB, ES" autocapitalize="characters" spellcheck="false"><label for="stream-search-name">Station name</label><div class="stream-search-controls"><input id="stream-search-name" type="search" maxlength="80" placeholder="e.g. Radio Example"><button id="stream-search-button" class="small-button" type="button">Search</button></div><p id="stream-search-status" class="form-hint" role="status" aria-live="polite"></p><audio id="stream-preview" controls preload="none" aria-label="Preview selected stream" hidden></audio><div id="stream-search-results" class="stream-search-results" aria-live="polite"></div></details>
               <label for="station-website">Station website (optional)</label><input id="station-website" name="website" type="text" inputmode="url" autocapitalize="none" placeholder="https://radio.example">
               <label for="station-type">Stream type</label><select id="station-type" name="type"><option value="mp3">MP3 / audio stream</option><option value="hls">HLS (.m3u8)</option></select>
               <label for="speech-volume-percent">Speech / ad volume (%)</label><input id="speech-volume-percent" name="speechVolumePercent" type="number" min="0" max="100" step="1" value="30" required><p class="form-hint">Volume used while speech or ads are detected.</p>

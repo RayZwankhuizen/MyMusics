@@ -2,8 +2,9 @@ export function createManageCatalogView({ el }) {
   function render({ stations, selectedGenre, query, onSelectGenre, onFavorite, onEdit, onTest, onDelete }) {
     const names = Object.keys(stations);
     const genreSelect = el("#station-genre");
+    const formGenre = el("#station-dialog").open ? genreSelect.value : selectedGenre;
     genreSelect.replaceChildren(...names.map((genre) => new Option(genre, genre)));
-    genreSelect.value = selectedGenre;
+    genreSelect.value = names.includes(formGenre) ? formGenre : selectedGenre;
     el("#genre-count").textContent = `${names.length} ${names.length === 1 ? "genre" : "genres"}`;
     const genreNav = el("#manage-genres");
     genreNav.replaceChildren();
@@ -33,7 +34,6 @@ export function createManageCatalogView({ el }) {
     el("#managed-station-filter-wrap").hidden = !hasGenre;
     el("#station-count").textContent = hasGenre ? query ? `${entries.length} of ${allStations.length} stations` : `${allStations.length} stations` : "";
     el("#add-station-genre").textContent = hasGenre ? `Adding to ${selectedGenre}` : "Select a genre first";
-    el("#station-genre-label").textContent = selectedGenre;
     el("#add-station").disabled = !hasGenre;
     el("#station-form").hidden = !hasGenre;
     el("#genre-detail").classList.toggle("is-empty", !hasGenre);

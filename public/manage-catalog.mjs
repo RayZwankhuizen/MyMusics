@@ -1,8 +1,9 @@
-import { createManageCatalogView } from "./manage-catalog-view.mjs";
+import { createManageCatalogView } from "./manage-catalog-view.mjs?v=directory-station-editor-1";
 
 export function createManageCatalog({ el, request, notice, stationImages, streamFinder, stationPreview }) {
   let stations = {};
   let selectedGenre = "";
+  let addingFromDirectory = false;
   const route = (genre, suffix = "") => `/api/genres/${encodeURIComponent(genre)}${suffix}`;
   const genres = () => Object.keys(stations);
 
@@ -34,6 +35,7 @@ export function createManageCatalog({ el, request, notice, stationImages, stream
   };
 
   function resetForm() {
+    addingFromDirectory = false;
     el("#station-dialog").close();
     el("#station-form-error").hidden = true;
     streamFinder.reset();
@@ -43,9 +45,7 @@ export function createManageCatalog({ el, request, notice, stationImages, stream
     el("#add-station-heading").textContent = "Add a station";
     el("#station-form .save-button").textContent = "Add station";
     el("#station-genre").value = selectedGenre;
-    el("#station-genre").hidden = true;
-    el("#station-genre-edit-label").hidden = true;
-    el("#station-genre-label").hidden = false;
+    el("#station-genre-label").textContent = "Genre";
     el("#cancel-edit").hidden = false;
   }
 
@@ -63,9 +63,7 @@ export function createManageCatalog({ el, request, notice, stationImages, stream
     stationImages.edit(station.image);
     el("#add-station-heading").textContent = `Edit ${station.name}`;
     el("#station-form .save-button").textContent = "Save changes";
-    el("#station-genre").hidden = false;
-    el("#station-genre-edit-label").hidden = false;
-    el("#station-genre-label").hidden = true;
+    el("#station-genre-label").textContent = "Move to genre";
     el("#cancel-edit").hidden = false;
     el("#station-dialog").showModal();
     el("#station-name").focus({ preventScroll: true });
@@ -142,10 +140,11 @@ export function createManageCatalog({ el, request, notice, stationImages, stream
       type: el("#station-type").value,
       speechVolumePercent: Number(el("#speech-volume-percent").value),
       speechReleaseDelaySeconds: el("#speech-release-delay").valueAsNumber,
-      genre: index === "" ? selectedGenre : el("#station-genre").value,
+      genre: el("#station-genre").value,
       image: stationImages.image()
     };
     const sourceGenre = selectedGenre;
+    const returnToDirectory = addingFromDirectory;
     const destinationGenre = body.genre;
     const suffix = `/stations${index === "" ? "" : `/${index}`}`;
     const submit = el("#station-form .save-button");
@@ -157,11 +156,13 @@ export function createManageCatalog({ el, request, notice, stationImages, stream
         body.image = await stationImages.uploadFile(file);
       }
       stations = await request(route(index === "" ? destinationGenre : sourceGenre, suffix), index === "" ? "POST" : "PUT", body);
+      if (index === "") selectedGenre = destinationGenre;
       notice(index === "" ? "Station added." : "Station updated.");
       resetForm();
       render();
       const row = sourceGenre === destinationGenre && index !== "" ? el(`#station-list [data-station-index="${Number(index)}"]`) : null;
-      (row?.querySelector(".actions button:nth-child(3)") || el("#add-station")).focus({ preventScroll: true });
+      const button = returnToDirectory ? el("#station-search-form button") : el("#add-station");
+      (row?.querySelector(".actions button:nth-child(3)") || button).focus({ preventScroll: true });
     } catch (error) {
       el("#station-form-error").textContent = error.message;
       el("#station-form-error").hidden = false;
@@ -169,11 +170,24 @@ export function createManageCatalog({ el, request, notice, stationImages, stream
     finally { submit.disabled = false; }
   });
 
-  el("#add-station").addEventListener("click", () => {
+  function openAddStation(station) {
+    if (!genres().length) {
+      notice("Create a genre before adding a station.", true);
+      return;
+    }
     resetForm();
+    if (station) {
+      addingFromDirectory = true;
+      el("#station-name").value = station.name;
+      el("#station-url").value = station.url;
+      el("#station-website").value = station.website || "";
+      el("#station-type").value = station.type || "mp3";
+    }
     el("#station-dialog").showModal();
-    el("#station-name").focus({ preventScroll: true });
-  });
+    el(station ? "#station-genre" : "#station-name").focus({ preventScroll: true });
+  }
+
+  el("#add-station").addEventListener("click", () => openAddStation());
   el("#cancel-edit").addEventListener("click", resetForm);
   el("#close-station-dialog").addEventListener("click", resetForm);
   el("#station-dialog").addEventListener("cancel", (event) => { event.preventDefault(); resetForm(); });
@@ -188,5 +202,5 @@ export function createManageCatalog({ el, request, notice, stationImages, stream
     } catch (error) { notice(error.message, true); }
   }
 
-  return Object.freeze({ route, getStations: () => stations, setStations: (value) => { stations = value; }, render, refresh });
+  return Object.freeze({ route, getStations: () => stations, setStations: (value) => { stations = value; }, render, refresh, openAddStation });
 }

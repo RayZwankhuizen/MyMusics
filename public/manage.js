@@ -5,10 +5,10 @@ import { wireManageMedia } from "./manage-media.mjs?v=bulk-delete-select-1";
 import { wireManageJellyfinSettings } from "./manage-jellyfin-settings.mjs?v=host-ytdlp-1";
 import { wireManageYouTubeSettings } from "./manage-youtube-settings.mjs";
 import { request } from "./manage-api.mjs";
-import { createManageCatalog } from "./manage-catalog.mjs?v=preserve-source-genre-1";
-import { wireStationSearch } from "./manage-station-search.mjs";
+import { createManageCatalog } from "./manage-catalog.mjs?v=directory-station-editor-1";
+import { wireStationSearch } from "./manage-station-search.mjs?v=directory-station-editor-1";
 import { wireStationImages } from "./manage-station-images.mjs?v=temporary-logo-batch-1";
-import { wireManageStreamFinder } from "./manage-stream-finder.mjs";
+import { wireManageStreamFinder } from "./manage-stream-finder.mjs?v=station-country-1";
 import { wireManageStationPreview } from "./manage-station-preview.mjs";
 import { wireManageBrowserInfo } from "./manage-browser-info.mjs";
 import { wireManageStationLogoBatch } from "./manage-station-logo-batch.mjs?v=temporary-logo-batch-1";
@@ -65,11 +65,7 @@ wireManageYouTubeSettings({ el, request });
 wireManageBrowserInfo();
 
 wireStationSearch({
-  el, request, route: catalog.route,
-  getStations: catalog.getStations,
-  setStations: catalog.setStations,
-  render: catalog.render,
-  notice
+  el, request, getStations: catalog.getStations, openAddStation: catalog.openAddStation
 });
 
 catalog.refresh().catch((error) => notice(error.message, true));
