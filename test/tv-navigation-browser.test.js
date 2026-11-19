@@ -120,6 +120,7 @@ test("radio speech settings show and save the recovery delay", async () => {
       Object.assign(station, { speechVolumePercent, speechReleaseDelaySeconds });
       return route.fulfill({ json: catalog });
     });
+    await page.route("**/radio-audio-classifier.worker.mjs", (route) => route.fulfill({ contentType: "text/javascript", body: "self.postMessage({ ready: true });" }));
     await page.goto(baseUrl);
     await page.locator("#station-list .play-button").click();
     await page.getByRole("button", { name: "Sound settings", exact: true }).click();
@@ -135,6 +136,13 @@ test("radio speech settings show and save the recovery delay", async () => {
     assert.equal(await delay.inputValue(), "6");
     await page.mouse.click(2, 2);
     await dialog.waitFor({ state: "hidden" });
+
+    await page.getByRole("button", { name: "Audio classification trial" }).click();
+    const analysis = page.getByRole("dialog", { name: "Audio classification trial" });
+    await analysis.getByText("Waveform", { exact: true }).waitFor();
+    assert.equal(await analysis.locator("canvas").count(), 2);
+    await page.mouse.click(2, 2);
+    await analysis.waitFor({ state: "hidden" });
   } finally {
     await page.close();
   }

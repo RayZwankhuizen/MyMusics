@@ -1,4 +1,4 @@
-export function createRadioSpeechDetector({ createInput, onSpeechStart, onSpeechEnd, onMisfire, onStopped, onStatus }) {
+export function createRadioSpeechDetector({ createInput, onSpeechStart, onSpeechEnd, onMisfire, onStopped, onStatus, onFrame }) {
   let detector = null;
   let input = null;
   let generation = 0;
@@ -45,6 +45,7 @@ export function createRadioSpeechDetector({ createInput, onSpeechStart, onSpeech
       getStream: async () => input.stream,
       pauseStream: async () => {},
       resumeStream: async (stream) => stream,
+      onFrameProcessed: (_probabilities, frame) => { if (current()) onFrame?.(frame); },
       onSpeechRealStart: () => {
         if (!current()) return;
         speechActive = true;

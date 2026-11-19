@@ -114,7 +114,7 @@ test("YouTube prepares host audio while the image is cued, then synchronizes tra
   await waitUntil(() => h.calls.some((c) => c.body?.action === "speed" && c.body.value === 1.5));
   await page.selectOption("#playback-target", "browser");
   await waitUntil(() => h.calls.some((c) => c.body?.action === "stop"));
-  assert.equal(await page.evaluate(() => testYoutube.muted), false);
+  await page.waitForFunction(() => testYoutube.muted === false);
   assert.deepEqual(h.errors, []);
 });
 

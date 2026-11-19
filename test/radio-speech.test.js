@@ -200,24 +200,102 @@ test("speech detection uses the player stream and disposes of its input when sto
   const stream = {};
   const statuses = [];
   let closed = false;
+  let emitFrame;
+  const captured = [];
   const previousWindow = globalThis.window;
   t.after(() => { globalThis.window = previousWindow; });
   globalThis.window = { vad: { MicVAD: { async new(options) {
     assert.equal(await options.getStream(), stream);
+    emitFrame = options.onFrameProcessed;
     return { start() {}, pause() {} };
   } } } };
   const detector = createRadioSpeechDetector({
     createInput: () => ({ stream, close() { closed = true; } }),
     onStopped() {},
+    onFrame: (frame) => captured.push(frame),
     onStatus: (status) => statuses.push(status)
   });
 
   await detector.start();
   assert.deepEqual(statuses, ["loading", "ready"]);
   assert.equal(detector.active, true);
+  const frame = new Float32Array([0.25]);
+  emitFrame({}, frame);
   detector.stop();
+  emitFrame({}, new Float32Array([0.5]));
+  assert.deepEqual(captured, [frame]);
   assert.equal(closed, true);
   assert.equal(detector.active, false);
+});
+
+test("audio classification runs only while enabled and ignores scores from old stations", async (t) => {
+  const { wireRadioAudioDiagnostics } = await import("../public/radio-audio-diagnostics.mjs");
+  const previousWorker = globalThis.Worker;
+  t.after(() => { globalThis.Worker = previousWorker; });
+  let worker;
+  globalThis.Worker = class extends EventTarget {
+    constructor() { super(); worker = this; }
+    postMessage(message) { this.sent = message; }
+    terminate() { this.terminated = true; }
+    emit(data) { this.dispatchEvent(new MessageEvent("message", { data })); }
+  };
+  const open = new EventTarget();
+  const close = new EventTarget();
+  const dialog = Object.assign(new EventTarget(), {
+    open: false,
+    showModal() { this.open = true; },
+    close() { this.open = false; this.dispatchEvent(new Event("close")); }
+  });
+  const status = { textContent: "" };
+  const scores = { textContent: "" };
+  let paint;
+  let disconnected = 0;
+  let spectrumRows = 0;
+  t.mock.method(globalThis, "setInterval", (callback) => { paint = callback; return 1; });
+  const context = {
+    clearRect() {}, beginPath() {}, moveTo() {}, lineTo() {}, stroke() {}, drawImage() {},
+    fillRect() { spectrumRows++; }
+  };
+  const canvas = { width: 8, height: 4, getContext: () => context };
+  const diagnostics = wireRadioAudioDiagnostics({
+    open, close, dialog, status, scores, waveform: canvas, spectrogram: canvas,
+    createAnalyser: () => ({
+      analyser: {
+        fftSize: 8, frequencyBinCount: 4, context: { sampleRate: 16000 },
+        getFloatTimeDomainData: (buffer) => buffer.fill(0.25),
+        getByteFrequencyData: (buffer) => buffer.fill(128)
+      },
+      close() { disconnected++; }
+    })
+  });
+  const frame = new Float32Array(512).fill(0.25);
+  diagnostics.setDetectorStatus("ready");
+  diagnostics.addFrame(frame);
+  assert.equal(worker, undefined);
+
+  open.dispatchEvent(new Event("click"));
+  assert.equal(dialog.open, true);
+  paint();
+  assert.equal(spectrumRows, canvas.height);
+  worker.emit({ ready: true });
+  for (let index = 0; index < 31; index++) diagnostics.addFrame(frame);
+  const { samples, generation } = worker.sent;
+  assert.equal(samples.length, 15600);
+  assert.equal(samples.at(-1), 0.25);
+  worker.emit({ generation, scores: [0.83, 0.05, 0.10] });
+  assert.equal(scores.textContent, "Speech 83% · Singing 5% · Music 10%");
+
+  diagnostics.setDetectorStatus("idle");
+  assert.equal(scores.textContent, "");
+  diagnostics.setDetectorStatus("ready");
+  worker.emit({ generation, scores: [0.01, 0.75, 0.95] });
+  assert.equal(scores.textContent, "");
+
+  close.dispatchEvent(new Event("click"));
+  assert.equal(dialog.open, false);
+  assert.equal(disconnected, 2);
+  assert.equal(worker.terminated, true);
+  assert.equal(status.textContent, "");
 });
 
 test("a pending play from an old station cannot restart speech analysis", async () => {

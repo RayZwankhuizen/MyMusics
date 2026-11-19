@@ -2,14 +2,15 @@ import { inferMetadataKind as classifyMetadataKind, isProgramMetadata as classif
 import { defaultRadioEqualizerPreset } from "./radio-equalizer-preset.mjs";
 import { createRadioStationView } from "./radio-station-view.mjs?v=favorites-view-1";
 import { createRadioStationManagement } from "./radio-station-management.mjs?v=station-delete-1";
-import { createRadioSpeechDetector } from "./radio-speech-detector.mjs?v=speech-audio-1";
+import { createRadioSpeechDetector } from "./radio-speech-detector.mjs?v=audio-diagnostics-1";
+import { wireRadioAudioDiagnostics } from "./radio-audio-diagnostics.mjs?v=diagnostics-dialog-1";
 import { createRadioSuppressionStore, metadataBlockKey as buildMetadataBlockKey, speechTrackKey } from "./radio-suppression-store.mjs";
 import { fetchTrackMetadata } from "./radio-track-metadata-api.mjs?v=lyrics-version-1";
 import { createRadioMetadataView } from "./radio-metadata-view.mjs";
 import { createRadioTrackDetailsView } from "./radio-track-details-view.mjs?v=optional-genius-1";
 import { createRadioHostOutput } from "./radio-host-output.mjs?v=radio-output-focus-1";
 import { createRadioNowPlaying } from "./radio-now-playing.mjs";
-import { createRadioEqualizerController } from "./radio-equalizer-controller.mjs?v=speech-audio-1";
+import { createRadioEqualizerController } from "./radio-equalizer-controller.mjs?v=diagnostics-dialog-1";
 import { createRadioHlsPlayback } from "./radio-hls-playback.mjs";
 import { createRadioBrowserPlayback } from "./radio-browser-playback.mjs?v=speech-timing-1";
 import { createRadioLyricsController } from "./radio-lyrics-controller.mjs?v=lyrics-step-1";
@@ -90,13 +91,28 @@ const browserPlayback = createRadioBrowserPlayback({
   speechSuppressionDisabled: (url) => speechSuppressionDisabledStations.has(url),
   startSpeechDetection
 });
+const audioDiagnostics = wireRadioAudioDiagnostics({
+  open: el("#radio-audio-diagnostics-open"),
+  dialog: el("#radio-audio-diagnostics-dialog"),
+  close: el("#radio-audio-diagnostics-close"),
+  status: el("#radio-audio-diagnostics-status"),
+  scores: el("#radio-audio-diagnostics-scores"),
+  waveform: el("#radio-diagnostics-waveform"),
+  spectrogram: el("#radio-diagnostics-spectrogram"),
+  createAnalyser: radioEqualizer.createDiagnosticsAnalyser
+});
 const speechDetector = createRadioSpeechDetector({
   createInput: radioEqualizer.createSpeechInput,
+  onFrame: audioDiagnostics.addFrame,
   onStopped: () => {
+    audioDiagnostics.setDetectorStatus("idle");
     suppressionController.setDetectorStatus("idle");
     suppressionController.setDucked(false);
   },
-  onStatus: (status) => suppressionController.setDetectorStatus(status),
+  onStatus: (status) => {
+    audioDiagnostics.setDetectorStatus(status);
+    suppressionController.setDetectorStatus(status);
+  },
   onSpeechStart: () => {
     suppressionController.onSpeechStart();
   },

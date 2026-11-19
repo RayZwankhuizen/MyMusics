@@ -182,6 +182,15 @@ export function createRadioEqualizerController({ getAudio, getStation, getStatio
         }
       };
     },
+    createDiagnosticsAnalyser() {
+      if (!ready || !context) return null;
+      const { context: audioContext, source } = context;
+      const analyser = audioContext.createAnalyser();
+      analyser.fftSize = 2048;
+      analyser.smoothingTimeConstant = 0.65;
+      source.connect(analyser);
+      return { analyser, close: () => source.disconnect(analyser) };
+    },
     getMeterLevels() {
       if (!ready || !context?.meterAnalysers?.length) return null;
       return context.meterAnalysers.map((analyser) => {

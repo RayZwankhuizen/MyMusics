@@ -31,6 +31,16 @@ html body.radio-page .receiver .radio-player-copy span{color:#c2c7d1;font-size:1
 html body.radio-page .receiver .radio-player-controls{display:flex;flex-wrap:wrap;gap:10px;width:100%}
 html body.radio-page .receiver #radio-suppression-activity{align-self:center;padding:4px 8px;border:1px solid #b99b62;border-radius:5px;background:#352914;color:#ffe8b0;font-size:12px}
 html body.radio-page .receiver #radio-suppression-activity:empty{position:absolute;padding:0;border:0}
+.radio-audio-diagnostics{width:min(780px,calc(100vw - 24px));max-height:calc(100vh - 24px);overflow:auto;padding:clamp(12px,3vw,22px);background:#111827;color:#e7edf9;border:1px solid #53617a;border-radius:12px}
+.radio-audio-diagnostics::backdrop{background:#05060ac7}
+.radio-diagnostics-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#radio-audio-diagnostics-title{margin:0}
+.radio-audio-diagnostics p{margin:8px 0;line-height:1.4}
+.radio-diagnostics-scores{color:#a5f3fc;font-variant-numeric:tabular-nums}
+.radio-audio-diagnostics figure{margin:12px 0 0}
+.radio-audio-diagnostics figcaption{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;margin-bottom:4px}
+.radio-diagnostics-frequency-label{color:#becade}
+.radio-audio-diagnostics canvas{display:block;width:100%;height:auto;background:#0d1320;border:1px solid #46516a;border-radius:6px}
 html body.radio-page .receiver :is(#radio-player-toggle,#radio-player-favorite){min-width:48px;min-height:48px}
 html body.radio-page .receiver #radio-player-favorite[aria-pressed="true"]{color:#ffbc67;border-color:currentColor}
 html body.radio-page .receiver #radio-player-volume{width:auto;flex:1;min-width:60px;max-width:260px}
