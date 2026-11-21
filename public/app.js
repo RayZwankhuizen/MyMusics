@@ -99,7 +99,8 @@ const audioDiagnostics = wireRadioAudioDiagnostics({
   scores: el("#radio-audio-diagnostics-scores"),
   waveform: el("#radio-diagnostics-waveform"),
   spectrogram: el("#radio-diagnostics-spectrogram"),
-  createAnalyser: radioEqualizer.createDiagnosticsAnalyser
+  createAnalyser: radioEqualizer.createDiagnosticsAnalyser,
+  getStation: () => activeStation
 });
 const speechDetector = createRadioSpeechDetector({
   createInput: radioEqualizer.createSpeechInput,

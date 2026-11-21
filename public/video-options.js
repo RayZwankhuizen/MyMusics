@@ -11,6 +11,7 @@ let iframePlayer;
 let iframePromise;
 let metadataAvailable = null;
 let iframeQueueKey = "";
+let loadingNoticeTimer;
 let queueSync = 0;
 let hostSyncBlocked = true;
 let preparingVideoId = "";
@@ -35,6 +36,16 @@ async function request(path, options) {
 function say(message) {
   statusEl.textContent = message;
   if ($("#video-search-dialog")?.open) $("#video-search-status").textContent = message;
+}
+function showLoadingNotice(item) {
+  clearTimeout(loadingNoticeTimer);
+  say(`Loading “${item.title}”…`);
+  loadingNoticeTimer = setTimeout(() => {
+    const state = iframePlayer?.getPlayerState?.();
+    if (![YT.PlayerState.PLAYING, YT.PlayerState.PAUSED, YT.PlayerState.ENDED].includes(state) && queue[current]?.id === item.id) {
+      say(`YouTube is taking longer than usual to load “${item.title}”. It may still start.`);
+    }
+  }, 15_000);
 }
 function playlistId() { return $("#saved-video-playlists").value; }
 
@@ -134,8 +145,13 @@ function renderList(element, items, mode) {
       action("Add", () => { queueCleared = false; queue.push(item); renderQueue(); say(`Added “${item.title}” to the queue.`); });
       action("Add to playlist", () => addToSelectedPlaylist(item));
     } else if (mode === "playlist-results") {
-      action("Show songs", () => showYoutubePlaylist(item.id, item.title));
+      action("Show songs", async () => {
+        if (!await showYoutubePlaylist(item.id, item.title)) return;
+        $("#video-search-dialog").close();
+        $("#open-video-queue").click();
+      });
       action("Play", async () => { await showYoutubePlaylist(item.id, item.title); if (queue.length) playAt(0); });
+      action("Save playlist", () => saveYoutubePlaylist(item.id, item.title));
     } else {
       action("Play", () => playAt(index));
       action("+ Playlist", () => addToSelectedPlaylist(item));
@@ -158,6 +174,16 @@ function renderQueue() {
   }
   $("#queue-count").textContent = `${queue.length} ${queue.length === 1 ? "video" : "videos"}`;
   $("#clear-video-queue").disabled = !queue.length;
+  $("#previous-video").disabled = !queue.length || current <= 0;
+  $("#next-video").disabled = !queue.length || current >= queue.length - 1;
+  renderNowPlayingActions();
+}
+
+function renderNowPlayingActions() {
+  const item = queue[current];
+  $("#add-current-video").disabled = !item;
+  const playlist = playlists.find((entry) => entry.id === loadedPlaylistId);
+  $("#remove-current-video").hidden = !item || !playlist?.items.some((video) => video.id === item.id);
 }
 
 async function playAt(index) {
@@ -170,6 +196,7 @@ async function playAt(index) {
   renderQueue();
   try {
     const embed = await ensureIframePlayer();
+    showLoadingNotice(item);
     const ids = embed.getPlaylist?.() || [];
     await stopHostVideo();
     if (window.MyMusicsPlayback?.isHost) {
@@ -185,8 +212,7 @@ async function playAt(index) {
       if (ids[index] === item.id) embed.playVideoAt(index);
       else embed.loadVideoById(item.id);
     }
-    say(`Loaded “${item.title}” in the YouTube player.`);
-  } catch (error) { say(error.message); }
+  } catch (error) { clearTimeout(loadingNoticeTimer); say(error.message); }
 }
 
 function iframeError(code) {
@@ -283,6 +309,36 @@ function showCurrentVideo() {
   }
   $("#video-title").textContent = info.title || item?.title || "Choose a video";
   $("#video-author").textContent = info.author || item?.artist || "";
+  renderNowPlayingActions();
+}
+
+function captureCurrentDuration(videoId, previous = null, attempt = 0) {
+  const item = queue[current];
+  if (!item || item.id !== videoId || iframePlayer?.getVideoData?.().video_id !== videoId) return;
+  const seconds = Math.floor(Number(iframePlayer.getDuration?.()) || 0);
+  if (!seconds) {
+    if (attempt < 5) setTimeout(() => captureCurrentDuration(videoId, previous, attempt + 1), 1000);
+    return;
+  }
+  if (previous === null) {
+    setTimeout(() => captureCurrentDuration(videoId, seconds, attempt + 1), 2000);
+    return;
+  }
+  if (seconds > previous + 1) return;
+  item.durationSeconds = seconds;
+  videoMetadata.set(videoId, { ...videoMetadata.get(videoId), id: videoId, durationSeconds: seconds });
+  renderQueue();
+  const playlist = playlists.find((entry) => entry.id === loadedPlaylistId && entry.items.some((video) => video.id === videoId));
+  if (!playlist || playlist.items.find((video) => video.id === videoId)?.durationSeconds === seconds) return;
+  void request(`/api/videos/playlists/${playlist.id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ durationUpdates: [{ id: videoId, durationSeconds: seconds }] })
+  }).then(() => {
+    playlists = playlists.map((entry) => entry.id !== playlist.id ? entry : {
+      ...entry, items: entry.items.map((video) => video.id === videoId ? { ...video, durationSeconds: seconds } : video)
+    });
+  }).catch((error) => say(`Track is playing, but its duration could not be saved locally: ${error.message}`));
 }
 
 async function loadQueueMetadata(ids, generation) {
@@ -315,12 +371,17 @@ function ensureIframePlayer() {
     window.onYouTubeIframeAPIReady = () => {
       iframePlayer = new YT.Player("youtube-player", {
         width: "100%", height: "100%",
-        playerVars: { playsinline: 1, origin: window.location.origin },
+        playerVars: { playsinline: 1, fs: 0, origin: window.location.origin },
         events: {
           onReady: (event) => { clearTimeout(timer); resolve(event.target); },
           onStateChange: (event) => {
             if (pageLeaving) return;
+            if (event.data === YT.PlayerState.PLAYING) {
+              clearTimeout(loadingNoticeTimer);
+              say("Playing in YouTube’s player.");
+            }
             if (event.data === YT.PlayerState.PLAYING || event.data === YT.PlayerState.CUED) syncIframeQueue();
+            if (event.data === YT.PlayerState.PLAYING) captureCurrentDuration(iframePlayer.getVideoData?.().video_id || "");
             if (event.data === YT.PlayerState.CUED && resumeAfterPrepare && !preparingVideoId) {
               preparingVideoId = iframePlayer.getVideoData?.().video_id || "";
             }
@@ -335,11 +396,11 @@ function ensureIframePlayer() {
               }
               if ([YT.PlayerState.PLAYING, YT.PlayerState.CUED].includes(event.data)) hostSyncBlocked = false;
               void hostSync.sync();
-            } else if (event.data === YT.PlayerState.PLAYING) say("Playing in YouTube’s player.");
+            }
             if (event.data === YT.PlayerState.ENDED && !queueCleared && current + 1 < queue.length) playAt(current + 1);
           },
           onPlaybackRateChange: () => { void hostSync.sync(); },
-          onError: (event) => { void stopHostVideo(); iframeError(event.data); },
+          onError: (event) => { clearTimeout(loadingNoticeTimer); void stopHostVideo(); iframeError(event.data); },
           onAutoplayBlocked: () => say("Autoplay was blocked. Press Play in YouTube’s player.")
         }
       });
@@ -371,6 +432,7 @@ async function refreshPlaylists(selected = playlistId()) {
   select.value = selected;
   $("#play-video-playlist").disabled = !select.value;
   renderTvPlaylistPicker();
+  renderNowPlayingActions();
 }
 
 async function updateSelectedPlaylist(items, message) {
@@ -397,6 +459,28 @@ async function addToSelectedPlaylist(item) {
     queue = selected.items.concat(item).map((video) => ({ ...video }));
     renderQueue();
   }
+}
+
+async function saveYoutubePlaylist(id, title) {
+  try {
+    say(`Importing “${title}”…`);
+    const data = await request(`/api/videos/playlist-items?id=${encodeURIComponent(id)}`);
+    const items = data.items.slice(0, 500);
+    const created = await request("/api/videos/playlists", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: title }) });
+    if (items.length) await request(`/api/videos/playlists/${created.playlist.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items }) });
+    await refreshPlaylists(created.playlist.id);
+    say(`Saved ${items.length} videos from “${title}” to your playlists${data.items.length > items.length ? ` (first ${items.length}; limit is 500)` : ""}.`);
+  } catch (error) { say(error.message); }
+}
+
+function youtubePlaylistId() {
+  try {
+    const url = new URL($("#video-playlist-url").value.trim());
+    if (!/(^|\.)youtube\.com$/.test(url.hostname) && url.hostname !== "youtu.be") throw new Error("Enter a YouTube playlist link.");
+    const id = url.searchParams.get("list");
+    if (!id) throw new Error("This link has no playlist ID.");
+    return id;
+  } catch (error) { say(error.message); return ""; }
 }
 
 function clearSearchResults() {
@@ -452,7 +536,8 @@ async function showYoutubePlaylist(list, title) {
     $("#queue-heading").textContent = title;
     renderQueue();
     say(`Loaded ${queue.length} songs from “${title}”.`);
-  } catch (error) { say(error.message); }
+    return true;
+  } catch (error) { say(error.message); return false; }
 }
 
 async function loadSavedPlaylist(selected, play = false) {
@@ -463,7 +548,7 @@ async function loadSavedPlaylist(selected, play = false) {
   iframePlayer?.clearVideo?.();
   await stopHostVideo();
   current = -1;
-  queue = await addDurations(selected.items.map((item) => ({ ...item })));
+  queue = selected.items.map((item) => ({ ...item }));
   loadedPlaylistId = selected.id;
   queueCleared = false;
   clearSearchResults();
@@ -568,11 +653,41 @@ $("#video-load-playlist").addEventListener("submit", async (event) => {
   finally { event.submitter.disabled = false; event.submitter.textContent = "Load"; }
 });
 
+$("#save-youtube-playlist").addEventListener("click", async () => {
+  const id = youtubePlaylistId();
+  if (!id) return;
+  const name = prompt("Name for this playlist:", `YouTube playlist ${id}`)?.trim();
+  if (!name) return;
+  const button = $("#save-youtube-playlist");
+  button.disabled = true;
+  try { await saveYoutubePlaylist(id, name); }
+  finally { button.disabled = false; }
+});
+
+$("#add-current-video").addEventListener("click", () => {
+  const item = queue[current];
+  if (item) void addToSelectedPlaylist(item);
+});
+
+$("#remove-current-video").addEventListener("click", async () => {
+  const item = queue[current];
+  const playlist = playlists.find((entry) => entry.id === loadedPlaylistId);
+  if (!item || !playlist?.items.some((video) => video.id === item.id)) return;
+  try {
+    await request(`/api/videos/playlists/${playlist.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items: playlist.items.filter((video) => video.id !== item.id) })
+    });
+    await refreshPlaylists(playlist.id);
+    say(`Removed “${item.title}” from “${playlist.name}”. Playback continues.`);
+  } catch (error) { say(error.message); }
+});
+
 $("#saved-video-playlists").addEventListener("change", () => {
   const selected = playlists.find((item) => item.id === playlistId());
   $("#play-video-playlist").disabled = !selected;
   renderTvPlaylistPicker();
-  if (selected) loadSavedPlaylist(selected);
 });
 
 window.addEventListener("mymusics:tv-mode-change", renderTvPlaylistPicker);
@@ -623,6 +738,7 @@ $("#clear-video-results").addEventListener("click", () => {
 
 window.addEventListener("pagehide", () => {
   pageLeaving = true;
+  clearTimeout(loadingNoticeTimer);
   iframePlayer?.stopVideo?.();
   clearInterval(hostSyncTimer);
   void stopHostVideo(true);
@@ -630,6 +746,19 @@ window.addEventListener("pagehide", () => {
 
 $("#previous-video").addEventListener("click", () => playAt(Math.max(0, current - 1)));
 $("#next-video").addEventListener("click", () => playAt(current + 1));
+$("#toggle-video-fullscreen").addEventListener("click", async () => {
+  const frame = $("#youtube-player-frame");
+  try {
+    if (document.fullscreenElement === frame) await document.exitFullscreen();
+    else await frame.requestFullscreen();
+  } catch { say("Fullscreen is not available in this browser."); }
+});
+document.addEventListener("fullscreenchange", () => {
+  const button = $("#toggle-video-fullscreen");
+  const active = document.fullscreenElement === $("#youtube-player-frame");
+  button.textContent = active ? "Exit fullscreen" : "Fullscreen";
+  button.setAttribute("aria-label", active ? "Exit fullscreen" : "Enter fullscreen");
+});
 Promise.all([
   request("/api/videos/status").then((data) => {
     metadataAvailable = data.metadataAvailable;

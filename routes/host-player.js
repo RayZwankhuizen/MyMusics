@@ -16,6 +16,7 @@ module.exports = function registerHostPlayerRoutes(app, { hostPlayer, getStation
     clearTimeout(hostPlaybackLease);
     hostPlaybackLease = null;
     hostPlaybackSession = "";
+    hostPlayer.stopRadioAnalysis?.();
   }
 
   function renewHostPlaybackLease(sessionId) {
@@ -107,6 +108,22 @@ module.exports = function registerHostPlayerRoutes(app, { hostPlayer, getStation
     try { res.json({ levels: await hostPlayer.radioLevel() || [] }); }
     catch { res.json({ levels: [] }); }
   });
+
+  app.post("/api/host-player/radio-analysis", (req, res) => {
+    if (!req.is("application/json")) return res.status(415).json({ error: "Radio analysis requests must use JSON." });
+    if (req.get("origin") !== `${req.protocol}://${req.get("host")}`) return res.status(403).json({ error: "Radio analysis must come from this MyMusics page." });
+    const url = String(req.body?.url || "");
+    const station = allStations().find((item) => item.url === url);
+    if (req.body?.action !== "stop" && !station) return res.status(400).json({ error: "Choose a saved radio station." });
+    if (req.body?.action !== "stop" && (station.type === "hls" || /\.m3u8(?:$|[?#])/i.test(url))) return res.status(415).json({ error: "Host analysis for HLS streams is not available yet." });
+    try {
+      if (req.body?.action === "stop") hostPlayer.stopRadioAnalysis();
+      else hostPlayer.startRadioAnalysis(url, { classify: req.body?.classify === true });
+      res.json(hostPlayer.radioAnalysisStatus());
+    } catch (error) { res.status(503).json({ error: error.message || "Could not start host audio analysis." }); }
+  });
+
+  app.get("/api/host-player/radio-analysis", (_req, res) => res.json(hostPlayer.radioAnalysisStatus()));
 
   app.get("/api/host-player/music-level", async (_req, res) => {
     try { res.json({ levels: await hostPlayer.musicLevel() || [] }); }

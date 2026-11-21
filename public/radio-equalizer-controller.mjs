@@ -10,6 +10,18 @@ export function createRadioEqualizerController({ getAudio, getStation, getStatio
   let frame = 0;
   let phase = 0;
   let filters = [];
+  let hostMeter;
+
+  function drawHostFrame() {
+    fetch("/api/host-player/radio-analysis", { cache: "no-store" }).then((response) => response.json()).then(({ frame, error }) => {
+      if (error) { document.querySelector("#equalizer-status").textContent = error; return; }
+      if (!frame?.waveform || !panel.open || !isHostOutput()) return;
+      const canvas = document.querySelector("#equalizer-visual");
+      const ctx = canvas.getContext("2d"); ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = "#74d8ff"; ctx.lineWidth = 2; ctx.beginPath();
+      frame.waveform.forEach((value, index) => { const x = index * canvas.width / (frame.waveform.length - 1); const y = canvas.height * (0.5 - value * 0.48); index ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.stroke();
+    }).catch(() => {});
+  }
 
   function setEnabled(value) {
     if (!ready) return;
@@ -73,6 +85,12 @@ export function createRadioEqualizerController({ getAudio, getStation, getStatio
   async function enable({ autoplay = true, forceBrowser = false } = {}) {
     if (isHostOutput() && !forceBrowser) {
       hostEqualizer.refresh();
+      const station = getStation();
+      if (station && !/\.m3u8(?:$|[?#])/i.test(station.url)) {
+        fetch("/api/host-player/radio-analysis", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: station.url, classify: false }) })
+          .then((response) => response.json()).then((result) => { if (!result.error) document.querySelector("#equalizer-status").textContent = "Host equalizer · waveform from MPV input"; });
+        clearInterval(hostMeter); hostMeter = setInterval(drawHostFrame, 500);
+      }
       return true;
     }
     if (ready) {
@@ -150,6 +168,8 @@ export function createRadioEqualizerController({ getAudio, getStation, getStatio
   panel.addEventListener("close", () => {
     document.querySelector("#equalizer-toggle").setAttribute("aria-expanded", "false");
     cancelAnimationFrame(frame);
+    clearInterval(hostMeter); hostMeter = undefined;
+    if (isHostOutput()) fetch("/api/host-player/radio-analysis", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "stop", url: getStation()?.url }) }).catch(() => {});
   });
   document.querySelector("#equalizer-reset").addEventListener("click", () => choosePreset("flat"));
   document.querySelector("#equalizer-sensitivity").addEventListener("input", (event) => {

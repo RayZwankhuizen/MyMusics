@@ -181,3 +181,6 @@ The queue, history, and no-repeat list live in the browser (`mymusics:dj-*` in l
 ## Network and access
 
 By default, the server listens on all network interfaces. Anyone who can reach it can use station and genre management and trigger an update from the published GitHub releases. Keep it on a trusted network; bind to `127.0.0.1` with `HOST=127.0.0.1` when it should only be available on the same machine. Do not expose it directly to the public internet without adding access protection.
+# Follow-up
+
+Host-side radio waveform, spectrum and classification currently use the shared MP3 proxy. HLS `.m3u8` URLs bypass that proxy; review HLS-aware stream fanout separately.

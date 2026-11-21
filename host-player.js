@@ -1,6 +1,6 @@
 const { equalizerFilter, validateEqualizer } = require("./host-equalizer");
-const { spawn } = require("node:child_process");
 const { promisify } = require("node:util");
+const { spawn } = require("node:child_process");
 const fs = require("node:fs/promises");
 const net = require("node:net");
 const os = require("node:os");
@@ -253,6 +253,7 @@ class HostPlayer {
     this.musicGains = { a: 1, b: 0 };
     this.fadeGeneration = 0;
     this.lastError = "";
+    this.radioAnalysis = { process: null, frame: null, error: "", url: "" };
   }
 
   async applyEqualizer(deck, equalizer) {
@@ -277,6 +278,7 @@ class HostPlayer {
   }
 
   async playRadio(url, volume = 100, equalizer) {
+    this.stopRadioAnalysis();
     this.fadeGeneration++;
     this.activeType = "";
     this.activeDeck = null;
@@ -286,6 +288,41 @@ class HostPlayer {
     this.activeDeck = "a";
     this.activeType = "radio";
     this.lastError = "";
+  }
+
+  startRadioAnalysis(url, { classify = false, port = Number(process.env.PORT) || 6565 } = {}) {
+    if (!url || !/^https?:\/\//i.test(url)) throw new Error("A valid radio URL is required.");
+    if (this.radioAnalysis.process && this.radioAnalysis.url === url && this.radioAnalysis.classify === classify) return;
+    this.stopRadioAnalysis();
+    const stream = `http://127.0.0.1:${port}/api/radio-stream?url=${encodeURIComponent(url)}`;
+    const python = process.env.MYMUSICS_ANALYSIS_PYTHON || "/opt/mymusics/venv-audio/bin/python3";
+    const script = require("node:path").join(__dirname, "scripts/radio-audio-analysis.py");
+    const child = spawn(python, [script, stream, classify ? "classify" : "visualize"], { stdio: ["ignore", "pipe", "ignore"] });
+    const state = this.radioAnalysis = { process: child, frame: null, error: "", url, classify };
+    let pending = "";
+    child.stdout.setEncoding("utf8");
+    child.stdout.on("data", (chunk) => {
+      pending += chunk;
+      let newline;
+      while ((newline = pending.indexOf("\n")) >= 0) {
+        const line = pending.slice(0, newline); pending = pending.slice(newline + 1);
+        try { const value = JSON.parse(line); if (value.error) state.error = value.error; else if (value.scores || value.waveform) state.frame = value; }
+        catch {}
+      }
+    });
+    child.on("error", (error) => { state.error = error.message; });
+    child.on("exit", (code) => { if (this.radioAnalysis === state) { state.process = null; if (code && !state.error) state.error = "Host audio analysis stopped."; } });
+  }
+
+  stopRadioAnalysis() {
+    const process = this.radioAnalysis?.process;
+    this.radioAnalysis = { process: null, frame: null, error: "", url: "" };
+    if (process && process.exitCode === null) process.kill("SIGTERM");
+  }
+
+  radioAnalysisStatus() {
+    const { process, frame, error } = this.radioAnalysis;
+    return { running: Boolean(process), error, frame };
   }
 
   async playVideo(videoId, startSeconds = 0, { paused = false } = {}) {

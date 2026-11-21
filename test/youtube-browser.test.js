@@ -18,10 +18,11 @@ test.after(async () => {
   if (server) await new Promise((resolve) => server.close(resolve));
 });
 
-async function setup(t, { host = false, waitForLoad } = {}) {
+async function setup(t, { host = false, waitForLoad, savedPlaylist = false } = {}) {
   const page = await browser.newPage();
   t.after(() => page.close());
   const calls = [], errors = [];
+  let savedItems = [{ id: "abcdefghijk", title: "Playlist track", artist: "Test artist" }];
   let status = { activeType: "", videoId: "", decks: { a: { time: 0, paused: true, playing: false } } };
   page.on("pageerror", (error) => errors.push(error.message));
   await page.addInitScript((useHost) => {
@@ -57,7 +58,15 @@ async function setup(t, { host = false, waitForLoad } = {}) {
     let data = {};
     if (url.pathname === "/api/host-player/mpv") data = { installed: true, youtubeResolverInstalled: true };
     if (url.pathname === "/api/videos/status") data = { searchAvailable: true, metadataAvailable: true };
-    if (url.pathname === "/api/videos/playlists") data = { playlists: [] };
+    if (url.pathname === "/api/videos/playlists" && route.request().method() === "GET") data = { playlists: savedPlaylist ? [
+      { id: "saved-1", name: "Saved list", items: savedItems },
+      { id: "saved-2", name: "Second list", items: [{ id: "lmnopqrstuv", title: "Second track", artist: "Other artist" }] }
+    ] : [] };
+    if (url.pathname === "/api/videos/playlists/saved-1" && route.request().method() === "PATCH") {
+      savedItems = body.items;
+      data = { playlist: { id: "saved-1", name: "Saved list", items: savedItems } };
+    }
+    if (url.pathname === "/api/videos/playlist-items") data = { items: [{ id: "abcdefghijk", title: "Playlist track", artist: "Test artist" }] };
     if (url.pathname === "/api/videos/details") data = { videos: url.searchParams.get("ids").split(",").map((id) => ({ id, durationSeconds: 245 })) };
     if (["/api/videos/search", "/api/videos/search-playlists"].includes(url.pathname)) {
       const second = url.searchParams.has("pageToken");
@@ -174,4 +183,44 @@ test("YouTube playlist searches also paginate and the expanded view fits a narro
   assert.ok((await page.locator("#video-search-dialog #video-results img").first().boundingBox()).width >= 190);
   await page.keyboard.press("Escape");
   await page.locator("#video-search-dialog").waitFor({ state: "hidden" });
+});
+
+test("Show songs opens the loaded YouTube playlist in the queue dialog", async (t) => {
+  const { page, errors } = await setup(t);
+  await page.locator("#open-video-search").click();
+  await page.locator("#video-playlist-query").fill("jazz playlist");
+  await page.locator('#video-playlist-search button[type="submit"]').click();
+  await page.waitForFunction(() => document.querySelectorAll("#video-results li").length === 10);
+  await page.locator("#video-results li").first().getByRole("button", { name: "Show songs" }).click();
+  await page.locator("#video-queue-dialog").waitFor({ state: "visible" });
+  assert.equal(await page.locator("#video-queue-dialog #video-queue .item-title").first().textContent(), "Playlist track");
+  assert.deepEqual(errors, []);
+});
+
+test("Remove from playlist is available during saved-playlist playback and keeps playback running", async (t) => {
+  const { page, calls, errors } = await setup(t, { savedPlaylist: true });
+  await page.selectOption("#saved-video-playlists", "saved-1");
+  await page.locator("#play-video-playlist").click();
+  await page.waitForFunction(() => window.testYoutube?.state === 1);
+  const remove = page.locator("#remove-current-video");
+  await remove.waitFor({ state: "visible" });
+  await remove.click();
+  await page.waitForFunction(() => document.querySelector("#video-status").textContent.includes("Playback continues"));
+  assert.deepEqual(calls.find((call) => call.path === "/api/videos/playlists/saved-1" && call.body?.items)?.body.items, []);
+  assert.equal(await page.evaluate(() => testYoutube.state), 1);
+  assert.equal(await remove.isVisible(), false);
+  assert.deepEqual(errors, []);
+});
+
+test("Switching saved playlists requires Load playlist and replaces the active video", async (t) => {
+  const { page, errors } = await setup(t, { savedPlaylist: true });
+  await page.selectOption("#saved-video-playlists", "saved-1");
+  await page.locator("#play-video-playlist").click();
+  await page.waitForFunction(() => window.testYoutube?.id === "abcdefghijk");
+  await page.selectOption("#saved-video-playlists", "saved-2");
+  assert.equal(await page.evaluate(() => window.testYoutube.id), "abcdefghijk");
+  assert.equal(await page.locator("#play-video-playlist").textContent(), "Load playlist");
+  await page.locator("#play-video-playlist").click();
+  await page.waitForFunction(() => window.testYoutube?.id === "lmnopqrstuv");
+  assert.deepEqual(errors, []);
 });

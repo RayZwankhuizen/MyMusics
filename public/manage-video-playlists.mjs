@@ -6,6 +6,12 @@ export function wireManageVideoPlaylists({ el, request }) {
   const moveForm = el("#video-move-form");
   const moveTarget = el("#video-move-target");
   const moveDescription = el("#video-move-description");
+  const duplicatesDialog = el("#video-duplicates-dialog");
+  const duplicatesList = el("#video-duplicates-list");
+  const duplicatesButton = el("#video-find-duplicates");
+  const duplicatesStatus = el("#video-duplicates-status");
+  const duplicatesRemove = el("#video-duplicates-remove");
+  const duplicatesSelected = el("#video-duplicates-selected");
   const statusEl = el("#video-playlist-status");
   const importInput = el("#video-playlist-import-input");
   const previewButton = el("#video-playlist-preview-button");
@@ -68,11 +74,12 @@ export function wireManageVideoPlaylists({ el, request }) {
     }
     updatePreviewControls();
   }
-  const button = (label, action) => {
+  const button = (label, action, disabled = false) => {
     const control = document.createElement("button");
     control.type = "button";
     control.className = "text-button";
     control.textContent = label;
+    control.disabled = disabled;
     control.addEventListener("click", action);
     return control;
   };
@@ -96,7 +103,7 @@ export function wireManageVideoPlaylists({ el, request }) {
     }
     const list = document.createElement("div");
     list.className = "video-track-list";
-    for (const video of playlist.items) {
+    for (const [index, video] of playlist.items.entries()) {
       const entry = document.createElement("div");
       entry.className = "video-track-entry";
       const row = document.createElement("div");
@@ -119,6 +126,8 @@ export function wireManageVideoPlaylists({ el, request }) {
       actions.className = "station-actions video-track-actions";
       const move = button("Move", () => openMoveDialog(playlist, video));
       actions.append(
+        button("Move up", () => reorderTrack(playlist, index, -1), index === 0),
+        button("Move down", () => reorderTrack(playlist, index, 1), index === playlist.items.length - 1),
         button(infoVideoId === video.id ? "Hide info" : "Info", () => {
           infoVideoId = infoVideoId === video.id ? "" : video.id;
           renderTracks();
@@ -190,6 +199,7 @@ export function wireManageVideoPlaylists({ el, request }) {
     picker.replaceChildren(new Option("Select playlist", ""));
     for (const playlist of playlists) picker.add(new Option(`${playlist.name} (${playlist.items.length})`, playlist.id));
     picker.value = selectedId;
+    duplicatesButton.textContent = `Find duplicates (${findDuplicateGroups().reduce((count, group) => count + group.items.length - 1, 0)})`;
     listEl.replaceChildren();
     for (const playlist of playlists) {
       const row = document.createElement("div");
@@ -234,7 +244,151 @@ export function wireManageVideoPlaylists({ el, request }) {
       await request(`/api/videos/playlists/${playlist.id}`, "PATCH", changes);
       await refresh();
       say(message);
-    } catch (error) { say(error.message); }
+      return true;
+    } catch (error) { say(error.message); return false; }
+  }
+
+  const normalize = (value) => String(value || "").normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase().replace(/\s+/g, " ").trim();
+  const unavailable = new Set(["deleted video", "private video", "video unavailable", "video title unavailable", "unknown title", "artist unavailable", "unknown artist"]);
+  const trackKey = (item) => {
+    const [title, artist] = [item.title, item.artist].map(normalize);
+    return !title || !artist || unavailable.has(title) || unavailable.has(artist) ? "" : `${title}\0${artist}`;
+  };
+
+  function findDuplicateGroups() {
+    const groups = new Map();
+    for (const playlist of playlists) for (const [index, video] of playlist.items.entries()) {
+      const key = trackKey(video);
+      if (!key) continue;
+      if (!groups.has(key)) groups.set(key, { title: video.title, artist: video.artist, items: [] });
+      groups.get(key).items.push({ playlist, video, index });
+    }
+    return [...groups.values()].filter((group) => group.items.length > 1);
+  }
+
+  function renderDuplicateGroups() {
+    const groups = findDuplicateGroups();
+    const unverified = playlists.flatMap((playlist) => playlist.items.flatMap((video, index) => trackKey(video) ? [] : [{ playlist, video, index }]));
+    duplicatesList.replaceChildren();
+    duplicatesStatus.textContent = `${groups.length ? `${groups.length} duplicate groups found.` : "No confirmed duplicate groups found."}${unverified.length ? ` ${unverified.length} items have unavailable titles or artists.` : ""}`;
+    if (!groups.length) duplicatesList.append(Object.assign(document.createElement("p"), { textContent: "No confirmed duplicate groups." }));
+    for (const [groupIndex, group] of groups.entries()) {
+      const section = document.createElement("section");
+      section.className = "video-duplicate-group";
+      const heading = document.createElement("strong");
+      heading.textContent = `${group.title} · ${group.artist || "Artist unavailable"}`;
+      section.append(heading);
+      group.items.forEach(({ playlist, video, index }) => {
+        const row = document.createElement("div");
+        row.className = "video-duplicate-row";
+        const details = document.createElement("div");
+        details.className = "video-duplicate-details";
+        const track = document.createElement("strong");
+        track.textContent = video.title || "Title unavailable";
+        const artist = document.createElement("span");
+        artist.textContent = `Artist: ${video.artist || "Artist unavailable"}`;
+        const location = document.createElement("span");
+        location.textContent = `Playlist: ${playlist.name} · Video ${index + 1} of ${playlist.items.length}`;
+        const link = document.createElement("a");
+        link.href = `https://www.youtube.com/watch?v=${encodeURIComponent(video.id)}`;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = `Open video · ${video.id}`;
+        details.append(track, artist, location, link);
+        const label = document.createElement("label");
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.dataset.playlistId = playlist.id;
+        checkbox.dataset.itemIndex = String(index);
+        checkbox.dataset.groupIndex = String(groupIndex);
+        checkbox.addEventListener("change", updateDuplicateSelection);
+        label.append(checkbox, document.createTextNode(" Remove this copy"));
+        row.append(details, label);
+        section.append(row);
+      });
+      duplicatesList.append(section);
+    }
+    if (unverified.length) {
+      const section = document.createElement("section");
+      section.className = "video-duplicate-group";
+      section.append(Object.assign(document.createElement("strong"), { textContent: "Unverified items · metadata unavailable" }));
+      for (const { playlist, video, index } of unverified) {
+        const row = document.createElement("div");
+        row.className = "video-duplicate-row";
+        const details = document.createElement("div");
+        details.className = "video-duplicate-details";
+        details.append(
+          Object.assign(document.createElement("strong"), { textContent: video.title || "Title unavailable" }),
+          Object.assign(document.createElement("span"), { textContent: `Artist: ${video.artist || "Artist unavailable"}` }),
+          Object.assign(document.createElement("span"), { textContent: `Playlist: ${playlist.name} · Video ${index + 1} of ${playlist.items.length}` })
+        );
+        const link = document.createElement("a");
+        link.href = `https://www.youtube.com/watch?v=${encodeURIComponent(video.id)}`;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = `Open video · ${video.id}`;
+        details.append(link);
+        const label = document.createElement("label");
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.dataset.playlistId = playlist.id;
+        checkbox.dataset.itemIndex = String(index);
+        checkbox.addEventListener("change", updateDuplicateSelection);
+        label.append(checkbox, document.createTextNode(" Remove this copy"));
+        row.append(details, label);
+        section.append(row);
+      }
+      duplicatesList.append(section);
+    }
+    updateDuplicateSelection();
+  }
+
+  function updateDuplicateSelection() {
+    const count = duplicatesList.querySelectorAll("input[type=checkbox]:checked").length;
+    duplicatesSelected.textContent = `${count} ${count === 1 ? "copy" : "copies"} selected`;
+    duplicatesRemove.disabled = !count;
+    duplicatesRemove.textContent = count ? `Remove selected copies (${count})` : "Remove selected copies";
+  }
+
+  async function removeSelectedDuplicates() {
+    const selected = [...duplicatesList.querySelectorAll("input[type=checkbox]:checked")];
+    if (!selected.length) return;
+    const selectedKeys = new Set(selected.map((input) => `${input.dataset.playlistId}\0${input.dataset.itemIndex}`));
+    if (findDuplicateGroups().some((group) => group.items.every(({ playlist, index }) => selectedKeys.has(`${playlist.id}\0${index}`)))) {
+      duplicatesStatus.textContent = "Keep at least one copy in each duplicate group.";
+      return;
+    }
+    const removals = new Map();
+    for (const input of selected) {
+      const indices = removals.get(input.dataset.playlistId) || new Set();
+      indices.add(Number(input.dataset.itemIndex));
+      removals.set(input.dataset.playlistId, indices);
+    }
+    let removed = 0;
+    for (const [playlistId, indices] of removals) {
+      const playlist = playlists.find((item) => item.id === playlistId);
+      if (!playlist) continue;
+      try {
+        await request(`/api/videos/playlists/${playlist.id}`, "PATCH", { items: playlist.items.filter((_, index) => !indices.has(index)) });
+        removed += indices.size;
+      } catch (error) {
+        await refresh();
+        renderDuplicateGroups();
+        duplicatesStatus.textContent = `Removed ${removed} copies before an error: ${error.message}`;
+        return;
+      }
+    }
+    await refresh();
+    renderDuplicateGroups();
+    duplicatesStatus.textContent = `Removed ${removed} selected copies.`;
+  }
+
+  function reorderTrack(playlist, index, offset) {
+    const target = index + offset;
+    if (target < 0 || target >= playlist.items.length) return;
+    const items = [...playlist.items];
+    [items[index], items[target]] = [items[target], items[index]];
+    void update(playlist, { items }, "Playlist order saved.");
   }
 
   function openMoveDialog(playlist, video) {
@@ -303,6 +457,9 @@ export function wireManageVideoPlaylists({ el, request }) {
   });
 
   moveTarget.addEventListener("change", () => { moveForm.querySelector('[type="submit"]').disabled = !moveTarget.value; });
+  duplicatesButton.addEventListener("click", () => { renderDuplicateGroups(); duplicatesDialog.showModal(); });
+  el("#video-duplicates-close").addEventListener("click", () => duplicatesDialog.close());
+  duplicatesRemove.addEventListener("click", () => { void removeSelectedDuplicates(); });
   el("#video-move-cancel").addEventListener("click", () => moveDialog.close());
   moveDialog.addEventListener("close", () => { pendingMove = null; });
   moveForm.addEventListener("submit", async (event) => {

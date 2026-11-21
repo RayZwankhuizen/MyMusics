@@ -13,7 +13,7 @@ import { wireManageStationPreview } from "./manage-station-preview.mjs";
 import { wireManageBrowserInfo } from "./manage-browser-info.mjs";
 import { wireManageStationLogoBatch } from "./manage-station-logo-batch.mjs?v=temporary-logo-batch-1";
 import { wireManageAllStations } from "./manage-all-stations.mjs?v=temporary-all-stations-1";
-import { wireManageVideoPlaylists } from "./manage-video-playlists.mjs?v=youtube-playlist-tools-1";
+import { wireManageVideoPlaylists } from "./manage-video-playlists.mjs?v=youtube-duplicate-review-3";
 
 const el = (selector) => document.querySelector(selector);
 const exportButton = el("#export-saved-data");

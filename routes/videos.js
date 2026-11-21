@@ -157,8 +157,19 @@ module.exports = function registerVideoRoutes(app, { storage }) {
         title: String(item.title).slice(0, 300),
         artist: String(item.artist || item.author || "").slice(0, 160),
         genre: String(item.genre || "").slice(0, 80),
-        thumbnail: typeof item.thumbnail === "string" && item.thumbnail.startsWith("https://") ? item.thumbnail : null
+        thumbnail: typeof item.thumbnail === "string" && item.thumbnail.startsWith("https://") ? item.thumbnail : null,
+        ...(Number.isSafeInteger(item.durationSeconds) && item.durationSeconds >= 0 ? { durationSeconds: item.durationSeconds } : {})
       }));
+    }
+    if (req.body?.durationUpdates !== undefined) {
+      const updates = req.body.durationUpdates;
+      if (!Array.isArray(updates) || updates.length > 500 || updates.some((item) => !item || !videoIdPattern.test(item.id || "") || !Number.isSafeInteger(item.durationSeconds) || item.durationSeconds < 0)) {
+        return res.status(400).json({ error: "Playlist durations are invalid." });
+      }
+      const durations = new Map(updates.map(({ id, durationSeconds }) => [id, durationSeconds]));
+      playlist.items = playlist.items.map((item) => durations.has(item.id) && item.durationSeconds !== durations.get(item.id)
+        ? { ...item, durationSeconds: durations.get(item.id) }
+        : item);
     }
     playlist.updatedAt = new Date().toISOString();
     writePlaylists(playlists);

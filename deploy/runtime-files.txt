@@ -4,6 +4,7 @@ jellyfin.js
 jellyfin-autodj.js
 jellyfin-catalog.js
 host-player.js
+scripts/radio-audio-analysis.py
 host-equalizer.js
 playlists.js
 music-genres.js

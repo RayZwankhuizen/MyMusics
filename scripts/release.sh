@@ -12,6 +12,29 @@ default_message=""
 if [[ -f .release-message ]]; then
   default_message=$(cat .release-message)
 fi
+if [[ -z "$default_message" ]]; then
+  changed_files=$( { git diff --name-only HEAD; git ls-files --others --exclude-standard; } | sort -u )
+  features=()
+  if grep -Eq '(^|/)(video-options\.js|youtube\.html|manage-video-playlists\.mjs|videos\.js|video-playlists\.json)$' <<<"$changed_files"; then
+    features+=("YouTube playback and playlists")
+  fi
+  if grep -Eq '(^|/)(host-player\.js|mymusics-install-mpv\.sh|runtime-files\.txt)$' <<<"$changed_files"; then
+    features+=("host audio playback")
+  fi
+  if grep -Eq '(^|/)(radio-audio-diagnostics\.mjs|radio-equalizer-controller\.mjs|radio-audio-analysis\.py)$' <<<"$changed_files"; then
+    features+=("radio diagnostics")
+  fi
+  if ((${#features[@]} == 0)); then
+    features+=("MyMusics updates")
+  fi
+  if ((${#features[@]} == 1)); then
+    default_message="Improve ${features[0]}"
+  elif ((${#features[@]} == 2)); then
+    default_message="Improve ${features[0]} and ${features[1]}"
+  else
+    default_message="Improve ${features[0]}, ${features[1]}, and ${features[2]}"
+  fi
+fi
 if [[ -n "$default_message" ]]; then
   read -rp "Commit message [$default_message]: " message
   message=${message:-$default_message}

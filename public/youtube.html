@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="/style.css?v=mode-switch-youtube-4">
   <link rel="stylesheet" href="/app-theme.css?v=tv-toggle-fixed-1">
   <link rel="stylesheet" href="/silk-tv.css?v=silk-tv-7">
-  <link rel="stylesheet" href="/video-options.css?v=video-dialogs-duration-2">
+  <link rel="stylesheet" href="/video-options.css?v=player-slow-load-1">
   <script defer src="/playback-target.js?v=host-playback-lease-1"></script>
   <script defer src="/tv-navigation.js?v=tv-navigation-5"></script>
   <link rel="stylesheet" href="/sidebar-footer.css?v=1">
@@ -30,8 +30,8 @@
     <main class="video-main-content">
       <section class="video-workspace" aria-label="Video player and playlist">
         <div class="video-main">
-          <div class="player-frame"><div id="youtube-player" title="YouTube video player"></div></div>
-          <div class="video-now"><div><p class="eyebrow">Now playing</p><h2 id="video-title">Choose a video</h2><p id="video-author"></p></div><div class="transport"><button id="previous-video" type="button" aria-label="Previous video">Previous</button><button id="next-video" type="button">Next</button></div></div>
+          <div id="youtube-player-frame" class="player-frame"><div id="youtube-player" title="YouTube video player"></div><nav class="video-player-transport" aria-label="Video navigation"><button id="previous-video" type="button" aria-label="Previous video" disabled>Previous</button><div><button id="next-video" type="button" disabled>Next</button><button id="toggle-video-fullscreen" type="button" aria-label="Enter fullscreen">Fullscreen</button></div></nav></div>
+          <div class="video-now"><div><p class="eyebrow">Now playing</p><h2 id="video-title">Choose a video</h2><p id="video-author"></p></div><div class="transport"><button id="add-current-video" type="button" disabled>Add to playlist</button><button id="remove-current-video" type="button" hidden>Remove from playlist</button></div></div>
           <div class="video-dialog-shortcuts"><button id="open-video-search" type="button" aria-haspopup="dialog" aria-controls="video-search-dialog">Search</button><button id="open-video-queue" type="button" aria-haspopup="dialog" aria-controls="video-queue-dialog">Show queue</button></div>
           <p id="video-status" class="video-status" role="status">Playback follows the selected audio output.</p>
         </div>
@@ -40,8 +40,8 @@
           <form id="video-search" class="video-search"><label for="video-query">Search songs or artists</label><div><input id="video-query" type="search" minlength="2" maxlength="120" placeholder="Artist, track or video" required><button type="submit">Search</button></div></form>
           <form id="video-playlist-search" class="video-search"><label for="video-playlist-query">Search YouTube playlists</label><div><input id="video-playlist-query" type="search" minlength="2" maxlength="120" placeholder="Playlist name or artist" required><button type="submit">Search playlists</button></div></form>
           </div></div>
-          <form id="video-load-playlist" class="video-search"><label for="video-playlist-url">Load YouTube video or playlist</label><div><input id="video-playlist-url" type="url" placeholder="Paste a YouTube link" required><button type="submit">Load</button></div></form>
-          <div class="saved-playlists"><label for="saved-video-playlists">Choose playlist</label><div><select id="saved-video-playlists"><option value="">Select playlist</option></select><button id="play-video-playlist" type="button" disabled>Play</button></div></div>
+          <form id="video-load-playlist" class="video-search"><label for="video-playlist-url">Load YouTube video or playlist</label><div><input id="video-playlist-url" type="url" placeholder="Paste a YouTube link" required><button type="submit">Load</button><button id="save-youtube-playlist" type="button">Save playlist</button></div></form>
+          <div class="saved-playlists"><label for="saved-video-playlists">Choose playlist</label><div><select id="saved-video-playlists"><option value="">Select playlist</option></select><button id="play-video-playlist" type="button" disabled>Load playlist</button></div></div>
           <div id="video-results-home"><div id="video-results-content">
           <div class="results-bar"><h3 id="results-heading" class="results-heading" hidden>Search results</h3><button id="clear-video-results" class="results-clear" type="button" hidden>Show playlist only</button></div>
           <ol id="video-results" class="video-queue search-results" aria-label="Search results"></ol>
@@ -64,7 +64,7 @@
     <header class="video-dialog-heading"><h2 id="video-queue-dialog-title">YouTube queue</h2><button type="button" data-close-video-dialog>Close</button></header>
     <div class="video-dialog-body" id="video-queue-dialog-body"></div>
   </dialog>
-  <script type="module" src="/video-options.js?v=video-dialogs-sync-duration-2"></script>
+  <script type="module" src="/video-options.js?v=player-slow-load-1"></script>
   <script type="module" src="/app-meta.js?v=sidebar-footer-1"></script>
 </body>
 </html>

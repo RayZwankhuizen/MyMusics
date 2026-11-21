@@ -7,6 +7,7 @@ body.video-page main.video-main-content{max-width:1300px;margin-left:235px;paddi
 .player-frame::before{display:block;padding-top:56.25%;content:""}
 .player-frame>video,.player-frame>#youtube-player,.player-frame>iframe{position:absolute;inset:0;width:100%;height:100%;max-height:none;border:0}
 .player-frame>video{object-fit:contain}
+.video-player-transport{position:absolute;z-index:2;right:12px;bottom:58px;left:12px;display:flex;justify-content:space-between;pointer-events:none}.video-player-transport>div{display:flex;gap:8px}.video-player-transport button{pointer-events:auto;background:#101826e8!important;border-color:#ffffff45!important;box-shadow:0 2px 8px #0008}.player-frame:fullscreen{width:100vw;height:100vh;max-height:none;aspect-ratio:auto;border-radius:0;background:#000}.player-frame:fullscreen::before{display:none}.player-frame:fullscreen .video-player-transport{bottom:72px}
 .video-now{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 4px 4px}
 .video-now .eyebrow{margin:0 0 4px;color:var(--muted);font:500 12px/1.3 var(--sans);letter-spacing:0;text-transform:none}
 .video-now h2{margin:0;font-size:20px;font-weight:500}
